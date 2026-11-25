@@ -260,7 +260,7 @@ for (const f of ALL_PAGES) {
 /* ---------- 10g. 导航标签必须全站一致 ---------- */
 {
   // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
-  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项', '冲刺计划'];
+  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项', '冲刺计划', '演示'];
   for (const f of ALL_PAGES) {
     const html = readFileSync(f, 'utf8');
     const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
@@ -289,6 +289,34 @@ for (const f of ALL_PAGES) {
   // book.html 不应再生成
   const exists = (() => { try { readFileSync('book.html'); return true; } catch { return false; } })();
   ok(!exists, 'book.html 已删除且不再生成');
+}
+
+/* ---------- 10i. 演示页（slides.html） ---------- */
+{
+  const html = readFileSync('slides.html', 'utf8');
+
+  // 12 页，每页都有 title 与内容
+  const slides = (html.match(/class="slide/g) || []).length;
+  ok(slides === 12, `slides.html 共 ${slides} 页`);
+
+  // 核心数字必须与派生值一致
+  ok(html.includes(`>${PAPER_STATS[0].mainTotal}<small>分</small>`), `演示页显示必做 ${PAPER_STATS[0].mainTotal} 分`);
+  ok(html.includes(`${fmt(MODE_SCORE.select.avg)}`), `演示页含选择型 ${fmt(MODE_SCORE.select.avg)} 分`);
+  ok(html.includes(`${fmt(MODE_SCORE.write.avg)}`), `演示页含输出型 ${fmt(MODE_SCORE.write.avg)} 分`);
+
+  // 不得残留未渲染占位符 / 裸 Markdown
+  const left = html.match(/\$\{[A-Za-z_][A-Za-z0-9_]*\}/g) || [];
+  ok(left.length === 0, `slides.html 无未渲染占位符（发现 ${left.length}）`);
+  ok((html.match(/\*\*/g) || []).length === 0, 'slides.html 无裸 Markdown 星号');
+
+  // 不得出现「N 年」硬编码（应用中文数字）
+  ok(!/\d+ 年一动没动/.test(html), 'slides.html 无「N 年一动没动」硬编码');
+
+  // 翻页脚本关键能力
+  ok(html.includes('ArrowRight'), 'slides.html 支持方向键翻页');
+  ok(html.includes('requestFullscreen'), 'slides.html 支持全屏');
+  ok(html.includes('ov-grid'), 'slides.html 有总览模式');
+  ok(/\[\?&\]p=\(\\d\+\)/.test(html) || html.includes('p=(\d+)'), 'slides.html 支持 ?p=N 跳页');
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */
