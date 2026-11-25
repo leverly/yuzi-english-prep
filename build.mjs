@@ -467,6 +467,38 @@ ul.clean li b{color:var(--text);font-weight:650}
 .heat-scroll-hint{display:none;font-size:11.8px;color:var(--text-3);margin-top:8px;align-items:center;gap:5px}
 .heat-scroll-hint b{color:var(--accent);font-weight:650}
 @media(max-width:820px){.heat-scroll-hint{display:flex}}
+
+/* 页内自测：给音标填单词，即时判分 */
+.quiz{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;box-shadow:var(--shadow-1)}
+.quiz-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.quiz-head h3{margin:0;font-size:15.5px}
+.quiz-score{margin-left:auto;font-size:13px;font-weight:700;color:var(--text-2);font-variant-numeric:tabular-nums}
+.quiz-score b{color:var(--accent);font-size:16px}
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:9px}
+.quiz-item{display:grid;grid-template-columns:auto 96px 1fr;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);transition:.15s var(--ease)}
+.quiz-item .qi-ipa{font-family:var(--mono);font-size:13px;font-weight:650;color:var(--text);white-space:nowrap}
+.quiz-item .qi-hint{font-size:11.5px;color:var(--text-3);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word;grid-column:3}
+.quiz-item input{
+  width:96px;padding:5px 8px;border:1px solid var(--border-2);border-radius:6px;
+  font-family:var(--mono);font-size:13px;background:var(--bg-2);color:var(--text);
+}
+.quiz-item input:focus{outline:2px solid var(--accent-soft-2);border-color:var(--accent)}
+.quiz-item.ok{border-color:rgba(16,185,129,.5);background:var(--ok-soft)}
+.quiz-item.ok input{border-color:var(--ok);color:var(--ok);font-weight:700}
+.quiz-item.bad{border-color:rgba(225,29,72,.45);background:var(--rose-soft)}
+.quiz-item.bad input{border-color:var(--rose);color:var(--rose)}
+.quiz-item .qi-ans{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--rose);display:none}
+.quiz-item.bad .qi-ans{display:inline}
+.quiz-actions{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.quiz-btn{
+  padding:8px 16px;border-radius:9px;border:1px solid var(--border-2);background:var(--surface);
+  font-size:13.2px;font-weight:650;color:var(--text);cursor:pointer;transition:.15s var(--ease);
+}
+.quiz-btn:hover{background:var(--bg-3)}
+.quiz-btn.primary{background:var(--accent-grad);color:#fff;border-color:transparent;box-shadow:var(--shadow-accent)}
+.quiz-btn.ghost{color:var(--text-3);background:transparent;border-color:transparent}
+.quiz-btn.ghost:hover{color:var(--text);background:var(--bg-3)}
+.quiz-tip{font-size:12.2px;color:var(--text-3)}
 .hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
 .hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
@@ -1366,6 +1398,102 @@ ${specialHead(
     `单词、语法、阅读、写作四部分，每部分一页；语法再分单选语法族与汉译英两页。全部基于 ${N_PAPERS} 套真题。`, body);
 }
 
+/* 页内自测：16 个音标词，给音标 + 中文提示，学生填英文，即时判分。
+   这是把「考情分析」变成「能练」的最小一步——不需要后端，纯前端。 */
+function spellQuiz() {
+  const items = SPELL_ITEMS.map((it, i) => {
+    // 语境提示：截取空格附近的片段，够判断词义即可，不直接给答案
+    let hint = it.sent || '';
+    const m = hint.match(/^(.{0,28})_+(.{0,28})$/);
+    if (m) hint = (m[1].trim() + ' ___ ' + m[2].trim()).replace(/\s+/g, ' ');
+    return `<div class="quiz-item" data-ans="${esc(it.word.toLowerCase())}" data-idx="${i}">
+    <span class="qi-ipa">${esc(it.ipa)}</span>
+    <input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="${it.len} 字母" aria-label="${esc(it.ipa)} 对应的单词">
+    <span class="qi-hint" title="${esc(it.sent)}">${esc(hint)}</span>
+    <span class="qi-ans">${esc(it.word)}</span>
+  </div>`;
+  }).join('');
+
+  return `
+<section class="section" id="quiz">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">自测</span>
+    <h2>现在就把这 ${SPELL_STATS.total} 个词写一遍</h2>
+    <span class="sub">看音标 + 句子语境 → 填英文单词 → 点「对答案」。这是「听写」，不是「认读」</span>
+  </div></div>
+  <div class="quiz">
+    <div class="quiz-head">
+      <h3>音标填词 · ${SPELL_STATS.total} 题</h3>
+      <span class="quiz-score">得分 <b id="q-score">0</b> / ${SPELL_STATS.total}</span>
+    </div>
+    <div class="quiz-grid">${items}</div>
+    <div class="quiz-actions">
+      <button class="quiz-btn primary" id="q-check">对答案</button>
+      <button class="quiz-btn" id="q-reveal">只看答案</button>
+      <button class="quiz-btn ghost" id="q-reset">重做</button>
+      <span class="quiz-tip" id="q-tip">大小写不敏感；拼错一个字母也算错——这正是音标题的判分方式</span>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  var box = document.getElementById('quiz');
+  if (!box) return;
+  var items = [].slice.call(box.querySelectorAll('.quiz-item'));
+  var scoreEl = document.getElementById('q-score');
+  var tip = document.getElementById('q-tip');
+
+  function norm(s){ return (s || '').trim().toLowerCase().replace(/[^a-z]/g, ''); }
+
+  function check(){
+    var ok = 0;
+    items.forEach(function(el){
+      var ans = el.getAttribute('data-ans');
+      var val = el.querySelector('input').value;
+      el.classList.remove('ok', 'bad');
+      if (!val.trim()) return;
+      if (norm(val) === ans) { el.classList.add('ok'); ok++; }
+      else { el.classList.add('bad'); }
+    });
+    scoreEl.textContent = ok;
+    var total = items.length;
+    if (ok === total) tip.textContent = '全对。但别急着算掌握——隔一天再抽一遍还能全对才算。';
+    else if (ok >= total * 0.75) tip.textContent = '错的那几个，回去看它们的拼写特征（辅音丛 / 双写 / 元音组合），不要整词重背。';
+    else tip.textContent = '错得较多。先按上面「拼写特征」分类练，别一次背全部 ' + total + ' 个。';
+  }
+
+  function reveal(){
+    items.forEach(function(el){
+      el.classList.remove('ok', 'bad');
+      el.querySelector('input').value = el.getAttribute('data-ans');
+      el.classList.add('bad');
+    });
+    scoreEl.textContent = 0;
+    tip.textContent = '已显示全部答案。点「重做」清空后再自己写一遍。';
+  }
+
+  function reset(){
+    items.forEach(function(el){
+      el.classList.remove('ok', 'bad');
+      el.querySelector('input').value = '';
+    });
+    scoreEl.textContent = 0;
+    tip.textContent = '大小写不敏感；拼错一个字母也算错——这正是音标题的判分方式';
+  }
+
+  document.getElementById('q-check').addEventListener('click', check);
+  document.getElementById('q-reveal').addEventListener('click', reveal);
+  document.getElementById('q-reset').addEventListener('click', reset);
+  // 回车即判分
+  items.forEach(function(el){
+    el.querySelector('input').addEventListener('keydown', function(e){
+      if (e.key === 'Enter') { e.preventDefault(); check(); }
+    });
+  });
+})();
+</script>`;
+}
+
 /* ---------- ① 单词 ---------- */
 function buildSpecialWord() {
   const part = SPECIAL_PARTS[0];
@@ -1447,9 +1575,10 @@ ${SPELL_FEATURES.slice(0, 6).map((f) => `<div class="card" style="padding:15px 1
 </div>`).join('')}
 </div>
 `)}
+${spellQuiz()}
 `;
   return page('special.html', `单词专项 · ${SITE.short}`,
-    `音标填词 ${SPELL_STATS.total} 词、听填 ${fmt(SEG_SCORE['听填'].avg)} 分：真题证据、解题四步与备考动作。`, body);
+    `音标填词 ${SPELL_STATS.total} 词、听填 ${fmt(SEG_SCORE['听填'].avg)} 分：真题证据、解题四步、备考动作与自测。`, body);
 }
 
 /* ---------- ② 语法总览 ---------- */

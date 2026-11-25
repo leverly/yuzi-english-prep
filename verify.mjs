@@ -527,6 +527,34 @@ for (const f of ALL_HTML) {
     `写作页显示提示问题区间 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max}`);
 }
 
+/* ---------- 10j-2. 单词页自测：可作答、可判分、答案可核对 ---------- */
+// 自测是本站唯一的「动手」入口。断言必须保证它真能判分，
+// 而不只是页面上有几行 HTML。
+{
+  const html = readFileSync('special-word.html', 'utf8');
+
+  // 每道题都要有：音标、输入框、正确答案、语境
+  const itemN = (html.match(/class="quiz-item"/g) || []).length;
+  ok(itemN === SPELL_ITEMS.length, `自测 ${itemN} 题 = 音标词 ${SPELL_ITEMS.length} 个`);
+  for (const it of SPELL_ITEMS) {
+    ok(html.includes(`data-ans="${it.word.toLowerCase()}"`), `「${it.word}」是自测题且答案已埋入`);
+  }
+
+  // 判分脚本的关键能力必须在页面上
+  ok(html.includes('q-check'), '有「对答案」按钮');
+  ok(html.includes('q-reveal'), '有「只看答案」按钮');
+  ok(html.includes('q-reset'), '有「重做」按钮');
+  ok(html.includes('q-score'), '有得分显示');
+  // 判分必须做归一化（大小写不敏感、去非字母）
+  ok(/replace\(\/\[\^a-z\]\/g,\s*''\)/.test(html), '判分做了归一化（大小写不敏感）');
+  // 错题必须能显示正确答案
+  ok(html.includes('qi-ans'), '错题可显示正确答案');
+
+  // 自测不能把答案直接写在可见文本里（否则等于送分）
+  // 答案只在 data-ans 与 .qi-ans（默认隐藏）里
+  ok(/\.quiz-item\s+\.qi-ans\{[^}]*display:\s*none/.test(html), '答案默认隐藏，判错后才显示');
+}
+
 /* ---------- 10k. 阅读证据句两节已删除：数据留在台账，页面不得复活 ---------- */
 // 2026-11-25 判定价值不足：卡片上的「题目」是分类标签不是题干，
 // 学生无法验证自己会不会做；10 条证据句还是用「…」拼接的，作为「示范」本身就是错的。
