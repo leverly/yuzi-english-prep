@@ -13,7 +13,7 @@ import {
   FAM_MAP, freqOf, FREQ_RULE, FREQ_SUMMARY,
   STRUCTURE, SEG_FIXED, SEG_VARY, CAT_STABILITY, DIFF_STABILITY,
   CROSS_CHECK,
-  SEG_ORDER, SEG_NAME, CAT_ORDER, CAT_NAME, DIFF_ORDER, DIFF_NAME, MODE_NAME,
+  SEG_ORDER, SEG_NAME, CAT_ORDER, CAT_NAME, DIFF_ORDER, DIFF_NAME, MODE_NAME, FAM_NAME,
   PROP_STABILITY, PROP_LEVEL_NAME, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_ACTIONS, SENT_GROUPS, GRAMMAR_DOUBLE,
@@ -34,7 +34,8 @@ const sum = (a) => a.reduce((x, y) => x + y, 0);
 const fmt = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 
 /* ============================ 派生量 ============================ */
-const MAIN_TOTAL = PAPER_STATS[0].mainTotal;              // 90
+const MAIN_TOTAL = PAPER_STATS[0].mainTotal;              // 90 必做
+const ALL_TOTAL = PAPER_STATS[0].allTotal;                // 100 全卷（必做 + 选做）
 const BONUS_TOTAL = PAPER_STATS[0].bonusTotal;            // 10
 const SELECT_AVG = MODE_SCORE.select.avg;                 // 54
 const WRITE_AVG = MODE_SCORE.write.avg;                   // 36
@@ -58,7 +59,7 @@ const BASE_AVG = DIFF_SCORE.easy.avg;
 const MID_AVG = DIFF_SCORE.mid.avg;
 const HARD_AVG = DIFF_SCORE.hard.avg;
 const BASE_MID = +(BASE_AVG + MID_AVG).toFixed(1);
-const BASE_MID_PCT = Math.round(((BASE_AVG + MID_AVG) / MAIN_TOTAL) * 100);
+const BASE_MID_PCT = Math.round(((BASE_AVG + MID_AVG) / ALL_TOTAL) * 100);
 
 const DIFF_INDEX_MIN = Math.min(...PAPER_STATS.map((s) => s.diffIndex));
 const DIFF_INDEX_MAX = Math.max(...PAPER_STATS.map((s) => s.diffIndex));
@@ -617,7 +618,7 @@ function buildHome() {
       <div class="hero-badge"><span class="dot-live"></span>西城区区统考 · ${N_PAPERS} 套真题逐题拆解</div>
       <h1>丢分的不是不会，<br><span class="accent-word">是写不对</span></h1>
       <p class="lede">
-        必做 ${MAIN_TOTAL} 分里，<b>${fmt(SELECT_AVG)} 分只要涂卡</b>，剩下 <b>${fmt(WRITE_AVG)} 分必须写出文字</b>——
+        全卷 ${ALL_TOTAL} 分里，<b>${fmt(SELECT_AVG)} 分只要涂卡</b>，剩下 <b>${fmt(WRITE_AVG)} 分必须写出文字</b>——
         听写、简答、音标、汉译英、作文。这${SPAN_CN}年的卷子结构一动没动，所以分数差距几乎全在<b>输出端的形式准确性</b>上。
       </p>
       <div class="hero-cta">
@@ -655,7 +656,7 @@ function buildHome() {
       </div>
       <div class="metric-row">
         <span class="mv ok">${BONUS_TOTAL}</span>
-        <span class="ml"><b>选做缓冲垫</b>计入总分，可抵必做 10 分内失误</span>
+        <span class="ml"><b>选做 · 必练</b>100% 是阅读题，计入总分</span>
       </div>
       <div class="mission-list">
         <a class="mission-item" href="papers.html">
@@ -738,9 +739,9 @@ ${section('分值分区', `${MAIN_TOTAL} 分不是均匀分布的`, `按「要�
   </a>
   <a class="tier-card t-gold" href="trend.html#bonus">
     <div class="tier-n">${BONUS_TOTAL}<small>分</small></div>
-    <div class="tier-l">选做 · 缓冲垫</div>
-    <div class="tier-d">计入总分，但卷面封顶 ${MAIN_TOTAL} 分</div>
-    <div class="tier-goal">能抵必做 10 分内失误，补不回更多</div>
+    <div class="tier-l">选做 · 阅读题</div>
+    <div class="tier-d">全四套都是阅读简答 / 阅读选择</div>
+    <div class="tier-goal">且分值比必做简答高一倍多</div>
   </a>
 </div>
 
@@ -752,37 +753,84 @@ ${section('分值分区', `${MAIN_TOTAL} 分不是均匀分布的`, `按「要�
 </div>
 `)}
 
-${section('分值权重', `分值最高的 ${TOP_FAM_COUNT} 个考点族`, '按年均分值降序；命中次数只作事实列', `
+${section('选做', '选做不是optional，是必做', `四套卷的「选做 ${BONUS_TOTAL} 分」全部计入总分——且 100% 是阅读题`, `
 <div class="tbl-wrap">
 <table>
-<thead><tr>
-  <th>考点族</th><th class="num">年均分</th><th class="num">占卷面</th><th>命中</th><th>作答</th><th>说明</th>
-</tr></thead>
+<thead><tr><th>年份</th><th>选做构成</th><th class="num">分值</th><th>可以放弃吗</th></tr></thead>
 <tbody>
-${topFams.map((f) => {
-  const pctOfPaper = Math.round((f.avgPerYear / MAIN_TOTAL) * 100);
-  const isWrite = f.qs.length > 0 && f.qs.every((q) => q.mode === 'write');
+${PAPER_STATS.map((p) => {
+  const qs = LEDGER.filter((q) => q.p === p.id && q.bonus);
+  const comp = [...new Set(qs.map((q) => FAM_NAME[q.fam]))].join(' + ');
   return `<tr>
-  <td><b>${esc(f.name)}</b></td>
-  <td class="num cell-hi">${fmt(f.avgPerYear)}</td>
-  <td class="num">${pctOfPaper}%</td>
-  <td><span class="yr ${f.hit === N_PAPERS ? 'hit' : ''}">${f.hit}/${N_PAPERS}</span></td>
-  <td><span class="tag ${isWrite ? 'write' : 'select'}">${isWrite ? '输出' : '选择'}</span></td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">${esc(f.note)}</td>
-</tr>`;
+    <td><b>${esc(p.label)}</b></td>
+    <td class="wrap-cell">${esc(comp)}</td>
+    <td class="num cell-hi">${p.bonusTotal}</td>
+    <td style="color:var(--rose);font-weight:650">不能</td>
+  </tr>`;
 }).join('')}
 </tbody>
 </table>
 </div>
+
+<div class="note risk" style="margin-top:16px">
+  <b>为什么「选做」必须当必做练：</b><br>
+  ① <b>计入总分</b>——卷面封顶 ${MAIN_TOTAL} 分，但选做能补必做失分。必做丢 5 分、选做全对，仍能回到 ${MAIN_TOTAL}。<br>
+  ② <b>100% 是阅读题</b>——${N_PAPERS} 套卷的选做全部是阅读简答或阅读选择，没有例外。<br>
+  ③ <b>分值比必做简答还高</b>——前三套的选做是 2 题 10 分（每题 5 分），而必做简答是 4 题 8 分（每题 2 分）。
+  <b>同样一道简答题，选做给的分是必做的 2.5 倍。</b>
+</div>
+
+<div class="grid g3" style="margin-top:16px">
+  <div class="card">
+    <div style="font-size:26px;font-weight:800;color:var(--rose);font-variant-numeric:tabular-nums">${fmt(READ_STATS.totalScore)}<small style="font-size:13px;font-weight:600;color:var(--text-3)"> 分/年</small></div>
+    <div style="font-size:13px;font-weight:650;margin-top:4px">阅读真实总分</div>
+    <div style="font-size:12.4px;color:var(--text-3);margin-top:3px">必做 + 选做，占全卷 ${Math.round(READ_STATS.totalScore)}%</div>
+  </div>
+  <div class="card">
+    <div style="font-size:26px;font-weight:800;color:var(--purple);font-variant-numeric:tabular-nums">${fmt(READ_STATS.bonusScore)}<small style="font-size:13px;font-weight:600;color:var(--text-3)"> 分/年</small></div>
+    <div style="font-size:13px;font-weight:650;margin-top:4px">其中选做</div>
+    <div style="font-size:12.4px;color:var(--text-3);margin-top:3px">等于必做简答 8 分的 ${(READ_STATS.bonusScore / 8).toFixed(1)} 倍</div>
+  </div>
+  <div class="card">
+    <div style="font-size:26px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums">${FAM_RANKED.filter((f) => f.seg.includes('阅读简答')).length}<small style="font-size:13px;font-weight:600;color:var(--text-3)"> 族</small></div>
+    <div style="font-size:13px;font-weight:650;margin-top:4px">简答题型</div>
+    <div style="font-size:12.4px;color:var(--text-3);margin-top:3px">检索 1 族 + 概括开放 1 族</div>
+  </div>
+</div>
+
+<div class="note" style="margin-top:14px">
+  <b>口径说明：</b>本页所有「占卷面 X%」按<b>全卷 ${ALL_TOTAL} 分</b>计算（必做 ${MAIN_TOTAL} + 选做 ${BONUS_TOTAL}），
+  不再只算必做——那样会把阅读简答算成 8 分（实际 ${fmt(READ_STATS.ansScore)} 分）。
+</div>
+`, 'bonus')}
+
+${section('分值权重', `分值最高的 ${TOP_FAM_COUNT} 个考点族`, '按年均分值降序；完整逐族明细见趋势页', `
+<div class="grid g3">
+  ${topFams.slice(0, 3).map((f, i) => {
+    const isWrite = f.qs.length > 0 && f.qs.every((q) => q.mode === 'write');
+    return `<div class="card" style="padding:16px 18px">
+    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text-3)">0${i + 1}</span>
+      <b style="font-size:14.5px">${esc(f.name)}</b>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:8px">
+      <span style="font-size:24px;font-weight:780;color:var(--accent);font-variant-numeric:tabular-nums">${fmt(f.avgPerYear)}</span>
+      <span style="font-size:12px;color:var(--text-3)">分 / 年 · 占卷面 ${Math.round((f.avgPerYear / ALL_TOTAL) * 100)}%</span>
+    </div>
+    <div style="margin-top:7px"><span class="tag ${isWrite ? 'write' : 'select'}">${isWrite ? '输出' : '选择'}</span></div>
+  </div>`;
+  }).join('')}
+</div>
 <div class="note" style="margin-top:16px">
   前 ${TOP_FAM_COUNT} 族合计年均 <b>${fmt(sum(topFams.map((f) => f.avgPerYear)))} 分</b>，
-  占必做 ${MAIN_TOTAL} 分的 <b>${Math.round((sum(topFams.map((f) => f.avgPerYear)) / MAIN_TOTAL) * 100)}%</b>。
-  完整 ${FAM_RANKED.length} 族见 <a href="trend.html#fam" style="color:var(--accent);font-weight:650">趋势与考点</a>。
+  占全卷 ${ALL_TOTAL} 分的 <b>${Math.round((sum(topFams.map((f) => f.avgPerYear)) / ALL_TOTAL) * 100)}%</b>。
+  ${FAM_RANKED.length} 族的完整逐年明细见 <a href="trend.html#fam" style="color:var(--accent);font-weight:650">趋势与考点</a>，
+  族 × 学年的分值热力图见 <a href="papers.html#fam-heat" style="color:var(--accent);font-weight:650">逐年真题</a>。
 </div>
 `)}
 `;
 
-  return page('index.html', SITE.name, `西城区初一(上)英语期末 ${N_PAPERS} 套真题考情分析：必做 ${MAIN_TOTAL} 分里 ${fmt(WRITE_AVG)} 分要写出文字。`, body);
+  return page('index.html', SITE.name, `西城区初一(上)英语期末 ${N_PAPERS} 套真题考情分析：全卷 ${ALL_TOTAL} 分里 ${fmt(WRITE_AVG)} 分要写出文字。`, body);
 }
 
 /* ============================ 逐年真题 ============================ */
@@ -818,12 +866,12 @@ ${SEG_ORDER.map((k) => {
 </div>`;
 
   // ② 能力分值
-  const catBars = CAT_ORDER.map((k) => distBar(CAT_NAME[k], CAT_SCORE[k].avg, MAIN_TOTAL, ' 分')).join('');
+  const catBars = CAT_ORDER.map((k) => distBar(CAT_NAME[k], CAT_SCORE[k].avg, ALL_TOTAL, ' 分')).join('');
 
   // ③ 难度分布
   const diffBars = DIFF_ORDER.map((k) => {
     const cls = k === 'easy' ? 'ok' : k === 'mid' ? '' : 'rose';
-    return distBar(DIFF_NAME[k], DIFF_SCORE[k].avg, MAIN_TOTAL, ' 分', cls);
+    return distBar(DIFF_NAME[k], DIFF_SCORE[k].avg, ALL_TOTAL, ' 分', cls);
   }).join('');
 
   // ④ 考点族热力矩阵：行 = 族（按板块分组），列 = 学年，格子深浅 = 该年分值
@@ -922,9 +970,9 @@ ${g.fams.map((f) => `<tr>
     </div>
     <div>
       <div style="font-size:12.2px;font-weight:700;color:var(--text-3);letter-spacing:.04em;margin-bottom:8px">能力与难度</div>
-      ${CAT_ORDER.map((k) => distBar(CAT_NAME[k], p.cat[k] || 0, MAIN_TOTAL, ' 分')).join('')}
+      ${CAT_ORDER.map((k) => distBar(CAT_NAME[k], p.allCat[k] || 0, ALL_TOTAL, ' 分')).join('')}
       <div style="height:10px"></div>
-      ${DIFF_ORDER.map((k) => distBar(DIFF_NAME[k], p.diff[k] || 0, MAIN_TOTAL, ' 分', k === 'easy' ? 'ok' : k === 'hard' ? 'rose' : '')).join('')}
+      ${DIFF_ORDER.map((k) => distBar(DIFF_NAME[k], p.allDiff[k] || 0, ALL_TOTAL, ' 分', k === 'easy' ? 'ok' : k === 'hard' ? 'rose' : '')).join('')}
     </div>
   </div>
   <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:12.6px;color:var(--text-3);line-height:1.7">
@@ -997,7 +1045,7 @@ ${famHeat}
   按<b>板块</b>分组，组内按${SPAN_CN}年合计分值降序。共 ${FAM_RANKED.length} 个必做考点族${FAM_MAP.some((f) => f.onlyBonus) ? `，另有 ${FAM_MAP.filter((f) => f.onlyBonus).length} 个只在选做出现` : ''}。
   <b>整行满格</b> = 年年考且分值稳；<b>断续的格子</b> = 轮换项，认识即可。
 </div>
-`)}
+`, 'fam-heat')}
 
 ${section('⑤ 逐年', '每套卷的明细', '同一批数据的逐年视图', paperCards)}
 `;
@@ -1128,58 +1176,12 @@ ${section('② 作答方式', '选择型与输出型', `同一份卷子，${SELE
   每一项都有「会但写错」的空间：拼写、时态、人称、标点。<b>提分动作因此不是多刷题，是定向默写与句型改写。</b>
   <a href="special.html" style="color:var(--rose);font-weight:650">看专项怎么练 →</a>
 </div>
+<div class="note" style="margin-top:10px">
+  能力、难度、考点族三个维度的<b>逐年明细</b>已合并到
+  <a href="papers.html" style="color:var(--accent);font-weight:650">逐年真题</a>——
+  同一份数据不在两页重复画。本页只保留「${SPAN_CN}年变了什么」。
+</div>
 `, 'mode')}
-
-${section('③ 能力', '四层能力的跨年分布', `极差 ≤3 分视为稳定（满分 ${MAIN_TOTAL}）`, `
-<div class="tbl-wrap">
-<table>
-<thead><tr>
-  <th>能力</th>${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
-  <th class="num">年均</th><th class="num">极差</th><th>判定</th>
-</tr></thead>
-<tbody>${catTrend}</tbody>
-</table>
-</div>
-`)}
-
-${section('④ 难度', '难度三级的跨年分布', `难度指数${SPAN_CN}年几乎没有波动`, `
-<div class="tbl-wrap">
-<table>
-<thead><tr>
-  <th>难度</th>${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
-  <th class="num">年均</th><th class="num">极差</th>
-</tr></thead>
-<tbody>${diffTrend}</tbody>
-</table>
-</div>
-<div class="note info" style="margin-top:14px">
-  难度指数（1 = 全基础，3 = 全较难）逐年：
-  ${PAPER_STATS.map((p) => `<b>${p.label} ${p.diffIndex}</b>`).join(' · ')}。
-  ${SPAN_CN}年区间 ${DIFF_INDEX_MIN}–${DIFF_INDEX_MAX}，<b>说明难度是被稳定控制的</b>，不存在「某年突然变难」。
-</div>
-`)}
-
-${section('⑤ 考点族', `全部 ${FAM_RANKED.length} 个必做考点族`, '按年均分值降序；「—」表示该年未考', `
-<div class="tbl-wrap">
-<table>
-<thead><tr>
-  <th>考点族</th><th>板块</th><th class="num">年均分</th>
-  ${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
-  <th>命中</th><th>作答</th><th>说明</th>
-</tr></thead>
-<tbody>${famRows}</tbody>
-</table>
-</div>
-<div class="note warn" style="margin-top:16px">
-  <b>为什么主排序用分值而不是「必考」标签：</b>${N_PAPERS} 套样本下 ${FAM_N} 个族里有 ${ALWAYS_N} 个是 ${N_PAPERS}/${N_PAPERS} 命中，
-  把它们全标成「必考」等于把 ${ALWAYS_N} 个族标成同一档，看不出先练哪个。
-  但它们的年均分从 <b>${fmt(FAM_RANKED[0].avgPerYear)} 分到 ${fmt(FAM_RANKED[FAM_RANKED.length - 1].avgPerYear)} 分</b>，
-  跨度 ${fmt(FAM_RANKED[0].avgPerYear - FAM_RANKED[FAM_RANKED.length - 1].avgPerYear)} 分——<b>这个差距才是排优先级的依据</b>。
-  <br><br>
-  频次仍有信息：${OFTEN_N} 个族是 ${FREQ_RULE.often}/${N_PAPERS}、${RARE_N} 个更少，这些「不是年年考」的族在表里已单独标出，
-  可以据此判断哪些内容只需认识、不必死磕。
-</div>
-`, 'fam')}
 
 ${section('⑥ 阅读A篇', `A 篇${SPAN_CN}年换了不同考法`, '载体在变，考法也在变', `
 <div class="tbl-wrap">
@@ -1211,9 +1213,9 @@ ${section('⑦ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 �
 </table>
 </div>
 <div class="note" style="margin-top:14px">
-  <b>选做是缓冲垫，不是附加题。</b>计入总分但卷面封顶 ${MAIN_TOTAL} 分——
-  必做丢 5 分，选做全对能补回；必做丢 15 分，选做全对也只能回到 ${MAIN_TOTAL}。
-  所以<b>基础零失误优先于押选做</b>。
+  <b>选做不是「附加题」，是必须做的 10 分阅读。</b>它计入总分（卷面封顶 ${MAIN_TOTAL}），
+  且 ${N_PAPERS} 套卷里 100% 是阅读题。<b>前三套的选做甚至比必做简答分值高</b>——
+  每题 5 分 vs 每题 2 分。把它当可跳过的部分，等于白丢 10 分。
 </div>
 `, 'bonus')}
 `;
@@ -1296,7 +1298,7 @@ ${specialHead(
   <div class="part-grid">
     <div class="part-card">
       <div class="part-head"><span class="part-n">①</span><span class="part-title">单词</span><span class="part-score">${fmt(partScore.word)} 分</span></div>
-      <p class="part-how"><b>先分清「会写」还是「认识」。</b>全卷 ${MAIN_TOTAL} 分里只有 ${fmt(SPELL_TOTAL)} 分要动笔，
+      <p class="part-how"><b>先分清「会写」还是「认识」。</b>全卷 ${ALL_TOTAL} 分里只有 ${fmt(SPELL_TOTAL)} 分要动笔，
         其余只需认得出。音标题 ${SPELL_STATS.total} 个词全是基础词，失分不是「不认识」是「拼不对」。</p>
       <div class="part-links">
         <a class="part-link" href="special-word.html">
@@ -1374,7 +1376,7 @@ ${specialTabs('word')}
 ${specialHead(
     '① 单词 · 音标与听填',
     '单词：先分清「会写」还是「认识」',
-    `全卷 ${MAIN_TOTAL} 分里只有 <b>${fmt(SPELL_TOTAL)} 分要动笔</b>，其余 ${fmt(MAIN_TOTAL - SPELL_TOTAL)} 分只需认得出。
+    `全卷 ${ALL_TOTAL} 分里只有 <b>${fmt(SPELL_TOTAL)} 分要动笔</b>，其余 ${fmt(ALL_TOTAL - SPELL_TOTAL)} 分只需认得出。
      而音标题考的 ${SPELL_STATS.total} 个词，全是课本里最基础的词。`,
     segAside(
       '要拼写的板块',
@@ -1387,7 +1389,7 @@ ${specialHead(
 
 <div class="note warn">
   <b>背单词背错方向，是把力气花在了不考的地方。</b>
-  其余 ${fmt(MAIN_TOTAL - SPELL_TOTAL)} 分（阅读、单选、完形）只需认得出，不必会写。
+  其余 ${fmt(ALL_TOTAL - SPELL_TOTAL)} 分（阅读、单选、完形）只需认得出，不必会写。
 </div>
 
 ${section('真题证据', `音标 ${SPELL_STATS.total} 个词：平均 ${SPELL_STATS.avgLen} 个字母`, `四年全部考词，最长 ${SPELL_STATS.maxLen} 个字母——不是难词`, `
@@ -1803,51 +1805,6 @@ ${section('题型分布', `阅读选择 ${selTotal} 题怎么分`, '四年合计
 </div>
 `, 'r-evidence')}
 
-${section('真题证据句', `${READ_EVIDENCE_STATS.annotated} 道阅读题全部标了证据句`, '每道题都能指出原文哪一句是依据——这就是「划证据句」这个动作的完整示范', `
-<div class="note info">
-  <b>这一节是本页最实用的部分。</b>下面按题型给出真题示例：题干 → 原文证据句 → 答案。
-  学生做阅读时照这个动作走一遍——<b>划不出证据句的题，就是靠猜</b>。
-</div>
-<div class="grid" style="margin-top:16px;gap:14px">
-${READ_EVIDENCE_SAMPLES.map((e) => `<div class="card" style="padding:18px 20px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-    <span class="tag ${e.seg === '阅读简答' ? 'write' : 'select'}">${esc(e.famName)}</span>
-    <span style="font-size:12.3px;color:var(--text-3)">${esc(PAPER_STATS.find((p) => p.id === e.p).label)} · 第 ${e.no} 题</span>
-    <span style="margin-left:auto;font-size:12.3px;color:var(--text-3)">${esc(e.loc)}</span>
-  </div>
-  <div style="font-size:13.4px;color:var(--text);margin-bottom:8px"><b>题目：</b>${esc(e.topic)}</div>
-  <div style="font-size:13.2px;color:var(--text-2);line-height:1.75;background:var(--accent-soft);padding:11px 14px;border-radius:8px;border-left:3px solid var(--accent)">
-    <b style="color:var(--accent);font-size:12.3px">证据句</b><br>“${esc(e.quote)}”
-  </div>
-  ${e.refAns ? `<div style="font-size:13px;color:var(--ok);margin-top:8px"><b>参考答案：</b>${esc(e.refAns)}</div>` : ''}
-</div>`).join('')}
-</div>
-<div class="note warn" style="margin-top:16px">
-  <b>${READ_EVIDENCE_STATS.byPassage.map((p) => `${esc(p.name)} ${p.count} 题`).join('、')}</b>——
-  证据句分布在三种篇章里，动作完全一样：<b>先定位，再划句，最后比对选项</b>。
-</div>
-`, 'r-proof')}
-
-${section('全部证据句', `${READ_EVIDENCE_STATS.total} 题一览`, '按年份与题号排列，可当核对表用', `
-<div class="tbl-wrap">
-<table style="font-size:12.8px">
-<thead><tr><th>年份</th><th class="num">题号</th><th>题型</th><th>证据句位置</th><th>原文证据句</th></tr></thead>
-<tbody>
-${READ_EVIDENCE.map((e) => `<tr>
-  <td style="color:var(--text-3)">${esc(PAPER_STATS.find((p) => p.id === e.p).label)}</td>
-  <td class="num" style="color:var(--text-3)">${e.no}</td>
-  <td><span class="tag ${e.seg === '阅读简答' ? 'write' : 'select'}">${esc(e.famName)}</span></td>
-  <td class="wrap-cell" style="color:var(--text-3)">${esc(e.loc)}</td>
-  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“${esc(e.quote)}”</td>
-</tr>`).join('')}
-</tbody>
-</table>
-</div>
-<div class="note" style="margin-top:14px">
-  <b>怎么用这张表：</b>做完整卷后，逐题对照——<b>你划的证据句和表里的是不是同一句？</b>
-  不是同一句但也能推出答案，说明你找到了另一条路径；划不出任何一句，说明这题是靠猜对的，下次未必对。
-</div>
-`, 'r-all')}
 
 ${section('解题与备考', '按题型给动作，不背「阅读技巧」', '五种题型，五种动作', `
 <div class="tbl-wrap">

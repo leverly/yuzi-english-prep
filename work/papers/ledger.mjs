@@ -268,8 +268,8 @@ export const LEDGER = [
 
   { p: 'p2122', no: 55, seg: '文段表达', fam: 'f-write', topic: '介绍一位家庭成员（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 , scene: '介绍一位家庭成员', titleHint: 'My ______', questions: 'How old is he/she? / What is his/her job? / What does he/she like?', promptWords: 'teacher, manager, do sports, travel', essay: null },
 
-  { p: 'p2122', no: 56, seg: '阅读简答', fam: 'f-read-answer', topic: 'Haley 在门口等的原因', cat: '应用', diff: 'mid', mode: 'write', score: 5, bonus: true },
-  { p: 'p2122', no: 57, seg: '阅读简答', fam: 'f-read-open', topic: '最喜欢哪个人物及理由（开放）', cat: '综合', diff: 'hard', mode: 'write', score: 5, bonus: true },
+  { p: 'p2122', no: 56, seg: '阅读简答', fam: 'f-read-answer', topic: 'Haley 在门口等的原因', cat: '应用', diff: 'mid', mode: 'write', score: 5, bonus: true , evLoc: '选做 第2段', evQuote: 'Sam sees Haley sitting by the mailbox. “Well, we need to work on our science project today,” Sam says', passage: '简答', refAns: 'Because they have to work on their science project today' },
+  { p: 'p2122', no: 57, seg: '阅读简答', fam: 'f-read-open', topic: '最喜欢哪个人物及理由（开放）', cat: '综合', diff: 'hard', mode: 'write', score: 5, bonus: true , evLoc: '选做 全文（开放）', evQuote: '“I’ll go get her and work on the project.” “Good for you,” Kevin says.', passage: '简答', refAns: '开放题，参考答案未给统一答案' },
 
   // ==================== 2022-2023（教师版） ====================
   { p: 'p2223', no: 1, seg: '听选', fam: 'f-listen-detail', topic: '礼物送给谁', cat: '理解', diff: 'easy', mode: 'select', score: 1.5 },
@@ -337,8 +337,8 @@ export const LEDGER = [
 
   { p: 'p2223', no: 55, seg: '文段表达', fam: 'f-write', topic: '家庭欢乐时刻发言稿（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 , scene: '家庭欢乐时刻发言稿', titleHint: 'My Family Fun Time', questions: 'When is your family fun time? / What do you and your family usually do? / What do you think of your family fun time?', promptWords: 'weekend, talk, exercise, movie, warm, love', essay: null },
 
-  { p: 'p2223', no: 56, seg: '阅读简答', fam: 'f-read-answer', topic: 'Grace 的问题是什么', cat: '应用', diff: 'mid', mode: 'write', score: 5, bonus: true },
-  { p: 'p2223', no: 57, seg: '阅读简答', fam: 'f-read-open', topic: '问题如何解决（概括）', cat: '综合', diff: 'hard', mode: 'write', score: 5, bonus: true },
+  { p: 'p2223', no: 56, seg: '阅读简答', fam: 'f-read-answer', topic: 'Grace 的问题是什么', cat: '应用', diff: 'mid', mode: 'write', score: 5, bonus: true , evLoc: '选做 第1段', evQuote: 'Grace has always dreamed of becoming a firefighter, helping others and being a hero. When she told her friends about her dream, they laughed because a girl can’t be a’fireman’', passage: '简答', refAns: 'Her friends laughed at her dream of becoming a firefighter' },
+  { p: 'p2223', no: 57, seg: '阅读简答', fam: 'f-read-open', topic: '问题如何解决（概括）', cat: '综合', diff: 'hard', mode: 'write', score: 5, bonus: true , evLoc: '选做 末段', evQuote: 'her mom got her computer, ran a quick search … Grace’s mom said, “Why not send an email to the firefighter?” … Constance was holding the cake', passage: '简答', refAns: 'Her mom searched online, Grace emailed the firefighter, and Constance came to her birthday' },
 
   // ==================== 2023-2024（教师版） ====================
   { p: 'p2324', no: 1, seg: '听选', fam: 'f-listen-num', topic: '哥哥年龄', cat: '理解', diff: 'easy', mode: 'select', score: 1.5 },
@@ -406,8 +406,8 @@ export const LEDGER = [
 
   { p: 'p2324', no: 55, seg: '文段表达', fam: 'f-write', topic: '感谢某人并说明做法与理由（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 , scene: '感谢某人并说明做法与理由', titleHint: '', questions: 'Who do you want to thank? / What do you want to do for him/her? / Why do you want to do so?', promptWords: 'present, book, like reading, show', essay: 'I want to buy some fish and books for my mother. I am getting fatter and fatter, while my mom is getting thinner and thinner. She should eat more fish and other delicious food. And she likes reading books. So I want to give her favourite books to thank her. I think it is good for her body and spirits.' },
 
-  { p: 'p2324', no: 56, seg: '阅读简答', fam: 'f-read-answer', topic: '列出四项有意义的活动', cat: '应用', diff: 'mid', mode: 'write', score: 5, bonus: true },
-  { p: 'p2324', no: 57, seg: '阅读简答', fam: 'f-read-open', topic: '无聊是好是坏 + 至少两条理由', cat: '综合', diff: 'hard', mode: 'write', score: 5, bonus: true },
+  { p: 'p2324', no: 56, seg: '阅读简答', fam: 'f-read-answer', topic: '列出四项有意义的活动', cat: '应用', diff: 'mid', mode: 'write', score: 5, bonus: true , evLoc: '选做 末段', evQuote: 'spend your time on some enjoyable and meaningful activities, such as building yourself a special place, making reading or exercise plans … making up a game, learning something new', passage: '简答', refAns: 'Building a special place / making reading or exercise plans / making up a game / learning something new' },
+  { p: 'p2324', no: 57, seg: '阅读简答', fam: 'f-read-open', topic: '无聊是好是坏 + 至少两条理由', cat: '综合', diff: 'hard', mode: 'write', score: 5, bonus: true , evLoc: '选做 全文（开放）', evQuote: 'Can boredom be good for you? … Knowing when you’re bored and learning to “unbore” yourself will also help you learn to solve problems', passage: '简答', refAns: '开放题；参考答案未给统一答案，需表明观点 + 至少两条理由' },
 
   // ==================== 2024-2025（教师版，62 题卷，单选从 1 重新编号） ====================
   { p: 'p2425', no: 1, seg: '听选', fam: 'f-listen-detail', topic: '同行人物', cat: '理解', diff: 'easy', mode: 'select', score: 1.5 },
@@ -475,11 +475,11 @@ export const LEDGER = [
 
   { p: 'p2425', no: 43, seg: '文段表达', fam: 'f-write', topic: '介绍喜欢的传统节日（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 , scene: '介绍喜欢的传统节日', titleHint: '', questions: 'What is your favorite traditional Chinese festival? / How do you usually celebrate it?', promptWords: 'take place, enjoy, have a big meal, family reunion', essay: 'Spring Festival is my favorite festival. It usually happens in January or February. My family celebrate it by doing many interesting and meaningful activities. We often clean the house and buy a lot of food before the festival. On Spring Festival Eve, we get together and have a big reunion dinner. Jiaozi is a must, and we also prepare many other delicious dishes. Everyone wears new clothes and kids always get lucky money from the elders as a symbol of good wishes for good luck, health and prosperity in the new year. I like Spring Festival, because it makes me feel warm and loved.' },
 
-  { p: 'p2425', no: 44, seg: '阅读选择', fam: 'f-word-form', topic: '(sun) → sunny', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true },
-  { p: 'p2425', no: 45, seg: '阅读选择', fam: 'f-word-form', topic: '(rain) → will rain', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true },
-  { p: 'p2425', no: 46, seg: '阅读选择', fam: 'f-word-form', topic: '(come) → comes', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true },
-  { p: 'p2425', no: 47, seg: '阅读选择', fam: 'f-word-form', topic: '(tree) → trees', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true },
-  { p: 'p2425', no: 48, seg: '阅读选择', fam: 'f-read-detail', topic: '暴食症事实细节', cat: '理解', diff: 'mid', mode: 'select', score: 2, bonus: true },
-  { p: 'p2425', no: 49, seg: '阅读选择', fam: 'f-read-main', topic: '第三段主旨', cat: '综合', diff: 'mid', mode: 'select', score: 2, bonus: true },
-  { p: 'p2425', no: 50, seg: '阅读选择', fam: 'f-read-infer', topic: '什么情况下会暴食（推断）', cat: '综合', diff: 'mid', mode: 'select', score: 2, bonus: true },
+  { p: 'p2425', no: 44, seg: '阅读选择', fam: 'f-word-form', topic: '(sun) → sunny', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true , evLoc: '选做 第1段 (sun)', evQuote: 'It’s ___ (sun) now, but please take a raincoat', passage: '简答', refAns: 'sunny' },
+  { p: 'p2425', no: 45, seg: '阅读选择', fam: 'f-word-form', topic: '(rain) → will rain', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true , evLoc: '选做 第1段 (rain)', evQuote: 'I’m sure it ___ (rain) later', passage: '简答', refAns: 'will rain' },
+  { p: 'p2425', no: 46, seg: '阅读选择', fam: 'f-word-form', topic: '(come) → comes', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true , evLoc: '选做 第2段 (come)', evQuote: 'Water ___ (come) into the air from the leaves, and becomes clouds', passage: '简答', refAns: 'comes' },
+  { p: 'p2425', no: 47, seg: '阅读选择', fam: 'f-word-form', topic: '(tree) → trees', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true , evLoc: '选做 第3段 (tree)', evQuote: 'These ___ (tree) can live for thousands of years', passage: '简答', refAns: 'trees' },
+  { p: 'p2425', no: 48, seg: '阅读选择', fam: 'f-read-detail', topic: '暴食症事实细节', cat: '理解', diff: 'mid', mode: 'select', score: 2, bonus: true , evLoc: '选做 第2段', evQuote: 'When researchers and doctors talk about binge eating, there must be two key symptoms. … It can also lead to weight (体重) gain', passage: '简答', refAns: 'It can lead to health problems' },
+  { p: 'p2425', no: 49, seg: '阅读选择', fam: 'f-read-main', topic: '第三段主旨', cat: '综合', diff: 'mid', mode: 'select', score: 2, bonus: true , evLoc: '选做 第3段', evQuote: 'Binge eating often shows up in teens … it’s important to stop it as soon as possible', passage: '简答', refAns: 'Why it is important to study binge eating' },
+  { p: 'p2425', no: 50, seg: '阅读选择', fam: 'f-read-infer', topic: '什么情况下会暴食（推断）', cat: '综合', diff: 'mid', mode: 'select', score: 2, bonus: true , evLoc: '选做 第6段', evQuote: 'teenagers who had emotional problems, such as feeling sad, were more likely to binge eat. Also, problems such as arguing with parents … made binge eating more likely', passage: '简答', refAns: 'arguing with a good friend' },
 ];

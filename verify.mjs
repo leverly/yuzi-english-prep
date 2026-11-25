@@ -58,8 +58,8 @@ for (const p of PAPER_STATS) {
 }
 
 /* ---------- 2. 选择型 + 输出型 = 90 ---------- */
-ok(Math.abs(MODE_SCORE.select.avg + MODE_SCORE.write.avg - 90) < 1e-9,
-  `选择型 ${fmt(MODE_SCORE.select.avg)} + 输出型 ${fmt(MODE_SCORE.write.avg)} = 90`);
+ok(Math.abs(MODE_SCORE.select.avg + MODE_SCORE.write.avg - 100) < 1e-9,
+  `选择型 ${fmt(MODE_SCORE.select.avg)} + 输出型 ${fmt(MODE_SCORE.write.avg)} = 100（全卷口径，含选做）`);
 
 /* ---------- 3. 十个板块分值加总 = 90 ---------- */
 for (const p of PAPER_STATS) {
@@ -93,7 +93,7 @@ const MAIN_TOTAL = PAPER_STATS[0].mainTotal;
 const SELECT = fmt(MODE_SCORE.select.avg);
 const WRITE = fmt(MODE_SCORE.write.avg);
 const BASE_MID = +(DIFF_SCORE.easy.avg + DIFF_SCORE.mid.avg).toFixed(1);
-const BASE_MID_PCT = Math.round(((DIFF_SCORE.easy.avg + DIFF_SCORE.mid.avg) / MAIN_TOTAL) * 100);
+const BASE_MID_PCT = Math.round(((DIFF_SCORE.easy.avg + DIFF_SCORE.mid.avg) / 100) * 100);
 
 checkIn('index.html', [
   `${MAIN_TOTAL}</b><span>必做满分</span>`,
@@ -162,11 +162,11 @@ ok(alwaysN <= famN, `always 族数 ${alwaysN} ≤ 必做族数 ${famN}`);
 
 /* ---------- 9. 能力/难度占比自洽 ---------- */
 for (const k of CAT_ORDER) {
-  const pct = Math.round((CAT_SCORE[k].avg / MAIN_TOTAL) * 100);
+  const pct = Math.round((CAT_SCORE[k].avg / 100) * 100);
   ok(pct === CAT_SCORE[k].pct, `能力「${k}」占比 ${CAT_SCORE[k].pct}% 与均值自洽`);
 }
 for (const k of DIFF_ORDER) {
-  const pct = Math.round((DIFF_SCORE[k].avg / MAIN_TOTAL) * 100);
+  const pct = Math.round((DIFF_SCORE[k].avg / 100) * 100);
   ok(pct === DIFF_SCORE[k].pct, `难度「${k}」占比 ${DIFF_SCORE[k].pct}% 与均值自洽`);
 }
 
@@ -193,6 +193,36 @@ for (const k of DIFF_ORDER) {
   const trend = readFileSync('trend.html', 'utf8');
   ok(idx.includes(`${WRITE} 分`), `首页出现输出端 ${WRITE} 分`);
   ok(trend.includes(`${WRITE}`), `趋势页出现输出端 ${WRITE}`);
+}
+
+/* ---------- 10a-2. 口径不得混用：全卷数字不能挂在「90 分」分母下 ---------- */
+// 2026-11-25 口径从「必做 90」改为「全卷 100（必做 90 + 选做 10）」。
+// 改口径时最容易出的错是：数字换了、句子里的分母没换，变成
+// 「必做 90 分里，55.5 分涂卡 + 44.5 分写出来」——加起来 100 却说 90。
+{
+  const ALL_TOTAL = PAPER_STATS[0].allTotal;
+  const MAIN_TOTAL = PAPER_STATS[0].mainTotal;
+  ok(ALL_TOTAL === 100, `全卷满分 ${ALL_TOTAL} 分`);
+  ok(MAIN_TOTAL === 90, `必做满分 ${MAIN_TOTAL} 分`);
+  ok(ALL_TOTAL === MAIN_TOTAL + PAPER_STATS[0].bonusTotal,
+    `全卷 ${ALL_TOTAL} = 必做 ${MAIN_TOTAL} + 选做 ${PAPER_STATS[0].bonusTotal}`);
+
+  // 选择型 + 输出型 必须等于全卷（不是必做）
+  ok(Math.abs(MODE_SCORE.select.avg + MODE_SCORE.write.avg - ALL_TOTAL) < 1e-9,
+    `选择型 ${fmt(MODE_SCORE.select.avg)} + 输出型 ${fmt(MODE_SCORE.write.avg)} = ${ALL_TOTAL}（全卷）`);
+
+  // 页面上不得出现「必做 90 分里 <全卷数字>」这种自相矛盾句
+  const SEL = fmt(MODE_SCORE.select.avg);
+  const WRI = fmt(MODE_SCORE.write.avg);
+  for (const f of ALL_HTML) {
+    const txt = readFileSync(f, 'utf8').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+    // 「必做 90 分里 … 55.5」= 矛盾
+    const bad = new RegExp(`必做\\s*${MAIN_TOTAL}\\s*分[里中][^。]{0,60}${SEL.replace('.', '\\.')}`);
+    ok(!bad.test(txt), `${f} 无「必做 ${MAIN_TOTAL} 分里 … ${SEL}」矛盾句`);
+    // 「90 分里只有 44.5」这类也要拦
+    const bad2 = new RegExp(`${MAIN_TOTAL}\\s*分[里中]只有[^。]{0,30}${WRI.replace('.', '\\.')}`);
+    ok(!bad2.test(txt), `${f} 无「${MAIN_TOTAL} 分里只有 ${WRI}」矛盾句`);
+  }
 }
 
 /* ---------- 10b. 不得残留未渲染的模板占位符 ---------- */
@@ -497,25 +527,22 @@ for (const f of ALL_HTML) {
     `写作页显示提示问题区间 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max}`);
 }
 
-/* ---------- 10k. 阅读证据句：60 题全覆盖 ---------- */
+/* ---------- 10k. 阅读证据句两节已删除：数据留在台账，页面不得复活 ---------- */
+// 2026-11-25 判定价值不足：卡片上的「题目」是分类标签不是题干，
+// 学生无法验证自己会不会做；10 条证据句还是用「…」拼接的，作为「示范」本身就是错的。
+// 数据（evLoc / evQuote / passage）保留在 ledger.mjs，页面不再渲染。
 {
   const html = readFileSync('special-read.html', 'utf8');
-  ok(READ_EVIDENCE_STATS.total === 60, `阅读必做 ${READ_EVIDENCE_STATS.total} 题`);
-  ok(READ_EVIDENCE_STATS.annotated === READ_EVIDENCE_STATS.total,
-    `全部 ${READ_EVIDENCE_STATS.total} 题都标了证据句（实为 ${READ_EVIDENCE_STATS.annotated}）`);
-  ok(READ_EVIDENCE.every((e) => e.quote && e.loc), '每条证据句都有 quote 与位置');
-  ok(READ_EVIDENCE.every((e) => e.passage), '每条证据句都标了所属篇章');
-  // 证据句必须上页（抽查前 10 条，避免断言过慢）
-  for (const e of READ_EVIDENCE.slice(0, 10)) {
-    ok(html.includes(e.quote.slice(0, 20)), `证据句「${e.loc}」上页`);
-  }
-  // 题型示例覆盖全部 5 种选择题型 + 2 种简答题型
-  ok(READ_EVIDENCE_SAMPLES.length >= 5, `题型示例 ${READ_EVIDENCE_SAMPLES.length} 条（≥5）`);
-  // 篇章分布合计 = 总数
-  const sumP = READ_EVIDENCE_STATS.byPassage.reduce((a, p) => a + p.count, 0);
-  ok(sumP === READ_EVIDENCE_STATS.total, `篇章分布合计 ${sumP} = ${READ_EVIDENCE_STATS.total}`);
-  // 页面声明覆盖率
-  ok(html.includes(`${READ_EVIDENCE_STATS.annotated} 道阅读题全部标了证据句`), '页面声明 60 题全覆盖');
+  ok(!html.includes('真题证据句'), 'special-read.html 不含已删除的「真题证据句」节');
+  ok(!html.includes('全部证据句'), 'special-read.html 不含已删除的「全部证据句」节');
+  ok(!html.includes('r-proof') && !html.includes('r-all'), '两节的锚点已移除');
+
+  // 台账数据必须仍在（删的是页面，不是数据）
+  ok(READ_EVIDENCE.length >= 60, `台账仍保留 ${READ_EVIDENCE.length} 条证据句数据（含选做）`);
+  ok(READ_EVIDENCE.every((e) => e.quote && e.loc), '台账证据句仍有 quote 与位置');
+
+  // 「划证据句」这个动作指令必须还在（它才是可执行的部分）
+  ok(html.includes('划出证据句') || html.includes('划证据句'), '阅读页仍保留「划证据句」动作指令');
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */

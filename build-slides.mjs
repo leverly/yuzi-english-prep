@@ -19,7 +19,9 @@ const sum = (a) => a.reduce((x, y) => x + y, 0);
 const fmt = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 
 /* ============================ 派生量 ============================ */
-const MAIN = PAPER_STATS[0].mainTotal;
+const MAIN = PAPER_STATS[0].mainTotal;      // 90 必做
+const ALL = PAPER_STATS[0].allTotal;        // 100 全卷
+const BONUS_SEGS = ['阅读简答', '阅读选择'];
 const BONUS = PAPER_STATS[0].bonusTotal;
 const MAIN_N = PAPER_STATS[0].mainCount;
 const SEL = MODE_SCORE.select.avg;
@@ -30,7 +32,7 @@ const BASE = DIFF_SCORE.easy.avg;
 const MID = DIFF_SCORE.mid.avg;
 const HARD = DIFF_SCORE.hard.avg;
 const BASE_MID = +(BASE + MID).toFixed(1);
-const BASE_MID_PCT = Math.round((BASE_MID / MAIN) * 100);
+const BASE_MID_PCT = Math.round((BASE_MID / ALL) * 100);
 const DIFF_IDX = PAPER_STATS.map((p) => p.diffIndex);
 const DIFF_IDX_MIN = Math.min(...DIFF_IDX);
 const DIFF_IDX_MAX = Math.max(...DIFF_IDX);
@@ -240,7 +242,7 @@ push('封面', `
   <div class="cover-badge"><i></i>西城区区统考 · ${N_PAPERS} 套真题逐题拆解</div>
   <h1 class="cover-h">丢分的不是不会<br><em>是写不对</em></h1>
   <p class="cover-sub">
-    初一（上）英语期末，必做 ${MAIN} 分里 <b>${fmt(SEL)} 分只要涂卡</b>，
+    初一（上）英语期末，全卷 ${ALL} 分里 <b>${fmt(SEL)} 分只要涂卡</b>，
     剩下 <b>${fmt(WRI)} 分必须写出文字</b>——听写、简答、音标、汉译英、作文。
     这 ${SPAN_CN} 年的卷子结构一动没动，所以分数差距几乎全在输出端的形式准确性上。
   </p>
@@ -354,7 +356,7 @@ push('考点族权重', `
             <td><b>${esc(f.name)}</b></td>
             <td style="color:var(--text-3);font-size:12.5px">${f.seg.map((s) => SEG_NAME[s]).join('、')}</td>
             <td class="num hi">${fmt(f.avgPerYear)}</td>
-            <td class="num">${Math.round((f.avgPerYear / MAIN) * 100)}%</td>
+            <td class="num">${Math.round((f.avgPerYear / ALL) * 100)}%</td>
             <td><span style="font-size:11.5px;font-weight:700;color:${isWrite ? 'var(--rose)' : 'var(--accent)'}">${isWrite ? '输出' : '选择'}</span></td>
             <td style="color:var(--text-3);font-size:12.3px">${esc(f.note)}</td>
           </tr>`;
@@ -363,7 +365,7 @@ push('考点族权重', `
     </table>
     <div class="callout gold" style="margin-top:14px;font-size:13px">
       前 ${TOP_FAMS.length} 族合计年均 <b>${fmt(sum(TOP_FAMS.map((f) => f.avgPerYear)))} 分</b>，
-      占必做 ${MAIN} 分的 <b>${Math.round((sum(TOP_FAMS.map((f) => f.avgPerYear)) / MAIN) * 100)}%</b>。
+      占全卷 ${ALL} 分的 <b>${Math.round((sum(TOP_FAMS.map((f) => f.avgPerYear)) / ALL) * 100)}%</b>。
       首末族年均分差 <b>${fmt(TOP_FAMS[0].avgPerYear - TOP_FAMS[TOP_FAMS.length - 1].avgPerYear)} 分</b>——这个差距就是优先级。
     </div>
   </div>
@@ -507,20 +509,19 @@ push('拼写特征', `
   </div>
 </div>`);
 
-/* 11. 冲刺节奏 */
-push('冲刺节奏', `
+/* 11. 怎么用这个站 */
+push('怎么用', `
 <div class="slide">
   <div class="s-head">
-    <span class="s-kicker">Plan</span>
-    <h2 class="s-title">四个阶段，每阶段带停止条件</h2>
-    <p class="s-sub">不达标就停，不加内容硬撑</p>
+    <span class="s-kicker">How to use</span>
+    <h2 class="s-title">看完这份分析，接下来做什么</h2>
+    <p class="s-sub">按顺序走三步，每一步都有明确的产出</p>
   </div>
   <div class="s-body">
     <div class="phases">
-      <div class="ph"><div class="ph-w">第 1 阶段</div><div class="ph-b"><h4>材料清洗与口径锁定</h4><p>确认本校是否含「阅读简答」、把 ${N_PAPERS} 套卷的板块分值表逐题加总核对。</p><div class="ph-ok">Go：${N_PAPERS} 套必做均能加总到 ${MAIN} 分</div></div></div>
-      <div class="ph"><div class="ph-w">第 2 阶段</div><div class="ph-b"><h4>输出端 ${fmt(WRI)} 分逐项过关</h4><p>按分值优先级：文段表达 → 听填 → 简答 → 汉译英 → 音标。每项做「错因 → 动作」闭环。</p><div class="ph-ok">Go：每个板块能说出错在哪一类、对应哪个动作</div></div></div>
-      <div class="ph"><div class="ph-w">第 3 阶段</div><div class="ph-b"><h4>整卷限时</h4><p>至少一次完整 100 分钟计时，必做与选做分开报分。</p><div class="ph-ok">Go：失分能归到具体板块；只报总分说明归因没做</div></div></div>
-      <div class="ph"><div class="ph-w">第 4 阶段</div><div class="ph-b"><h4>回流</h4><p>错词进词表、错句进句型本，下一轮默写必须抽中。</p><div class="ph-ok">Go：下一轮练习内容因上一轮结果而改变</div></div></div>
+      <div class="ph"><div class="ph-w">第 1 步</div><div class="ph-b"><h4>先定位：你在哪一档</h4><p>拿最近一次英语卷，必做 ${MAIN} 分口径下逐板块记分。失分集中在哪 3 个板块，就练那 3 个。</p><div class="ph-ok">产出：一张「我的失分板块」清单，不超过 3 项</div></div></div>
+      <div class="ph"><div class="ph-w">第 2 步</div><div class="ph-b"><h4>再练动作：去专项页拿方法</h4><p>失分板块对应专项复习的四页之一。每页都给了「解题动作」与「备考动作」，照做，不刷题海。</p><div class="ph-ok">产出：每个失分板块能说出「我错在哪一类、对应哪个动作」</div></div></div>
+      <div class="ph"><div class="ph-w">第 3 步</div><div class="ph-b"><h4>最后验收：整卷限时</h4><p>至少一次完整 100 分钟计时，必做与选做分开报分。失分必须能归到具体板块。</p><div class="ph-ok">产出：失分归因表；只报总分说明第 1 步没做</div></div></div>
     </div>
   </div>
 </div>`);

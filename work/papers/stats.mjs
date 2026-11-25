@@ -71,27 +71,42 @@ export { TEXTBOOK, TEXTBOOK_READY };
 }
 
 /* ============================ 逐卷统计 ============================ */
+// ⚠ 双口径（2026-11-25 修正：此前只统计必做，漏掉选做）
+//
+//   必做口径 main*：必做 90 分，用于「卷面封顶 90」这条规则与「必做怎么复习」
+//   全卷口径 all* ：必做 + 选做 = 100 分，用于一切「考情分析」
+//
+// 为什么必须双口径：选做计入总分、能补必做失分，**实际必须做**。
+// 只统计必做会把「阅读简答 18 分」误算成 8 分，也会让只出现在选做的「词形填空」整族消失。
 export const PAPER_STATS = PAPERS_META.map((meta) => {
   const qs = LEDGER.filter((q) => q.p === meta.id);
   const main = qs.filter((q) => !q.bonus);
   const bonus = qs.filter((q) => q.bonus);
 
-  const seg = {}, segN = {}, cat = {}, catN = {}, diff = {}, diffN = {}, mode = {}, modeN = {}, fam = {};
-  for (const q of main) {
-    seg[q.seg] = (seg[q.seg] || 0) + q.score;
-    segN[q.seg] = (segN[q.seg] || 0) + 1;
-    cat[q.cat] = (cat[q.cat] || 0) + q.score;
-    catN[q.cat] = (catN[q.cat] || 0) + 1;
-    diff[q.diff] = (diff[q.diff] || 0) + q.score;
-    diffN[q.diff] = (diffN[q.diff] || 0) + 1;
-    mode[q.mode] = (mode[q.mode] || 0) + q.score;
-    modeN[q.mode] = (modeN[q.mode] || 0) + 1;
-    fam[q.fam] = (fam[q.fam] || 0) + q.score;
-  }
+  const acc = (list) => {
+    const seg = {}, segN = {}, cat = {}, catN = {}, diff = {}, diffN = {}, mode = {}, modeN = {}, fam = {};
+    for (const q of list) {
+      seg[q.seg] = (seg[q.seg] || 0) + q.score;
+      segN[q.seg] = (segN[q.seg] || 0) + 1;
+      cat[q.cat] = (cat[q.cat] || 0) + q.score;
+      catN[q.cat] = (catN[q.cat] || 0) + 1;
+      diff[q.diff] = (diff[q.diff] || 0) + q.score;
+      diffN[q.diff] = (diffN[q.diff] || 0) + 1;
+      mode[q.mode] = (mode[q.mode] || 0) + q.score;
+      modeN[q.mode] = (modeN[q.mode] || 0) + 1;
+      fam[q.fam] = (fam[q.fam] || 0) + q.score;
+    }
+    return { seg, segN, cat, catN, diff, diffN, mode, modeN, fam };
+  };
 
-  // 难度指数：easy 1 / mid 2 / hard 3，按分值加权后归一到 90 分口径
+  const M = acc(main);
+  const A = acc(qs);          // 全卷 = 必做 + 选做
+
+  // 难度指数：easy 1 / mid 2 / hard 3，按分值加权后归一
   const W = { easy: 1, mid: 2, hard: 3 };
-  const diffIndex = +(sum(main.map((q) => W[q.diff] * q.score)) / 90).toFixed(2);
+  const allTotal = sum(qs.map((q) => q.score));
+  const diffIndex = +(sum(qs.map((q) => W[q.diff] * q.score)) / allTotal).toFixed(2);
+  const mainDiffIndex = +(sum(main.map((q) => W[q.diff] * q.score)) / 90).toFixed(2);
 
   return {
     ...meta,
@@ -100,7 +115,15 @@ export const PAPER_STATS = PAPERS_META.map((meta) => {
     bonusCount: bonus.length,
     mainTotal: sum(main.map((q) => q.score)),
     bonusTotal: sum(bonus.map((q) => q.score)),
-    seg, segN, cat, catN, diff, diffN, mode, modeN, fam, diffIndex,
+    allTotal,
+    // 必做口径
+    seg: M.seg, segN: M.segN, cat: M.cat, catN: M.catN, diff: M.diff, diffN: M.diffN,
+    mode: M.mode, modeN: M.modeN, fam: M.fam,
+    mainDiffIndex,
+    // 全卷口径（考情分析用这一套）
+    allSeg: A.seg, allSegN: A.segN, allCat: A.cat, allCatN: A.catN,
+    allDiff: A.diff, allDiffN: A.diffN, allMode: A.mode, allModeN: A.modeN, allFam: A.fam,
+    diffIndex,
   };
 });
 
@@ -109,15 +132,15 @@ export const YEARS = PAPER_STATS.map((s) => s.label);
 /* ============================ 板块：跨年汇总 ============================ */
 export const SEG_SCORE = {};
 for (const k of SEG_ORDER) {
-  const per = PAPER_STATS.map((s) => s.seg[k] || 0);
-  const perN = PAPER_STATS.map((s) => s.segN[k] || 0);
+  const per = PAPER_STATS.map((s) => s.allSeg[k] || 0);
+  const perN = PAPER_STATS.map((s) => s.allSegN[k] || 0);
   const total = sum(per);
   SEG_SCORE[k] = {
     id: k, name: SEG_NAME[k], per, perN, total,
     avg: +(total / N_PAPERS).toFixed(1),
     min: Math.min(...per), max: Math.max(...per),
     range: range(per),
-    pct: Math.round((total / (N_PAPERS * 90)) * 100),
+    pct: Math.round((total / (N_PAPERS * 100)) * 100),
     fixed: range(per) === 0,
   };
 }
@@ -125,30 +148,30 @@ for (const k of SEG_ORDER) {
 /* ============================ 能力层次：跨年汇总 ============================ */
 export const CAT_SCORE = {};
 for (const k of CAT_ORDER) {
-  const per = PAPER_STATS.map((s) => s.cat[k] || 0);
-  const perN = PAPER_STATS.map((s) => s.catN[k] || 0);
+  const per = PAPER_STATS.map((s) => s.allCat[k] || 0);
+  const perN = PAPER_STATS.map((s) => s.allCatN[k] || 0);
   const total = sum(per);
   CAT_SCORE[k] = {
     id: k, name: k, per, perN, total,
     avg: +(total / N_PAPERS).toFixed(1),
     min: Math.min(...per), max: Math.max(...per),
     range: range(per),
-    pct: Math.round((total / (N_PAPERS * 90)) * 100),
+    pct: Math.round((total / (N_PAPERS * 100)) * 100),
   };
 }
 
 /* ============================ 难度：跨年汇总 ============================ */
 export const DIFF_SCORE = {};
 for (const k of DIFF_ORDER) {
-  const per = PAPER_STATS.map((s) => s.diff[k] || 0);
-  const perN = PAPER_STATS.map((s) => s.diffN[k] || 0);
+  const per = PAPER_STATS.map((s) => s.allDiff[k] || 0);
+  const perN = PAPER_STATS.map((s) => s.allDiffN[k] || 0);
   const total = sum(per);
   DIFF_SCORE[k] = {
     id: k, name: DIFF_NAME[k], per, perN, total,
     avg: +(total / N_PAPERS).toFixed(1),
     min: Math.min(...per), max: Math.max(...per),
     range: range(per),
-    pct: Math.round((total / (N_PAPERS * 90)) * 100),
+    pct: Math.round((total / (N_PAPERS * 100)) * 100),
   };
 }
 
@@ -156,15 +179,15 @@ for (const k of DIFF_ORDER) {
 // 这是本站的核心切口：同样是 90 分，一半只涂卡，一半要写出文字。
 export const MODE_SCORE = {};
 for (const k of ['select', 'write']) {
-  const per = PAPER_STATS.map((s) => s.mode[k] || 0);
-  const perN = PAPER_STATS.map((s) => s.modeN[k] || 0);
+  const per = PAPER_STATS.map((s) => s.allMode[k] || 0);
+  const perN = PAPER_STATS.map((s) => s.allModeN[k] || 0);
   const total = sum(per);
   MODE_SCORE[k] = {
     id: k, name: MODE_NAME[k], per, perN, total,
     avg: +(total / N_PAPERS).toFixed(1),
     min: Math.min(...per), max: Math.max(...per),
     range: range(per),
-    pct: Math.round((total / (N_PAPERS * 90)) * 100),
+    pct: Math.round((total / (N_PAPERS * 100)) * 100),
     fixed: range(per) === 0,
   };
 }
@@ -173,21 +196,28 @@ export const WRITE_SEGS = SEG_ORDER.filter((s) =>
   LEDGER.filter((q) => q.seg === s && !q.bonus).every((q) => q.mode === 'write'));
 
 /* ============================ 考点族：跨年汇总 ============================ */
+// 口径修正：含选做。此前用 !q.bonus 过滤，导致「词形填空」（只出现在选做）
+// 整族消失、qs 为空、avgPerYear 为 0——那是分析漏洞不是事实。
 export const FAM_MAP = FAM_DEFS.map((f) => {
-  const qs = LEDGER.filter((q) => q.fam === f.id && !q.bonus);
-  const per = PAPER_STATS.map((s) => s.fam[f.id] || 0);
+  const qs = LEDGER.filter((q) => q.fam === f.id);          // 含选做
+  const mainQs = qs.filter((q) => !q.bonus);
+  const bonusQs = qs.filter((q) => q.bonus);
+  const per = PAPER_STATS.map((s) => s.allFam[f.id] || 0);
+  const perMain = PAPER_STATS.map((s) => s.fam[f.id] || 0);
   const hit = per.filter((v) => v > 0).length;
   const total = sum(per);
-  const bonusOnly = qs.length === 0 && LEDGER.some((q) => q.fam === f.id && q.bonus);
   return {
     ...f,
-    qs,
-    per,
+    qs, mainQs, bonusQs,
+    per, perMain,
     hit,
     total,
     avgPerYear: +(total / N_PAPERS).toFixed(1),
+    avgPerYearMain: +(sum(perMain) / N_PAPERS).toFixed(1),
     perYearHit: +(hit / N_PAPERS).toFixed(2),
-    onlyBonus: bonusOnly,
+    // 只在选做出现（如词形填空），保留但不当作空白
+    onlyBonus: mainQs.length === 0 && bonusQs.length > 0,
+    hasBonus: bonusQs.length > 0,
   };
 }).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'zh'));
 
@@ -209,7 +239,7 @@ export const FREQ_SUMMARY = (() => {
     often: buckets.often,
     rare: buckets.rare,
     alwaysScore: sum(buckets.always.map((f) => f.total)) / N_PAPERS,
-    alwaysPct: Math.round((sum(buckets.always.map((f) => f.total)) / (N_PAPERS * 90)) * 100),
+    alwaysPct: Math.round((sum(buckets.always.map((f) => f.total)) / (N_PAPERS * 100)) * 100),
   };
 })();
 
@@ -529,36 +559,46 @@ export const WRITE_Q_RANGE = {
 };
 
 /* ============================ 阅读专项 ============================ */
-export const READ_ITEMS = LEDGER.filter((q) => (q.seg === '阅读选择' || q.seg === '阅读简答') && !q.bonus);
+// 口径修正（2026-11-25）：含选做。选做的阅读题（尤其前三套的 10 分简答）
+// 分值比必做简答还高，漏掉会把阅读总分算成 30 分（实际 40 分）。
+export const READ_ITEMS = LEDGER.filter((q) => q.seg === '阅读选择' || q.seg === '阅读简答');
+export const READ_MAIN_ITEMS = READ_ITEMS.filter((q) => !q.bonus);
 
 export const READ_STATS = (() => {
   const sel = READ_ITEMS.filter((q) => q.seg === '阅读选择');
   const ans = READ_ITEMS.filter((q) => q.seg === '阅读简答');
+  const selMain = sel.filter((q) => !q.bonus);
+  const ansMain = ans.filter((q) => !q.bonus);
   const byFam = {};
   for (const q of sel) byFam[q.fam] = (byFam[q.fam] || 0) + 1;
   return {
-    selCount: sel.length / N_PAPERS,
-    ansCount: ans.length / N_PAPERS,
+    selCount: +(sel.length / N_PAPERS).toFixed(1),
+    ansCount: +(ans.length / N_PAPERS).toFixed(1),
+    selCountMain: +(selMain.length / N_PAPERS).toFixed(1),
+    ansCountMain: +(ansMain.length / N_PAPERS).toFixed(1),
     selScore: SEG_SCORE['阅读选择'].avg,
     ansScore: SEG_SCORE['阅读简答'].avg,
-    totalScore: SEG_SCORE['阅读选择'].avg + SEG_SCORE['阅读简答'].avg,
+    totalScore: +(SEG_SCORE['阅读选择'].avg + SEG_SCORE['阅读简答'].avg).toFixed(1),
+    bonusScore: +(sel.filter((q) => q.bonus).reduce((a, q) => a + q.score, 0) / N_PAPERS
+      + ans.filter((q) => q.bonus).reduce((a, q) => a + q.score, 0) / N_PAPERS).toFixed(1),
     selFams: Object.entries(byFam)
       .map(([k, v]) => ({ id: k, name: FAM_NAME[k], count: v, perPaper: +(v / N_PAPERS).toFixed(1), pct: Math.round((v / sel.length) * 100) }))
       .sort((a, b) => b.count - a.count),
   };
 })();
 
-// 阅读简答：前三题检索、末题概括——由数据派生
+// 阅读简答：检索 vs 概括开放——分值按各题实际 score 累加（选做是 5 分不是 2 分）
 export const READ_ANS_TYPES = (() => {
-  const ans = LEDGER.filter((q) => q.seg === '阅读简答' && !q.bonus);
+  const ans = READ_ITEMS.filter((q) => q.seg === '阅读简答');
   const retrieve = ans.filter((q) => q.fam === 'f-read-answer');
   const open = ans.filter((q) => q.fam === 'f-read-open');
+  const scoreOf = (list) => +(list.reduce((a, q) => a + q.score, 0) / N_PAPERS).toFixed(1);
   return {
     retrieve: retrieve.length, open: open.length,
     retrievePerPaper: +(retrieve.length / N_PAPERS).toFixed(1),
     openPerPaper: +(open.length / N_PAPERS).toFixed(1),
-    retrieveScore: retrieve.length / N_PAPERS * 2,
-    openScore: open.length / N_PAPERS * 2,
+    retrieveScore: scoreOf(retrieve),
+    openScore: scoreOf(open),
   };
 })();
 
