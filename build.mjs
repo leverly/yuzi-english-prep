@@ -1978,6 +1978,27 @@ ${READ_STATS.selFams.map((f) => {
 </div>
 `, 'r-drill')}
 
+${section('简答练手', `${READ_ITEMS.filter((q) => q.seg === '阅读简答' && q.stemText).length} 道简答：写出你的答案再看参考`, '简答题没有选项，只能自己写——这里给题干 + 参考答案', `
+<div class="note warn">
+  <b>先自己写，再展开对答案。</b>简答的失分几乎全在形式：<b>问什么答什么、人称换过来、别照抄整句</b>。
+  下面每题都给了参考答案，注意看它的「长度」——很多题两三个词就够。
+</div>
+<div class="grid g2" style="margin-top:12px;gap:12px">
+${READ_ITEMS.filter((q) => q.seg === '阅读简答' && q.stemText).map((q) => `<div class="card" style="padding:14px 16px">
+  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:7px">
+    <span class="tag write" style="font-size:11px">${esc(FAM_NAME[q.fam].replace('阅读·简答', '简答'))}</span>
+    <span style="font-size:11.8px;color:var(--text-3)">${esc(PAPER_STATS.find((x) => x.id === q.p).label)} · 第 ${q.no} 题</span>
+    <span style="margin-left:auto;font-size:11.8px;color:var(--text-3)">${esc(q.evLoc || '')}</span>
+  </div>
+  <div style="font-size:12.9px;color:var(--text);line-height:1.6">${esc(q.stemText)}</div>
+  <details style="margin-top:7px">
+    <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600">看参考答案</summary>
+    <div style="font-size:12.6px;color:var(--ok);margin-top:5px;padding:7px 10px;background:var(--ok-soft);border-radius:6px;line-height:1.6">${esc(q.refAns || '（原卷未给）')}</div>
+  </details>
+</div>`).join('')}
+</div>
+`, 'r-answer')}
+
 ${section('解题与备考', '按题型给动作，不背「阅读技巧」', '五种题型，五种动作', `
 <div class="tbl-wrap">
 <table>

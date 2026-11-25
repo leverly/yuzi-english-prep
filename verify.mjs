@@ -612,6 +612,35 @@ for (const f of ALL_HTML) {
   }
 }
 
+/* ---------- 10l. 台账不得留死字段（页面已不用但仍占数据的） ---------- */
+// 2026-11-25 清理：evQuote（73 条证据句原文）、passage（73 条）页面已不用，删除前已归档到 /tmp。
+// 判据：台账字段必须至少被 build.mjs 或 stats.mjs 引用一次。
+{
+  const src = readFileSync('build.mjs', 'utf8') + readFileSync('work/papers/stats.mjs', 'utf8');
+  for (const field of ['evQuote', 'passage']) {
+    const inLedger = LEDGER.filter((q) => q[field] !== undefined).length;
+    ok(inLedger === 0, `台账不含死字段 ${field}（残留 ${inLedger} 条）`);
+  }
+  // 仍在用的字段必须真有数据
+  ok(LEDGER.filter((q) => q.stemText).length > 0, `stemText 仍在用且有 ${LEDGER.filter((q) => q.stemText).length} 条`);
+  ok(LEDGER.filter((q) => q.evLoc).length > 0, `evLoc 仍在用`);
+  ok(LEDGER.filter((q) => q.refAns).length > 0, `refAns 仍在用`);
+}
+
+/* ---------- 10m. 简答练手：题干 + 参考答案必须成对 ---------- */
+{
+  const html = readFileSync('special-read.html', 'utf8');
+  const ansItems = LEDGER.filter((q) => q.seg === '阅读简答' && q.refAns);
+  ok(ansItems.length >= 20, `简答题有参考答案 ${ansItems.length} 道（≥20）`);
+  ok(html.includes('简答练手'), '阅读页有「简答练手」节');
+  ok((html.match(/看参考答案/g) || []).length === ansItems.length,
+    `「看参考答案」折叠项数 = 简答有答案数（${ansItems.length}）`);
+  // 每道简答的题干与答案都要在页面上（抽查前 8 条）
+  for (const q of ansItems.filter((x) => x.stemText).slice(0, 8)) {
+    ok(html.includes(q.stemText.slice(0, 25)), `简答题干「${q.stemText.slice(0, 20)}…」上页`);
+  }
+}
+
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */
 // esc() 不解析 Markdown，漏网的 ** 会原样显示成星号。
 for (const f of ALL_HTML) {
