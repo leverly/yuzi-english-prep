@@ -527,6 +527,34 @@ for (const f of ALL_HTML) {
     `写作页显示提示问题区间 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max}`);
 }
 
+/* ---------- 10j-1. 版式：除总览页外，hero 必须是上下结构 ---------- */
+// 2026-11-25 用户要求：只有总览页保留左右分栏，其余页面 hero 改成上下，
+// 且左侧文字不换行（导语限一行读完）。
+{
+  const STACK_PAGES = [
+    'papers.html', 'trend.html', 'special.html',
+    'special-word.html', 'special-grammar.html', 'special-grammar-fam.html',
+    'special-grammar-sent.html', 'special-read.html', 'special-write.html',
+  ];
+  for (const f of STACK_PAGES) {
+    const html = readFileSync(f, 'utf8');
+    ok(html.includes('class="hero-stack"'), `${f} hero 用上下结构（hero-stack）`);
+    ok(!/class="hero-split[^"]*"/.test(html), `${f} 不再用左右分栏（hero-split）`);
+  }
+  // 总览页必须仍是左右分栏
+  const idx = readFileSync('index.html', 'utf8');
+  ok(/class="hero-split[^"]*"/.test(idx), 'index.html 保留左右分栏');
+
+  // 导语不能过长——超过这个长度在 1140px 容器里必然换行
+  for (const f of STACK_PAGES) {
+    const html = readFileSync(f, 'utf8');
+    const m = html.match(/<p class="lede">([\s\S]*?)<\/p>/);
+    if (!m) continue;
+    const txt = m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    ok(txt.length <= 80, `${f} 导语 ${txt.length} 字符（≤80，一行放得下）`);
+  }
+}
+
 /* ---------- 10j-2. 单词页自测：可作答、可判分、答案可核对 ---------- */
 // 自测是本站唯一的「动手」入口。断言必须保证它真能判分，
 // 而不只是页面上有几行 HTML。

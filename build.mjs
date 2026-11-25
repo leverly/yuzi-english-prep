@@ -1326,14 +1326,14 @@ function buildSpecial() {
 ${specialHead(
     `${N_PAPERS} 套真题 · 四部分逐题实证`,
     '专项复习',
-    `单词、语法、阅读、写作——四部分的解题动作不一样，所以练法也不一样。
-     这里不讲通用技巧，每一部分都给出<b>真题证据 → 解题方法 → 备考动作</b>。
-     四部分各占一页，语法下面再分「单选语法族」和「汉译英」两页。`,
+    `四部分各一页，每页都给 <b>真题证据 → 解题方法 → 备考动作</b>；语法再分两级。`,
     `<div class="cockpit-top"><span class="level-pill">四部分分值</span></div>
-      <div class="metric-row"><span class="mv accent">${fmt(partScore.word)}</span><span class="ml"><b>单词</b>音标 ${fmt(SEG_SCORE['音标填词'].avg)} + 听填 ${fmt(SEG_SCORE['听填'].avg)}</span></div>
-      <div class="metric-row"><span class="mv" style="color:var(--purple)">${fmt(partScore.grammar)}</span><span class="ml"><b>语法</b>单选 ${GRAMMAR_FAMS.length} 族</span></div>
-      <div class="metric-row"><span class="mv rose">${fmt(partScore.read)}</span><span class="ml"><b>阅读</b>选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}</span></div>
-      <div class="metric-row" style="border-bottom:none"><span class="mv gold">${fmt(partScore.write)}</span><span class="ml"><b>写作</b>文段表达，≥${WRITE_STATS.wordMin} 词</span></div>`
+      <div class="metric-strip">
+        <div class="ms-item"><span class="ms-n">${fmt(partScore.word)}</span><span class="ms-l">单词<small>音标 ${fmt(SEG_SCORE['音标填词'].avg)} + 听填 ${fmt(SEG_SCORE['听填'].avg)}</small></span></div>
+        <div class="ms-item"><span class="ms-n" style="color:var(--purple)">${fmt(partScore.grammar)}</span><span class="ms-l">语法<small>单选 ${GRAMMAR_FAMS.length} 族</small></span></div>
+        <div class="ms-item"><span class="ms-n" style="color:var(--rose)">${fmt(partScore.read)}</span><span class="ms-l">阅读<small>选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}</small></span></div>
+        <div class="ms-item"><span class="ms-n" style="color:var(--gold)">${fmt(partScore.write)}</span><span class="ms-l">写作<small>≥${WRITE_STATS.wordMin} 词</small></span></div>
+      </div>`
   )}
 
 <div class="note info" style="margin-top:6px">
