@@ -475,7 +475,6 @@ const NAV = [
   ['papers.html', '逐年真题'],
   ['trend.html', '趋势与考点'],
   ['special.html', '专项复习'],
-  ['plan.html', '冲刺计划'],
   ['slides.html', '演示', 'nav-slides'],
 ];
 
@@ -577,7 +576,7 @@ function buildHome() {
       </p>
       <div class="hero-cta">
         <a class="btn primary" href="trend.html">先看${SPAN_CN}年趋势</a>
-        <a class="btn" href="plan.html">看冲刺计划</a>
+        <a class="btn" href="special.html">看专项复习</a>
       </div>
       <div class="hero-trust">
         <span><b>✓</b>${N_PAPERS} 套卷逐题标注</span>
@@ -628,11 +627,6 @@ function buildHome() {
           <span class="mi-main"><b>专项复习</b><small>单词 / 语法 / 阅读 / 写作 四页</small></span>
           <span class="mi-go">查看 →</span>
         </a>
-        <a class="mission-item" href="plan.html">
-          <span class="mi-ico gold">🎯</span>
-          <span class="mi-main"><b>冲刺计划</b><small>输出端 ${fmt(WRITE_AVG)} 分怎么练</small></span>
-          <span class="mi-go">查看 →</span>
-        </a>
       </div>
     </aside>
   </div>
@@ -663,7 +657,7 @@ ${section('核心判断', '三个判断，决定复习顺序', '每条都能追�
       <span class="sell-tag">证据</span>
       <p>${WRITE_SEG_LIST.map((s) => `${s.name} ${fmt(s.score)}`).join(' + ')} = <b>${fmt(WRITE_AVG)} 分</b>。</p>
       <p>这 ${fmt(WRITE_AVG)} 分丢的不是「不会」，是<b>三单忘加 s、过去时写原形、简答照抄原句人称没换、音标认识但拼错</b>。补救动作与多刷题无关。</p>
-      <a class="sell-link" href="plan.html">看输出端怎么练 →</a>
+      <a class="sell-link" href="special.html">看输出端怎么练 →</a>
     </div>
   </div>
   <div class="sell-row">
@@ -690,7 +684,7 @@ ${section('分值分区', `${MAIN_TOTAL} 分不是均匀分布的`, `按「要�
     <div class="tier-d">${SELECT_SEG_LIST.map((s) => s.name).join('、')}</div>
     <div class="tier-goal">只涂卡，认得出就得分</div>
   </a>
-  <a class="tier-card t-rose" href="plan.html">
+  <a class="tier-card t-rose" href="trend.html#mode">
     <div class="tier-n">${fmt(WRITE_AVG)}<small>分</small></div>
     <div class="tier-l">输出型 · ${WRITE_PCT}%</div>
     <div class="tier-d">${WRITE_SEG_LIST.map((s) => s.name).join('、')}</div>
@@ -1045,7 +1039,7 @@ ${section('② 作答方式', '选择型与输出型', `同一份卷子，${SELE
 <div class="note risk" style="margin-top:16px">
   <b>这是全站的核心切口。</b>输出型 ${fmt(WRITE_AVG)} 分里，${WRITE_SEG_LIST.map((s) => `${s.name} ${fmt(s.score)}`).join('、')}——
   每一项都有「会但写错」的空间：拼写、时态、人称、标点。<b>提分动作因此不是多刷题，是定向默写与句型改写。</b>
-  <a href="plan.html" style="color:var(--rose);font-weight:650">看冲刺计划 →</a>
+  <a href="special.html" style="color:var(--rose);font-weight:650">看专项怎么练 →</a>
 </div>
 `, 'mode')}
 
@@ -1140,146 +1134,6 @@ ${section('⑦ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 �
   return page('trend.html', `趋势与考点 · ${SITE.short}`, `${N_PAPERS} 套卷跨年对比：结构、作答方式、能力、难度、考点族。`, body);
 }
 
-/* ============================ 冲刺计划 ============================ */
-function buildPlan() {
-  // 输出型板块按分值降序——这就是练习顺序
-  const writeRanked = WRITE_SEG_LIST.slice().sort((a, b) => b.score - a.score);
-
-  const priCards = writeRanked.map((s, i) => {
-    const cls = ['', 'p2', 'p3', 'p4', 'p5'][Math.min(i, 4)];
-    const fams = FAM_RANKED.filter((f) => f.seg.includes(s.k));
-    const actions = {
-      '文段表达': '先写提纲（几段、每段几个要点），再按「提示问题」逐条落句；写完自查三件事：动词形式、名词单复数、句末标点。',
-      '听力·填词': '听到什么写什么，但<b>必须检查形式</b>：名词单复数、动词时态、首字母大小写。这一项丢分几乎全是形式错。',
-      '阅读·简答': '四规范：① 用完整句 ② 时态跟问句走 ③ 人称换过来 ④ 不照抄整句。问什么答什么，不加戏。',
-      '汉译英': '给提示词就是给骨架。先定句型（be good at / It is + adj + to do / try one\'s best），再套词，最后查主谓一致。',
-      '音标填词': '看音标→想单词→拼出来。错因两类：认不出（要过词表）、拼错（要默写）。分开统计，别混着练。',
-    };
-    return `<div class="pri ${cls}">
-      <span class="pri-rank">优先级 ${String(i + 1).padStart(2, '0')}</span>
-      <h3>${esc(s.name)} · ${fmt(s.score)} 分</h3>
-      <div class="meta">年均 ${fmt(s.score)} 分 · ${s.count} 小题 · 涉及 ${fams.length} 个考点族</div>
-      <p>${actions[s.name] || '按考点族逐项过关。'}</p>
-    </div>`;
-  }).join('');
-
-  const body = `
-<section class="hero" style="padding-bottom:10px">
-  <div class="hero-split wide">
-    <div>
-      <div class="hero-badge"><span class="dot-live"></span>输出端 ${fmt(WRITE_AVG)} 分 · 按分值排优先级</div>
-      <h1 style="font-size:clamp(26px,3.2vw,36px)">冲刺计划</h1>
-      <p class="lede">
-        必做 ${MAIN_TOTAL} 分里，<b>${fmt(SELECT_AVG)} 分只要涂卡、${fmt(WRITE_AVG)} 分要写出文字</b>。
-        输入端对班内前列的学生已接近饱和，所以这份计划只做一件事：<b>把输出端的 ${fmt(WRITE_AVG)} 分练到不丢形式分</b>。
-      </p>
-    </div>
-    <aside class="cockpit">
-      <div class="cockpit-top"><span class="level-pill">输出端拆解</span></div>
-      ${WRITE_SEG_LIST.slice().sort((a, b) => b.score - a.score).slice(0, 5).map((x) => `<div class="metric-row">
-        <span class="mv rose">${fmt(x.score)}</span>
-        <span class="ml"><b>${x.name}</b>${x.count} 小题</span>
-      </div>`).join('')}
-    </aside>
-  </div>
-</section>
-
-${section('核心判断', '先练输出端，不是先刷阅读', `${fmt(WRITE_AVG)} 分 vs ${fmt(SELECT_AVG)} 分`, `
-<div class="note risk">
-  <b>这条判断决定了整份计划的顺序。</b>输出型 ${fmt(WRITE_AVG)} 分的错，绝大多数不是「不会」，
-  而是<b>形式没写对</b>——三单忘加 s、过去时写原形、简答照抄原句、音标认识但拼错。
-  这类错有一个共同点：<b>知道规则也不保证写对，必须靠定向操练固化</b>。
-</div>
-<div class="grid g2" style="margin-top:16px">
-  <div class="card">
-    <h3 style="margin-bottom:10px">输入端 ${fmt(SELECT_AVG)} 分</h3>
-    <p style="font-size:13.4px;color:var(--text-2);line-height:1.72">
-      ${SELECT_SEG_LIST.map((s) => s.name).join('、')}。错因主要是<b>词没认到</b>与<b>没读懂</b>，
-      补救动作是过词表与精读。对班内前列学生，这一块通常已接近饱和。
-    </p>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">输出端 ${fmt(WRITE_AVG)} 分</h3>
-    <p style="font-size:13.4px;color:var(--text-2);line-height:1.72">
-      ${WRITE_SEG_LIST.map((s) => s.name).join('、')}。错因主要是<b>形式写错</b>，
-      补救动作是默写、句型改写、检查清单。<b>同样的时间投在这里，边际收益高得多。</b>
-    </p>
-  </div>
-</div>
-`)}
-
-${section('练习顺序', `输出端 ${writeRanked.length} 个板块，按分值排`, '分值越高越先练；同分按「形式错的空间大小」排', `
-<div class="grid g2">${priCards}</div>
-`)}
-
-${section('归因', '六类错因，每类对应一个不同动作', '动作相同就该合并——这是分类成立的唯一判据', `
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>错因</th><th>典型表现</th><th>补救动作</th><th>训练形态</th></tr></thead>
-<tbody>
-<tr><td><b>拼写错</b></td><td class="wrap-cell">音标认识，单词拼错（recieve / rest 写成 reast）</td><td>默写</td><td>每日 10 词，隔日回抽</td></tr>
-<tr><td><b>形式错</b></td><td class="wrap-cell">三单忘 s、过去时写原形、复数忘 s</td><td>句型改写</td><td>同一句改成三单 / 过去 / 否定 / 疑问四种</td></tr>
-<tr><td><b>词没认到</b></td><td class="wrap-cell">阅读里单词不认识，整句读不通</td><td>认读</td><td>看英文反应中文，不要求拼写</td></tr>
-<tr><td><b>没读懂</b></td><td class="wrap-cell">词都认识，但段落逻辑没接上</td><td>精读</td><td>每道细节题划出证据句</td></tr>
-<tr><td><b>答非所问</b></td><td class="wrap-cell">简答问「为什么」答了「是什么」</td><td>简答模板</td><td>四规范逐条对照改</td></tr>
-<tr><td><b>规范缺失</b></td><td class="wrap-cell">句末无标点、首字母小写、字数不够</td><td>检查清单</td><td>交卷前 3 分钟固定动作</td></tr>
-</tbody>
-</table>
-</div>
-<div class="note" style="margin-top:14px">
-  六类的判据是<b>「补救动作是否不同」</b>。若两类动作相同（例如「粗心」与「计算错」），就应合并——
-  否则分类只是增加记账成本，不改变任何行动。
-</div>
-`)}
-
-${section('阶段', '四个阶段，每阶段带停止条件', '不达标就停，不加内容硬撑', `
-<div>
-${[
-  { w: '第 1 阶段', t: '材料清洗与口径锁定', p: `确认西城期末是否含「阅读简答」、把 ${N_PAPERS} 套卷的板块分值表逐题加总核对。`, ok: `Go：${N_PAPERS} 套卷必做均能加总到 90 分；No-Go：对不上就停，先查是否混进别科卷。` },
-  { w: '第 2 阶段', t: `输出端 ${fmt(WRITE_AVG)} 分逐项过关`, p: '按上面 5 个板块的优先级，每个板块做「错因 → 动作」闭环。先拼写与形式，再简答与作文。', ok: 'Go：每个板块能说出「我错在哪一类、对应哪个动作」；No-Go：说不清错因就先做诊断，别急着加练习量。' },
-  { w: '第 3 阶段', t: '整卷限时', p: `至少一次完整 100 分钟计时，必做与选做分开报分。`, ok: `Go：必做 ${MAIN_TOTAL} 分口径下失分能归到具体板块；No-Go：只报总分说明归因没做，回第 2 阶段。` },
-  { w: '第 4 阶段', t: '回流', p: '错词进词表、错句进句型本，下一轮默写必须抽中。', ok: 'Go：下一轮练习内容因上一轮结果而改变；No-Go：练习内容固定不变说明回流断环。' },
-].map((s) => `<div class="phase">
-  <div class="phase-w">${esc(s.w)}</div>
-  <div class="phase-b">
-    <h4>${esc(s.t)}</h4>
-    <p>${esc(s.p)}</p>
-    <div class="phase-ok">${esc(s.ok)}</div>
-  </div>
-</div>`).join('')}
-</div>
-`)}
-
-${section('验收', '每层独立达标线', '必须同时看目标线与满分线', `
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>层次</th><th class="num">满分</th><th class="num">目标线</th><th>判定依据</th></tr></thead>
-<tbody>
-<tr><td><b>选择型</b></td><td class="num">${fmt(SELECT_AVG)}</td><td class="num">${fmt(Math.round(SELECT_AVG * 0.97))}</td><td class="wrap-cell">只允许错 1–2 题；错题必须能说出证据句在哪</td></tr>
-<tr><td><b>输出型</b></td><td class="num">${fmt(WRITE_AVG)}</td><td class="num">${fmt(Math.round(WRITE_AVG * 0.92))}</td><td class="wrap-cell">允许丢形式分 ≤3 分；同类形式错不得重复出现</td></tr>
-<tr><td><b>选做</b></td><td class="num">${BONUS_TOTAL}</td><td class="num">${BONUS_TOTAL}</td><td class="wrap-cell">这是缓冲垫，目标是全拿</td></tr>
-</tbody>
-</table>
-</div>
-<div class="note warn" style="margin-top:14px">
-  <b>达标线是假设值，需实测校准，不可当结论引用。</b>
-  只显示目标线会得出「输出端达 92% 就过关」的误判——实际离满分还差 ${fmt(WRITE_AVG - Math.round(WRITE_AVG * 0.92))} 分。
-</div>
-`)}
-
-${section('待确认', '需要先确认的一件事', '这条不确认，上面的计划会跑偏', `
-<div class="card">
-  <h3 style="margin-bottom:8px">本校是否含阅读简答</h3>
-  <p style="font-size:13.3px;color:var(--text-2);line-height:1.72">
-    ${N_PAPERS} 套区卷都含第六大题「阅读短文回答问题」（${SEG_SCORE['阅读简答'].avg} 分）。
-    若本校考试与区卷一致，则简答训练权重按本站口径；若不同，需重新分配输出端内部的时间比例。
-  </p>
-</div>
-`)}
-`;
-
-  return page('plan.html', `冲刺计划 · ${SITE.short}`, `输出端 ${fmt(WRITE_AVG)} 分的练习顺序、归因与阶段验收。`, body);
-}
 
 /* ============================ 输出 ============================ */
 
@@ -2015,7 +1869,6 @@ const pages = {
   'index.html': buildHome(),
   'papers.html': buildPapers(),
   'trend.html': buildTrend(),
-  'plan.html': buildPlan(),
   'special.html': buildSpecial(),
   'special-word.html': buildSpecialWord(),
   'special-grammar.html': buildSpecialGrammar(),

@@ -15,7 +15,7 @@ import { LEDGER, SEG_ORDER, CAT_ORDER, DIFF_ORDER } from './work/papers/ledger.m
 const sum = (a) => a.reduce((x, y) => x + y, 0);
 const fmt = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 
-const ALL_PAGES = ['index.html', 'papers.html', 'trend.html', 'special.html', 'plan.html'];
+const ALL_PAGES = ['index.html', 'papers.html', 'trend.html', 'special.html'];
 
 // 专项复习已拆成分层页面：总览 + 四部分，语法再分两子页。
 // 校验必须覆盖全部子页——拆页时最容易出现的错就是「数字只留在旧页上」。
@@ -190,10 +190,8 @@ for (const k of DIFF_ORDER) {
 {
   const idx = readFileSync('index.html', 'utf8');
   const trend = readFileSync('trend.html', 'utf8');
-  const plan = readFileSync('plan.html', 'utf8');
   ok(idx.includes(`${WRITE} 分`), `首页出现输出端 ${WRITE} 分`);
   ok(trend.includes(`${WRITE}`), `趋势页出现输出端 ${WRITE}`);
-  ok(plan.includes(`${WRITE}`), `计划页出现输出端 ${WRITE}`);
 }
 
 /* ---------- 10b. 不得残留未渲染的模板占位符 ---------- */
@@ -303,7 +301,7 @@ for (const f of ALL_HTML) {
 /* ---------- 10g. 导航标签必须全站一致 ---------- */
 {
   // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
-  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项复习', '冲刺计划', '演示'];
+  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项复习', '演示'];
   for (const f of ALL_HTML) {
     const html = readFileSync(f, 'utf8');
     const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
@@ -319,6 +317,23 @@ for (const f of ALL_HTML) {
   ok(!idx.includes('这一版明确做不到'), '首页不含已删除的「样本边界」节');
 }
 
+/* ---------- 10g-2. 冲刺计划整页已删除：不得复活、不得留死链 ---------- */
+// 用户判定该页没有实际价值（阶段/达标线是我自己的工作流程与假设值，不是学生能用的东西）。
+{
+  const exists = (() => { try { readFileSync('plan.html'); return true; } catch { return false; } })();
+  ok(!exists, 'plan.html 已删除且不再生成');
+
+  for (const f of ALL_HTML) {
+    const html = readFileSync(f, 'utf8');
+    // 不能有指向 plan.html 的链接，否则是死链
+    ok(!html.includes('href="plan.html"'), `${f} 无指向已删除页面的死链`);
+    ok(!html.includes('冲刺计划'), `${f} 无「冲刺计划」字样`);
+  }
+  // 导航项数必须与 ALL_PAGES 一致（防止只删页面忘了删导航）
+  const navN = (readFileSync('index.html', 'utf8').match(/class="hdr-nav"/) ? 1 : 0);
+  ok(navN === 1, '首页导航容器仍在');
+}
+
 /* ---------- 10h. 已按用户要求移除的模块不得复活 ---------- */
 {
   // 用户先后要求删除：首页「样本边界」节、全站「边界」模块、整页「教材对照」
@@ -326,7 +341,6 @@ for (const f of ALL_HTML) {
     const html = readFileSync(f, 'utf8');
     ok(!html.includes('这一版明确做不到'), `${f} 无「样本边界」节`);
     ok(!html.includes('这一版做不到'), `${f} 无「边界」节`);
-    ok(!html.includes('这一版明确不做'), `${f} 无「边界」节（冲刺计划）`);
     ok(!html.includes('教材对照'), `${f} 无「教材对照」`);
   }
   // book.html 不应再生成
