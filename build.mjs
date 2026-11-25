@@ -15,7 +15,6 @@ import {
   CROSS_CHECK,
   SEG_ORDER, SEG_NAME, CAT_ORDER, CAT_NAME, DIFF_ORDER, DIFF_NAME, MODE_NAME,
   PROP_STABILITY, PROP_LEVEL_NAME, PROP_SUMMARY, GRAMMAR_YEARLY,
-  BOOK_STATUS, BOOK_TARGET_FAMS, BOOK_PROGRESS,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_ACTIONS, SENT_GROUPS, GRAMMAR_DOUBLE,
 } from './work/papers/stats.mjs';
@@ -389,7 +388,6 @@ const NAV = [
   ['papers.html', '逐年真题'],
   ['trend.html', '趋势与考点'],
   ['special.html', '专项'],
-  ['book.html', '教材对照'],
   ['plan.html', '冲刺计划'],
 ];
 
@@ -1081,7 +1079,7 @@ ${section('归因', '六类错因，每类对应一个不同动作', '动作相�
 ${section('阶段', '四个阶段，每阶段带停止条件', '不达标就停，不加内容硬撑', `
 <div>
 ${[
-  { w: '第 1 阶段', t: '材料清洗与口径锁定', p: `确认教材版本（当前手册写外研版，需与课本目录核对）、确认西城期末是否含「阅读简答」、把 ${N_PAPERS} 套卷的板块分值表逐题加总核对。`, ok: `Go：${N_PAPERS} 套卷必做均能加总到 90 分；No-Go：对不上就停，先查是否混进别科卷。` },
+  { w: '第 1 阶段', t: '材料清洗与口径锁定', p: `确认西城期末是否含「阅读简答」、把 ${N_PAPERS} 套卷的板块分值表逐题加总核对。`, ok: `Go：${N_PAPERS} 套卷必做均能加总到 90 分；No-Go：对不上就停，先查是否混进别科卷。` },
   { w: '第 2 阶段', t: `输出端 ${fmt(WRITE_AVG)} 分逐项过关`, p: '按上面 5 个板块的优先级，每个板块做「错因 → 动作」闭环。先拼写与形式，再简答与作文。', ok: 'Go：每个板块能说出「我错在哪一类、对应哪个动作」；No-Go：说不清错因就先做诊断，别急着加练习量。' },
   { w: '第 3 阶段', t: '整卷限时', p: `至少一次完整 100 分钟计时，必做与选做分开报分。`, ok: `Go：必做 ${MAIN_TOTAL} 分口径下失分能归到具体板块；No-Go：只报总分说明归因没做，回第 2 阶段。` },
   { w: '第 4 阶段', t: '回流', p: '错词进词表、错句进句型本，下一轮默写必须抽中。', ok: 'Go：下一轮练习内容因上一轮结果而改变；No-Go：练习内容固定不变说明回流断环。' },
@@ -1113,32 +1111,13 @@ ${section('验收', '每层独立达标线', '必须同时看目标线与满分�
 </div>
 `)}
 
-${section('边界', '这一版明确不做的', '诚实边界单列，不用「后续优化」含糊过去', `
-<ul class="clean">
-<li><b>不做听力难度判断。</b>${N_PAPERS} 套卷都没有音频，只能分析「考什么形式」（事实细节 / 数字 / 主旨 / 听写），无法判断实际语速与辨音难度。</li>
-<li><b>不做作文分数拆解。</b>卷面未给评分标准，内容分 / 语言分 / 结构分如何分配未知，所以不写「内容占几分」这类断言。</li>
-<li><b>不做干扰项反推。</b>${PAPER_STATS.filter((p) => !p.hasAnswer).map((p) => p.label).join('、')} 无答案，无法反推错误选项的设计逻辑。</li>
-<li><b>不做「必考」断言。</b>样本 ${N_PAPERS} 个学年，只能说「${N_PAPERS} 个学年都考」，不能说年年必考——新学年是否继续考，样本无法回答。</li>
-<li><b>不押题。</b>所有分值结论用于排练习优先级，不用于预测具体题目。</li>
-</ul>
-`)}
-
-${section('待确认', '需要先确认的两件事', '这两条不确认，上面的计划会跑偏', `
-<div class="grid g2">
-  <div class="card">
-    <h3 style="margin-bottom:8px">① 教材版本</h3>
-    <p style="font-size:13.3px;color:var(--text-2);line-height:1.72">
-      现有《阅读满分冲刺手册》标注为<b>外研版</b>，但${N_PAPERS} 套卷里同时出现 <code style="font-family:var(--mono);font-size:12.4px;background:var(--bg-3);padding:1px 5px;border-radius:4px">be going to</code>（一般将来时）与现在进行时并用。
-      <b>版本定错，词表和语法进度全错。</b>建议核对课本目录页。
-    </p>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:8px">② 是否含阅读简答</h3>
-    <p style="font-size:13.3px;color:var(--text-2);line-height:1.72">
-      ${N_PAPERS} 套卷都含第六大题「阅读短文回答问题」（${SEG_SCORE['阅读简答'].avg} 分）。
-      若本校考试与区卷一致，则简答训练权重按本站口径；若不同，需重新分配输出端内部的时间比例。
-    </p>
-  </div>
+${section('待确认', '需要先确认的一件事', '这条不确认，上面的计划会跑偏', `
+<div class="card">
+  <h3 style="margin-bottom:8px">本校是否含阅读简答</h3>
+  <p style="font-size:13.3px;color:var(--text-2);line-height:1.72">
+    ${N_PAPERS} 套区卷都含第六大题「阅读短文回答问题」（${SEG_SCORE['阅读简答'].avg} 分）。
+    若本校考试与区卷一致，则简答训练权重按本站口径；若不同，需重新分配输出端内部的时间比例。
+  </p>
 </div>
 `)}
 `;
@@ -1147,157 +1126,6 @@ ${section('待确认', '需要先确认的两件事', '这两条不确认，上�
 }
 
 /* ============================ 输出 ============================ */
-/* ============================ 教材对照 ============================ */
-function buildBook() {
-  // —— 教材侧：未核实时显式占位，不编模块号 ——
-  const bookCard = BOOK_STATUS.ready
-    ? `<div class="tbl-wrap"><table>
-        <thead><tr><th>模块</th><th>标题</th><th>语法重点</th></tr></thead>
-        <tbody>${TEXTBOOK_MODULES_ROWS}</tbody>
-      </table></div>`
-    : `<div class="card" style="border-style:dashed;background:var(--surface-2)">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-          <span class="tag rare">待核</span>
-          <b style="font-size:15px">${esc(BOOK_STATUS.press)} · ${esc(BOOK_STATUS.book)}</b>
-        </div>
-        <p style="font-size:13.4px;color:var(--text-2);line-height:1.75">
-          ${esc(BOOK_STATUS.note)}。
-        </p>
-        <p style="font-size:13.4px;color:var(--text-2);line-height:1.75;margin-top:8px">
-          教材侧需要的是<b>课本目录页</b>（模块号 + 标题 + 语法重点）。
-          拿到后只改 <code style="font-family:var(--mono);font-size:12.4px;background:var(--bg-3);padding:1px 5px;border-radius:4px">work/papers/ledger.mjs</code>
-          里的 <code style="font-family:var(--mono);font-size:12.4px;background:var(--bg-3);padding:1px 5px;border-radius:4px">TEXTBOOK</code>，
-          页面会自动从「待核」切成完整对照表。
-        </p>
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:12.6px;color:var(--text-3)">
-          挂载进度：<b style="color:var(--text-2)">${BOOK_PROGRESS.done} / ${BOOK_PROGRESS.target}</b> 个考点族（${BOOK_PROGRESS.pct}%）
-        </div>
-      </div>`;
-
-  // —— 命题稳定性：全部由真题派生 ——
-  const levelTag = (lv) => {
-    const cls = lv === 'stable' ? 'easy' : lv === 'variable' ? 'mid' : 'rare';
-    return `<span class="tag ${cls}">${PROP_LEVEL_NAME[lv]}</span>`;
-  };
-
-  const propRows = PROP_STABILITY
-    .slice()
-    .sort((a, b) => b.hit - a.hit || b.avgPerYear - a.avgPerYear)
-    .map((f) => `<tr>
-      <td><b>${esc(f.name)}</b></td>
-      <td style="color:var(--text-3);font-size:12.5px">${f.segs.map((s) => SEG_NAME[s]).join('、')}</td>
-      <td class="num cell-hi">${fmt(f.avgPerYear)}</td>
-      ${f.per.map((v) => `<td class="num" style="color:${v > 0 ? 'var(--text)' : 'var(--text-3)'}">${v > 0 ? fmt(v) : '—'}</td>`).join('')}
-      <td><span class="yr ${f.hit === N_PAPERS ? 'hit' : ''}">${f.hit}/${N_PAPERS}</span></td>
-      <td>${levelTag(f.level)}</td>
-    </tr>`).join('');
-
-  // —— 单选语法族：命题差异最集中的地方 ——
-  const grammarRows = GRAMMAR_YEARLY.map((g) => `<tr>
-    <td><b>${esc(g.name)}</b></td>
-    ${g.per.map((v) => `<td class="num" style="color:${v > 0 ? 'var(--text)' : 'var(--text-3)'}">${v > 0 ? fmt(v) : '—'}</td>`).join('')}
-    <td class="num cell-hi">${g.hit}/${N_PAPERS}</td>
-  </tr>`).join('');
-
-  const stableG = GRAMMAR_YEARLY.filter((g) => g.hit === N_PAPERS);
-  const varyG = GRAMMAR_YEARLY.filter((g) => g.hit < N_PAPERS);
-
-  const body = `
-<section class="hero" style="padding-bottom:10px">
-  <div class="hero-badge"><span class="dot-live"></span>教材 ${esc(BOOK_STATUS.press)} · 真题 ${N_PAPERS} 套</div>
-  <h1 style="font-size:clamp(26px,3.2vw,36px)">教材对照</h1>
-  <p class="lede" style="max-width:790px">
-    西城期末是<b>全区命题</b>，进度与本校未必完全同步。所以这一页把两边分开摆：
-    <b>教材侧</b>按外研版七上目录，<b>真题侧</b>按 ${N_PAPERS} 套卷的实际考法。
-    两边对不上的地方，就是「可能超纲」或「考得比课本浅」的位置。
-  </p>
-</section>
-
-${section('教材侧', '外研版七上 · 模块清单', '目录未核实，暂不填模块号', bookCard)}
-
-${section('真题侧', '考点族的命题稳定性', `同一个族在 ${N_PAPERS} 个学年里出现的年数——这是「命题是否有差异」的直接证据`, `
-<div class="tbl-wrap">
-<table>
-<thead><tr>
-  <th>考点族</th><th>板块</th><th class="num">年均分</th>
-  ${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
-  <th>命中</th><th>判定</th>
-</tr></thead>
-<tbody>${propRows}</tbody>
-</table>
-</div>
-<div class="grid g3" style="margin-top:16px">
-  <div class="card">
-    <div style="font-size:28px;font-weight:800;color:var(--ok);font-variant-numeric:tabular-nums">${PROP_SUMMARY.stable.length}</div>
-    <div style="font-size:13px;font-weight:650;margin-top:4px">年年考</div>
-    <div style="font-size:12.4px;color:var(--text-3);margin-top:3px">${N_PAPERS}/${N_PAPERS} 学年都出现，可以按「必练」对待</div>
-  </div>
-  <div class="card">
-    <div style="font-size:28px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums">${PROP_SUMMARY.variable.length}</div>
-    <div style="font-size:13px;font-weight:650;margin-top:4px">多数年考</div>
-    <div style="font-size:12.4px;color:var(--text-3);margin-top:3px">出现在 ${Math.ceil(N_PAPERS / 2)}–${N_PAPERS - 1} 个学年，要会但不押</div>
-  </div>
-  <div class="card">
-    <div style="font-size:28px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums">${PROP_SUMMARY.sporadic.length}</div>
-    <div style="font-size:13px;font-weight:650;margin-top:4px">个别年考</div>
-    <div style="font-size:12.4px;color:var(--text-3);margin-top:3px">只在一两个学年出现，认识即可</div>
-  </div>
-</div>
-`, 'prop')}
-
-${section('命题差异', '单选段的语法分布', '这是最能看出「命题组每年在挑什么」的地方', `
-<div class="tbl-wrap">
-<table>
-<thead><tr>
-  <th>语法族</th>${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
-  <th class="num">命中</th>
-</tr></thead>
-<tbody>${grammarRows}</tbody>
-</table>
-</div>
-<div class="note info" style="margin-top:16px">
-  <b>${stableG.length} 个语法族 ${N_PAPERS}/${N_PAPERS} 年都考</b>：${stableG.map((g) => esc(g.name)).join('、')}。
-  这 ${stableG.length} 个是单选的骨架，十年内大概不会变。
-</div>
-<div class="note warn" style="margin-top:10px">
-  <b>${varyG.length} 个族只在个别年份出现</b>：${varyG.map((g) => `${esc(g.name)}（${g.hit}/${N_PAPERS}）`).join('、')}。
-  这正是「全区命题有差异」的具体形态——<b>不是每年都考同一套语法点</b>。
-  所以复习时按「${stableG.length} 个骨架 + ${varyG.length} 个轮换」来排，不要把轮换项当成必考。
-</div>
-`, 'grammar')}
-
-${section('怎么用', '两边怎么合起来看', '教材给范围，真题给权重', `
-<ul class="clean">
-<li><b>教材回答「学过没有」。</b>模块清单核实后，每个考点族会标出对应模块；没有对应模块的，就是超纲或综合运用。</li>
-<li><b>真题回答「值多少分」。</b>上面的稳定性分级已经给出：年年考的按必练，个别年的按认识。</li>
-<li><b>两边冲突时的处理：</b>教材有、真题从不考 → 会做即可，不投入时间；真题常考、教材没讲 → 优先补，因为考场会扣分。</li>
-<li><b>当前限制：</b>教材侧为空，所以「冲突判定」这一栏还做不了。补上目录后本页会自动多出一列模块对照。</li>
-</ul>
-`)}
-
-${section('待补', '教材侧还缺什么', '说清楚缺什么，比含糊过去强', `
-<div class="grid g2">
-  <div class="card">
-    <h3 style="margin-bottom:8px">需要你提供的</h3>
-    <p style="font-size:13.3px;color:var(--text-2);line-height:1.72">
-      <b>课本目录页照片</b>（外研版七上），要能看到：模块号、模块标题、每模块的语法重点。
-      有这三项就能把 ${BOOK_PROGRESS.target} 个考点族全部挂上去。
-    </p>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:8px">为什么现在不填</h3>
-    <p style="font-size:13.3px;color:var(--text-2);line-height:1.72">
-      模块号填错不会报错，但会让整张对照表失效，而且<b>读者无法自行发现</b>。
-      留空并标「待核」是可接受的；凭记忆编造不可接受。
-    </p>
-  </div>
-</div>
-`)}
-`;
-
-  return page('book.html', `教材对照 · ${SITE.short}`, `外研版七上教材与 ${N_PAPERS} 套真题的对照：教材侧待核，真题侧已实证。`, body);
-}
-
 /* ============================ 专项（单词 + 语法） ============================ */
 function buildSpecial() {
   // ---------- 单词 ----------
@@ -1516,26 +1344,15 @@ ${section('练法', '两个动作，覆盖上面全部内容', '不刷题册，�
   <b>每天 5 句 × 4 改 = 20 个变形。</b>
 </div>
 `)}
-
-${section('边界', '这一版做不到的', '数据缺口要说清', `
-<ul class="clean">
-<li><b>听填 8 分的实际考词无法验证。</b>${PAPER_STATS.filter((p) => !p.hasAnswer).map((p) => p.label).join('、')} 无答案，
-另两套的参考答案听力部分标「略」。所以听填常考哪类词，只能从题干结构推断，可信度低于其他部分。</li>
-<li><b>音标不是标准 IPA 的部分已如实保留。</b>2024-25 卷写的是 <code style="font-family:var(--mono);font-size:12.4px">[rest]</code>、<code style="font-family:var(--mono);font-size:12.4px">[smel]</code>
-这类「用字母拼写代替音标」的形式，是真题本身的写法，我没有改成标准音标。</li>
-<li><b>教材目录未拿到。</b>所以无法判断「这些语法点课本讲到没有」，优先级只能按真题分值排，不能按教材进度排。</li>
-<li><b>不做「语法体系全覆盖」。</b>七上范围就是这 ${GRAMMAR_FAMS.length} 族，其中 ${GRAMMAR_FAMS.filter((g) => g.hit === N_PAPERS).length} 族年年考、${GRAMMAR_FAMS.filter((g) => g.hit < N_PAPERS).length} 族轮换。</li>
-</ul>
-`)}
 `;
 }
+
 const pages = {
   'index.html': buildHome(),
   'papers.html': buildPapers(),
   'trend.html': buildTrend(),
   'plan.html': buildPlan(),
   'special.html': buildSpecial(),
-  'book.html': buildBook(),
 };
 
 for (const [name, html] of Object.entries(pages)) {

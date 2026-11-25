@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import {
   PAPER_STATS, YEARS, N_PAPERS, SEG_SCORE, CAT_SCORE, DIFF_SCORE, MODE_SCORE,
   FAM_MAP, FREQ_SUMMARY,
-  BOOK_STATUS, BOOK_PROGRESS, PROP_STABILITY, PROP_SUMMARY, GRAMMAR_YEARLY,
+  PROP_STABILITY, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_GROUPS, GRAMMAR_DOUBLE,
 } from './work/papers/stats.mjs';
@@ -14,7 +14,7 @@ import { LEDGER, SEG_ORDER, CAT_ORDER, DIFF_ORDER } from './work/papers/ledger.m
 const sum = (a) => a.reduce((x, y) => x + y, 0);
 const fmt = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 
-const ALL_PAGES = ['index.html', 'papers.html', 'trend.html', 'special.html', 'book.html', 'plan.html'];
+const ALL_PAGES = ['index.html', 'papers.html', 'trend.html', 'special.html', 'plan.html'];
 
 let fail = 0;
 const ok = (cond, msg) => {
@@ -189,30 +189,14 @@ for (const f of ALL_PAGES) {
   ok(left.length === 0, `${f} 无未渲染的模板占位符（发现 ${left.length} 处${left.length ? '：' + [...new Set(left)].join(', ') : ''}）`);
 }
 
-/* ---------- 10c. 教材侧：未核实就不得出现模块号 ---------- */
-{
-  const html = readFileSync('book.html', 'utf8');
-  ok(BOOK_STATUS.press.includes('外研'), `教材出版方为外研（${BOOK_STATUS.press}）`);
-  if (!BOOK_STATUS.ready) {
-    // 未核实时，页面必须显式标「待核」，且不得出现 Module N 这类具体模块号
-    ok(html.includes('待核'), '教材未核实时，book.html 显式标注「待核」');
-    ok(!/Module\s*\d+/i.test(html), '教材未核实时，book.html 不含任何模块号');
-    ok(html.includes(`0 / ${BOOK_PROGRESS.target}`) || html.includes(`${BOOK_PROGRESS.done} / ${BOOK_PROGRESS.target}`),
-      `book.html 显示挂载进度 ${BOOK_PROGRESS.done}/${BOOK_PROGRESS.target}`);
-  } else {
-    ok(!html.includes('待核'), '教材已核实后，book.html 不再显示「待核」');
-    ok(BOOK_PROGRESS.done === BOOK_PROGRESS.target, `教材已核实，全部 ${BOOK_PROGRESS.target} 个族都已挂载`);
-  }
-}
-
 /* ---------- 10d. 命题稳定性分级与数据一致 ---------- */
 {
   const sum3 = PROP_SUMMARY.stable.length + PROP_SUMMARY.variable.length + PROP_SUMMARY.sporadic.length;
   ok(sum3 === PROP_STABILITY.length, `稳定性三档合计 ${sum3} = 必做族数 ${PROP_STABILITY.length}`);
   ok(PROP_SUMMARY.stable.every((f) => f.hit === N_PAPERS), '「年年考」档的命中数都等于样本数');
   ok(PROP_SUMMARY.variable.every((f) => f.hit < N_PAPERS), '「多数年考」档的命中数都小于样本数');
-  const html = readFileSync('book.html', 'utf8');
-  ok(html.includes(`${PROP_SUMMARY.stable.length}`), `book.html 显示年年考族数 ${PROP_SUMMARY.stable.length}`);
+  const html = readFileSync('trend.html', 'utf8');
+  ok(html.includes(`${PROP_SUMMARY.stable.length}`), `trend.html 显示年年考族数 ${PROP_SUMMARY.stable.length}`);
   // 单选语法族的命中数必须与考点族表一致
   for (const g of GRAMMAR_YEARLY) {
     const f = FAM_MAP.find((x) => x.id === g.id);
@@ -276,7 +260,7 @@ for (const f of ALL_PAGES) {
 /* ---------- 10g. 导航标签必须全站一致 ---------- */
 {
   // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
-  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项', '教材对照', '冲刺计划'];
+  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项', '冲刺计划'];
   for (const f of ALL_PAGES) {
     const html = readFileSync(f, 'utf8');
     const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
@@ -290,6 +274,21 @@ for (const f of ALL_PAGES) {
   // 首页「样本边界」整节已按用户要求删除，不得复活
   const idx = readFileSync('index.html', 'utf8');
   ok(!idx.includes('这一版明确做不到'), '首页不含已删除的「样本边界」节');
+}
+
+/* ---------- 10h. 已按用户要求移除的模块不得复活 ---------- */
+{
+  // 用户先后要求删除：首页「样本边界」节、全站「边界」模块、整页「教材对照」
+  for (const f of ALL_PAGES) {
+    const html = readFileSync(f, 'utf8');
+    ok(!html.includes('这一版明确做不到'), `${f} 无「样本边界」节`);
+    ok(!html.includes('这一版做不到'), `${f} 无「边界」节`);
+    ok(!html.includes('这一版明确不做'), `${f} 无「边界」节（冲刺计划）`);
+    ok(!html.includes('教材对照'), `${f} 无「教材对照」`);
+  }
+  // book.html 不应再生成
+  const exists = (() => { try { readFileSync('book.html'); return true; } catch { return false; } })();
+  ok(!exists, 'book.html 已删除且不再生成');
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */
