@@ -377,6 +377,51 @@ for (const f of ALL_HTML) {
   ok(/\[\?&\]p=\(\\d\+\)/.test(html) || html.includes('p=(\d+)'), 'slides.html 支持 ?p=N 跳页');
 }
 
+/* ---------- 10i-2. 考点族热力矩阵：格子数与图例阈值必须自洽 ---------- */
+// 图例写错不会报错，但会让读者误判分档——这类错误只能靠断言拦。
+{
+  const html = readFileSync('papers.html', 'utf8');
+
+  // 矩阵必须存在，且不再是气泡云
+  ok(html.includes('class="heat"'), '考点族用热力矩阵呈现');
+  ok(!html.includes('fam-chip'), '气泡云已移除');
+
+  // 每个族每年一格：非零格数 + 空格数 = 族数 × 年数
+  const ranked = FAM_MAP.filter((f) => !f.onlyBonus);
+  const cells = ranked.flatMap((f) => f.per);
+  const nz = cells.filter((v) => v > 0).length;
+  const zero = cells.filter((v) => v <= 0).length;
+  ok(cells.length === ranked.length * N_PAPERS,
+    `格子数 ${cells.length} = ${ranked.length} 族 × ${N_PAPERS} 年`);
+  ok(nz + zero === cells.length, `非零 ${nz} + 空 ${zero} = ${cells.length}`);
+
+  // 页面上空格标记数必须与数据一致（「—」只出现在 zero 格里）
+  const dashN = (html.match(/class="cellbox zero"/g) || []).length;
+  ok(dashN === zero, `空格标记 ${dashN} 个 = 数据中未考格 ${zero} 个`);
+
+  // 图例阈值：必须按分位数派生，且与页面上写的区间一致
+  const vals = cells.filter((v) => v > 0).sort((a, b) => a - b);
+  const q = (p) => vals[Math.min(vals.length - 1, Math.floor(vals.length * p))];
+  const TH = [q(0.2), q(0.4), q(0.6), q(0.8)];
+  const f = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
+  ok(html.includes(`&gt;${f(TH[3])} 分`),
+    `图例最高档写作「>${f(TH[3])} 分」（分位阈值 ${TH.join('/')}）`);
+
+  // 每个非零格必须真的渲染出数值
+  for (const fam of ranked) {
+    for (let i = 0; i < fam.per.length; i++) {
+      if (fam.per[i] > 0) {
+        ok(html.includes(`>${f(fam.per[i])}</span>`), `「${fam.name}」${YEARS[i]} 的 ${f(fam.per[i])} 分已渲染`);
+      }
+    }
+  }
+
+  // 年均条形宽度必须与 avgPerYear 成比例（最长的族应为 56px）
+  const maxAvg = Math.max(...ranked.map((x) => x.avgPerYear));
+  const topFam = ranked.find((x) => x.avgPerYear === maxAvg);
+  ok(html.includes('width:56px'), `年均条形最长为 56px（${topFam.name} ${f(maxAvg)} 分）`);
+}
+
 /* ---------- 10j. 专项复习分层结构：四部分各一页、语法两级、导航互通 ---------- */
 {
   const read = (f) => readFileSync(f, 'utf8');

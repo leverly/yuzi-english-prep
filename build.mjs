@@ -462,6 +462,10 @@ ul.clean li b{color:var(--text);font-weight:650}
 .heat-legend .lg-scale i{display:block;width:24px;height:11px;border-radius:3px}
 .heat-legend .lg-note{display:inline-flex;align-items:center;gap:5px}
 .heat-legend .lg-zero{display:inline-block;width:24px;height:11px;border-radius:3px;border:1px dashed var(--border-2)}
+/* 窄屏提示可横滑，否则读者会以为表格就这样被裁断了 */
+.heat-scroll-hint{display:none;font-size:11.8px;color:var(--text-3);margin-top:8px;align-items:center;gap:5px}
+.heat-scroll-hint b{color:var(--accent);font-weight:650}
+@media(max-width:820px){.heat-scroll-hint{display:flex}}
 .hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
 .hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
@@ -829,18 +833,21 @@ ${SEG_ORDER.map((k) => {
     return { seg, name: SEG_NAME[seg], fams, total: sum(fams.map((f) => f.total)) };
   }).filter((g) => g.fams.length);
 
-  // 色阶：按非零分值分 5 档，最深 = 满分格（14 分）
-  const allVals = FAM_RANKED.flatMap((f) => f.per).filter((v) => v > 0);
-  const V_MAX = Math.max(...allVals);
-  const V_MIN = Math.min(...allVals);
+  // 色阶：按分位数分 5 档，不按线性映射——分值集中在 1–6，线性会把低分格挤成一团
+  const allVals = FAM_RANKED.flatMap((f) => f.per).filter((v) => v > 0).sort((a, b) => a - b);
+  const V_MAX = allVals[allVals.length - 1];
+  const V_MIN = allVals[0];
+  const q = (p) => allVals[Math.min(allVals.length - 1, Math.floor(allVals.length * p))];
+  const THRESH = [q(0.2), q(0.4), q(0.6), q(0.8)];   // 4 个分界 → 5 档
   const heatLevel = (v) => {
     if (v <= 0) return 0;
-    const t = (v - V_MIN) / (V_MAX - V_MIN || 1);      // 0..1
-    return 1 + Math.min(4, Math.floor(t * 5));          // 1..5
+    let lv = 1;
+    for (const t of THRESH) if (v > t) lv++;
+    return lv;
   };
   // 5 档蓝色，越深分值越高
-  const HEAT_BG = ['', 'rgba(37,99,235,.13)', 'rgba(37,99,235,.30)', 'rgba(37,99,235,.50)', 'rgba(37,99,235,.72)', 'rgba(37,99,235,.92)'];
-  const HEAT_FG = ['', 'var(--accent)', '#fff', '#fff', '#fff', '#fff'];
+  const HEAT_BG = ['', 'rgba(37,99,235,.12)', 'rgba(37,99,235,.28)', 'rgba(37,99,235,.46)', 'rgba(37,99,235,.66)', 'rgba(37,99,235,.88)'];
+  const HEAT_FG = ['', 'var(--accent)', 'var(--accent)', '#fff', '#fff', '#fff'];
 
   const famHeat = `
 <div class="heat-wrap">
@@ -872,12 +879,13 @@ ${g.fams.map((f) => `<tr>
 </tbody>
 </table>
 </div>
+<div class="heat-scroll-hint">← <b>左右滑动</b>可看全部 ${YEARS.length} 个学年与年均分</div>
 <div class="heat-legend">
   <span class="lg-note"><span class="lg-scale">
     ${[1, 2, 3, 4, 5].map((lv) => `<i style="background:${HEAT_BG[lv]}"></i>`).join('')}
-  </span>分值低 → 高（${fmt(V_MIN)}–${fmt(V_MAX)} 分/年）</span>
+  </span>该年分值：≤${fmt(THRESH[0])} 分 / ${fmt(THRESH[0])}–${fmt(THRESH[1])} / ${fmt(THRESH[1])}–${fmt(THRESH[2])} / ${fmt(THRESH[2])}–${fmt(THRESH[3])} / &gt;${fmt(THRESH[3])} 分</span>
   <span class="lg-note"><span class="lg-zero"></span>该年未考</span>
-  <span class="lg-note">右侧条形 = 年均分</span>
+  <span class="lg-note">右侧条形 = 年均分（满分 ${fmt(V_MAX)} 分/年）</span>
 </div>`;
 
   // ⑤ 逐卷明细卡
