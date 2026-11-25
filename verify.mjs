@@ -273,6 +273,25 @@ for (const f of ALL_PAGES) {
   check('文段表达', [43]);
 }
 
+/* ---------- 10g. 导航标签必须全站一致 ---------- */
+{
+  // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
+  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项', '教材对照', '冲刺计划'];
+  for (const f of ALL_PAGES) {
+    const html = readFileSync(f, 'utf8');
+    const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
+    ok(missing.length === 0, `${f} 导航含全部 ${NAV_LABELS.length} 项${missing.length ? `（缺：${missing.join('、')}）` : ''}`);
+  }
+  // 旧标签不得残留
+  for (const f of ALL_PAGES) {
+    const html = readFileSync(f, 'utf8');
+    ok(!html.includes('满分计划'), `${f} 无旧标签「满分计划」`);
+  }
+  // 首页「样本边界」整节已按用户要求删除，不得复活
+  const idx = readFileSync('index.html', 'utf8');
+  ok(!idx.includes('这一版明确做不到'), '首页不含已删除的「样本边界」节');
+}
+
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */
 // esc() 不解析 Markdown，漏网的 ** 会原样显示成星号。
 for (const f of ALL_PAGES) {

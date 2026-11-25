@@ -12,7 +12,7 @@ import {
   SEG_SCORE, CAT_SCORE, DIFF_SCORE, MODE_SCORE, MODE_BREAKDOWN, WRITE_SEGS,
   FAM_MAP, freqOf, FREQ_RULE, FREQ_SUMMARY,
   STRUCTURE, SEG_FIXED, SEG_VARY, CAT_STABILITY, DIFF_STABILITY,
-  CROSS_CHECK, SAMPLE_BOUNDS,
+  CROSS_CHECK,
   SEG_ORDER, SEG_NAME, CAT_ORDER, CAT_NAME, DIFF_ORDER, DIFF_NAME, MODE_NAME,
   PROP_STABILITY, PROP_LEVEL_NAME, PROP_SUMMARY, GRAMMAR_YEARLY,
   BOOK_STATUS, BOOK_TARGET_FAMS, BOOK_PROGRESS,
@@ -390,7 +390,7 @@ const NAV = [
   ['trend.html', '趋势与考点'],
   ['special.html', '专项'],
   ['book.html', '教材对照'],
-  ['plan.html', '满分计划'],
+  ['plan.html', '冲刺计划'],
 ];
 
 function page(active, title, desc, body) {
@@ -459,7 +459,7 @@ function buildHome() {
       </p>
       <div class="hero-cta">
         <a class="btn primary" href="trend.html">先看${SPAN_CN}年趋势</a>
-        <a class="btn" href="plan.html">看满分计划</a>
+        <a class="btn" href="plan.html">看冲刺计划</a>
       </div>
       <div class="hero-trust">
         <span><b>✓</b>${N_PAPERS} 套卷逐题标注</span>
@@ -512,7 +512,7 @@ function buildHome() {
         </a>
         <a class="mission-item" href="plan.html">
           <span class="mi-ico gold">🎯</span>
-          <span class="mi-main"><b>满分计划</b><small>输出端 ${fmt(WRITE_AVG)} 分怎么练</small></span>
+          <span class="mi-main"><b>冲刺计划</b><small>输出端 ${fmt(WRITE_AVG)} 分怎么练</small></span>
           <span class="mi-go">查看 →</span>
         </a>
       </div>
@@ -620,19 +620,6 @@ ${topFams.map((f) => {
   前 ${TOP_FAM_COUNT} 族合计年均 <b>${fmt(sum(topFams.map((f) => f.avgPerYear)))} 分</b>，
   占必做 ${MAIN_TOTAL} 分的 <b>${Math.round((sum(topFams.map((f) => f.avgPerYear)) / MAIN_TOTAL) * 100)}%</b>。
   完整 ${FAM_RANKED.length} 族见 <a href="trend.html#fam" style="color:var(--accent);font-weight:650">趋势与考点</a>。
-</div>
-`)}
-
-${section('样本边界', '这一版明确做不到的事', '样本量决定结论能说多硬', `
-<div class="grid g2">
-${SAMPLE_BOUNDS.map((b) => `<div class="card">
-  <h3 style="margin-bottom:6px">${esc(b.k)} <span style="color:var(--accent);font-size:14px;margin-left:4px">${esc(b.v)}</span></h3>
-  <p style="font-size:13.2px;color:var(--text-2);line-height:1.7">${esc(b.note)}</p>
-</div>`).join('')}
-</div>
-<div class="note warn" style="margin-top:16px">
-  <b>样本会扩充。</b>${N_PAPERS} 套只能证明「${N_PAPERS}/${N_PAPERS} 年都考」，不能证明「年年必考」。
-  补入新卷后，频次与分值都会重算——届时以当场跑出的数字为准，不以本文结论为准。
 </div>
 `)}
 `;
@@ -915,7 +902,7 @@ ${section('② 作答方式', '选择型与输出型', `同一份卷子，${SELE
 <div class="note risk" style="margin-top:16px">
   <b>这是全站的核心切口。</b>输出型 ${fmt(WRITE_AVG)} 分里，${WRITE_SEG_LIST.map((s) => `${s.name} ${fmt(s.score)}`).join('、')}——
   每一项都有「会但写错」的空间：拼写、时态、人称、标点。<b>提分动作因此不是多刷题，是定向默写与句型改写。</b>
-  <a href="plan.html" style="color:var(--rose);font-weight:650">看满分计划 →</a>
+  <a href="plan.html" style="color:var(--rose);font-weight:650">看冲刺计划 →</a>
 </div>
 `, 'mode')}
 
@@ -1010,7 +997,7 @@ ${section('⑦ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 �
   return page('trend.html', `趋势与考点 · ${SITE.short}`, `${N_PAPERS} 套卷跨年对比：结构、作答方式、能力、难度、考点族。`, body);
 }
 
-/* ============================ 满分计划 ============================ */
+/* ============================ 冲刺计划 ============================ */
 function buildPlan() {
   // 输出型板块按分值降序——这就是练习顺序
   const writeRanked = WRITE_SEG_LIST.slice().sort((a, b) => b.score - a.score);
@@ -1036,7 +1023,7 @@ function buildPlan() {
   const body = `
 <section class="hero" style="padding-bottom:10px">
   <div class="hero-badge"><span class="dot-live"></span>输出端 ${fmt(WRITE_AVG)} 分 · 按分值排优先级</div>
-  <h1 style="font-size:clamp(26px,3.2vw,36px)">满分计划</h1>
+  <h1 style="font-size:clamp(26px,3.2vw,36px)">冲刺计划</h1>
   <p class="lede" style="max-width:780px">
     必做 ${MAIN_TOTAL} 分里，<b>${fmt(SELECT_AVG)} 分只要涂卡、${fmt(WRITE_AVG)} 分要写出文字</b>。
     输入端对班内前列的学生已接近饱和，所以这份计划只做一件事：<b>把输出端的 ${fmt(WRITE_AVG)} 分练到不丢形式分</b>。
@@ -1156,7 +1143,7 @@ ${section('待确认', '需要先确认的两件事', '这两条不确认，上�
 `)}
 `;
 
-  return page('plan.html', `满分计划 · ${SITE.short}`, `输出端 ${fmt(WRITE_AVG)} 分的练习顺序、归因与阶段验收。`, body);
+  return page('plan.html', `冲刺计划 · ${SITE.short}`, `输出端 ${fmt(WRITE_AVG)} 分的练习顺序、归因与阶段验收。`, body);
 }
 
 /* ============================ 输出 ============================ */
