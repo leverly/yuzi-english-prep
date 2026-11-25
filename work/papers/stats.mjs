@@ -520,8 +520,13 @@ export const WRITE_STATS = {
   scenes: WRITE_ITEMS.map((w) => w.scene),
 };
 
-// 提示问题条数：四套都给了 2-3 个提示问题，等于天然提纲
-export const WRITE_Q_COUNTS = WRITE_ITEMS.map((w) => (w.questions || '').split('/').length);
+// 提示问题条数：按问号数，不能按斜杠切——题干里有 he/she 这类斜杠，会多算。
+export const WRITE_Q_COUNTS = WRITE_ITEMS.map((w) => ((w.questions || '').match(/\?/g) || []).length);
+// 四套的条数区间，页面直接用它，不写死「2–3 个」
+export const WRITE_Q_RANGE = {
+  min: Math.min(...WRITE_Q_COUNTS),
+  max: Math.max(...WRITE_Q_COUNTS),
+};
 
 /* ============================ 阅读专项 ============================ */
 export const READ_ITEMS = LEDGER.filter((q) => (q.seg === '阅读选择' || q.seg === '阅读简答') && !q.bonus);

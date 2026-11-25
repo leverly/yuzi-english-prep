@@ -7,7 +7,7 @@ import {
   FAM_MAP, FREQ_SUMMARY,
   PROP_STABILITY, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
-  WRITE_ITEMS, WRITE_STATS, READ_STATS, READ_ANS_TYPES,
+  WRITE_ITEMS, WRITE_STATS, WRITE_Q_COUNTS, WRITE_Q_RANGE, READ_STATS, READ_ANS_TYPES,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_GROUPS, GRAMMAR_DOUBLE,
 } from './work/papers/stats.mjs';
 import { LEDGER, SEG_ORDER, CAT_ORDER, DIFF_ORDER } from './work/papers/ledger.mjs';
@@ -16,6 +16,20 @@ const sum = (a) => a.reduce((x, y) => x + y, 0);
 const fmt = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
 
 const ALL_PAGES = ['index.html', 'papers.html', 'trend.html', 'special.html', 'plan.html'];
+
+// 专项复习已拆成分层页面：总览 + 四部分，语法再分两子页。
+// 校验必须覆盖全部子页——拆页时最容易出现的错就是「数字只留在旧页上」。
+const SPECIAL_PAGES = [
+  'special.html',
+  'special-word.html',
+  'special-grammar.html',
+  'special-grammar-fam.html',
+  'special-grammar-sent.html',
+  'special-read.html',
+  'special-write.html',
+];
+// 全站所有 HTML（导航、占位符、裸 Markdown 这类通用规则要查全部）
+const ALL_HTML = [...ALL_PAGES, ...SPECIAL_PAGES.filter((p) => !ALL_PAGES.includes(p))];
 
 let fail = 0;
 const ok = (cond, msg) => {
@@ -91,7 +105,7 @@ checkIn('index.html', [
 
 /* ---------- 7. 不许出现的硬编码谎话 ---------- */
 // 样本只有 3 套，任何「五年」「4 套」都是错的
-for (const f of ALL_PAGES) {
+for (const f of ALL_HTML) {
   const html = readFileSync(f, 'utf8');
   // 套数/学年数只能等于 N_PAPERS。
   // 只拦「样本量」口径的说法（样本 N 套 / 共 N 套 / 只有 N 套），
@@ -184,7 +198,7 @@ for (const k of DIFF_ORDER) {
 
 /* ---------- 10b. 不得残留未渲染的模板占位符 ---------- */
 // 单引号字符串里的 ${...} 不会插值，会原样输出到页面。
-for (const f of ALL_PAGES) {
+for (const f of ALL_HTML) {
   const html = readFileSync(f, 'utf8');
   const left = html.match(/\$\{[A-Za-z_][A-Za-z0-9_]*\}/g) || [];
   ok(left.length === 0, `${f} 无未渲染的模板占位符（发现 ${left.length} 处${left.length ? '：' + [...new Set(left)].join(', ') : ''}）`);
@@ -205,14 +219,23 @@ for (const f of ALL_PAGES) {
   }
 }
 
-/* ---------- 10e. 专项页：数字必须能追溯到台账 ---------- */
+/* ---------- 10e. 专项页（分层）：数字必须能追溯到台账 ---------- */
+// 拆分后每类证据只出现在它该在的子页上。断言按「内容 → 页面」绑定，
+// 这样拆页时若把某段内容漏掉或放错页，会直接失败。
 {
-  const html = readFileSync('special.html', 'utf8');
+  const read = (f) => readFileSync(f, 'utf8');
+  const word = read('special-word.html');
+  const gram = read('special-grammar.html');
+  const fam = read('special-grammar-fam.html');
+  const sent = read('special-grammar-sent.html');
+  const rd = read('special-read.html');
+  const wr = read('special-write.html');
+  const overview = read('special.html');
 
-  // 音标词：16 个全部出现在页面上，且 IPA 与答案成对
+  // 音标词：16 个全部出现在单词页，且 IPA 与答案成对
   ok(SPELL_ITEMS.length === 16, `音标词 ${SPELL_ITEMS.length} 个（四套 × 4 题）`);
   for (const it of SPELL_ITEMS) {
-    ok(html.includes(it.word) && html.includes(it.ipa), `音标「${it.word} ${it.ipa}」出现在页面上`);
+    ok(word.includes(it.word) && word.includes(it.ipa), `音标「${it.word} ${it.ipa}」出现在单词页`);
   }
   ok(SPELL_ITEMS.every((i) => i.ipa && i.sent && i.feats.length),
     '每个音标词都有 IPA、句子原境、拼写特征');
@@ -222,21 +245,40 @@ for (const f of ALL_PAGES) {
   const covered = new Set(SPELL_FEATURES.flatMap((f) => f.items.map((i) => i.word)));
   ok(covered.size === SPELL_ITEMS.length, `全部 ${SPELL_ITEMS.length} 个词都被特征覆盖（${covered.size}）`);
 
-  // 汉译英：12 句全部上页，且每句有中文、动作、答案
+  // 汉译英：12 句全部上「汉译英」子页，且每句有中文、动作、答案
   ok(SENT_ITEMS.length === 12, `汉译英 ${SENT_ITEMS.length} 句（四套 × 3 题）`);
   ok(SENT_ITEMS.every((i) => i.zh && i.acts.length && i.ans), '每句汉译英都有中文、语法动作、参考答案');
-  for (const it of SENT_ITEMS) ok(html.includes(it.zh), `汉译英「${it.zh}」出现在页面上`);
+  for (const it of SENT_ITEMS) ok(sent.includes(it.zh), `汉译英「${it.zh}」出现在汉译英页`);
+
+  // 单选语法族：每族都上「单选语法族」子页，且卷面考点原文可见
+  for (const g of GRAMMAR_FAMS) {
+    ok(fam.includes(g.name), `语法族「${g.name}」出现在单选语法族页`);
+  }
+  for (const f of FAM_MAP.filter((x) => x.seg.includes('单选') && !x.onlyBonus)) {
+    for (const q of f.qs) {
+      ok(fam.includes(q.topic), `考点原文「${q.topic}」出现在单选语法族页`);
+    }
+  }
 
   // 语法双重考核：汉译英里出现的族必须真的在 SENT_ITEMS 里
   for (const g of GRAMMAR_DOUBLE.filter((x) => x.writeHits > 0)) {
     ok(g.writeHits <= SENT_ITEMS.length, `「${g.name}」汉译英 ${g.writeHits} 句 ≤ ${SENT_ITEMS.length}`);
   }
   const doubleN = GRAMMAR_DOUBLE.filter((x) => x.writeHits > 0).length;
-  ok(html.includes(`${doubleN} 个族是「双重考核」`), `页面声明双重考核 ${doubleN} 个族`);
+  ok(gram.includes(`${doubleN} 个族是「双重考核」`), `语法总览页声明双重考核 ${doubleN} 个族`);
 
   // 写死数字排查
-  ok(html.includes(`${SPELL_STATS.total} 个词`), `页面显示音标词数 ${SPELL_STATS.total}`);
-  ok(html.includes(`平均 ${SPELL_STATS.avgLen} 个字母`), `页面显示平均字母数 ${SPELL_STATS.avgLen}`);
+  ok(word.includes(`${SPELL_STATS.total} 个词`), `单词页显示音标词数 ${SPELL_STATS.total}`);
+  ok(word.includes(`平均 ${SPELL_STATS.avgLen} 个字母`), `单词页显示平均字母数 ${SPELL_STATS.avgLen}`);
+
+  // 阅读与写作的数字必须落在各自子页
+  ok(rd.includes(`${READ_STATS.selFams[0].pct}%`), `阅读页显示细节题占比 ${READ_STATS.selFams[0].pct}%`);
+  ok(rd.includes(`${READ_ANS_TYPES.retrievePerPaper} 题`), `阅读页显示简答检索 ${READ_ANS_TYPES.retrievePerPaper} 题/年`);
+  ok(wr.includes(`≥${WRITE_STATS.wordMin} 词`), `写作页显示词数下限 ${WRITE_STATS.wordMin}`);
+
+  // 总览页不得再塞具体证据表——它只做分流
+  ok(!overview.includes(SPELL_ITEMS[0].ipa), '总览页不含音标明细（明细在单词页）');
+  ok(!overview.includes(SENT_ITEMS[0].zh), '总览页不含汉译英明细（明细在汉译英页）');
 }
 
 /* ---------- 10f. 2024-25 卷题号必须分段重编，不得沿用连续编号 ---------- */
@@ -262,13 +304,13 @@ for (const f of ALL_PAGES) {
 {
   // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
   const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项复习', '冲刺计划', '演示'];
-  for (const f of ALL_PAGES) {
+  for (const f of ALL_HTML) {
     const html = readFileSync(f, 'utf8');
     const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
     ok(missing.length === 0, `${f} 导航含全部 ${NAV_LABELS.length} 项${missing.length ? `（缺：${missing.join('、')}）` : ''}`);
   }
   // 旧标签不得残留
-  for (const f of ALL_PAGES) {
+  for (const f of ALL_HTML) {
     const html = readFileSync(f, 'utf8');
     ok(!html.includes('满分计划'), `${f} 无旧标签「满分计划」`);
   }
@@ -280,7 +322,7 @@ for (const f of ALL_PAGES) {
 /* ---------- 10h. 已按用户要求移除的模块不得复活 ---------- */
 {
   // 用户先后要求删除：首页「样本边界」节、全站「边界」模块、整页「教材对照」
-  for (const f of ALL_PAGES) {
+  for (const f of ALL_HTML) {
     const html = readFileSync(f, 'utf8');
     ok(!html.includes('这一版明确做不到'), `${f} 无「样本边界」节`);
     ok(!html.includes('这一版做不到'), `${f} 无「边界」节`);
@@ -320,45 +362,84 @@ for (const f of ALL_PAGES) {
   ok(/\[\?&\]p=\(\\d\+\)/.test(html) || html.includes('p=(\d+)'), 'slides.html 支持 ?p=N 跳页');
 }
 
-/* ---------- 10j. 专项复习页：四部分齐全且可追溯 ---------- */
+/* ---------- 10j. 专项复习分层结构：四部分各一页、语法两级、导航互通 ---------- */
 {
-  const html = readFileSync('special.html', 'utf8');
+  const read = (f) => readFileSync(f, 'utf8');
+  const overview = read('special.html');
 
-  // 四部分标题必须都在
-  for (const part of ['① 单词', '② 语法', '③ 阅读', '④ 写作']) {
-    ok(html.includes(part), `专项复习页含「${part}」`);
+  // 总览页必须给出四部分的入口
+  for (const part of ['①', '②', '③', '④']) {
+    ok(overview.includes(part), `专项总览含部分编号「${part}」`);
   }
-  // 每部分都要有「解题方法」与「备考」字样（用户要求：介绍解题和备考方法）
-  const solveN = (html.match(/解题方法/g) || []).length;
-  const prepN = (html.match(/备考/g) || []).length;
-  ok(solveN >= 4, `专项复习页「解题方法」出现 ${solveN} 次（≥4，四部分各一）`);
-  ok(prepN >= 3, `专项复习页「备考」出现 ${prepN} 次（≥3）`);
+  for (const f of ['special-word.html', 'special-grammar.html', 'special-read.html', 'special-write.html']) {
+    ok(overview.includes(f), `专项总览链接到 ${f}`);
+  }
 
-  // 例子：音标 16 词、汉译英 12 句、写作 4 题都要上页
-  ok(SPELL_ITEMS.every((i) => html.includes(i.word)), '音标 16 词全部上页');
-  ok(SENT_ITEMS.every((i) => html.includes(i.zh)), '汉译英 12 句全部上页');
-  ok(WRITE_ITEMS.every((w) => html.includes(w.scene)), '写作 4 题场景全部上页');
+  // 每个子页都要能回到总览，且四部分切换条完整
+  const PARTS = [
+    ['special-word.html', '单词'],
+    ['special-grammar.html', '语法'],
+    ['special-read.html', '阅读'],
+    ['special-write.html', '写作'],
+  ];
+  for (const [f, label] of PARTS) {
+    const html = read(f);
+    ok(html.includes('href="special.html"'), `${f} 可返回专项总览`);
+    for (const [other] of PARTS) ok(html.includes(`href="${other}"`), `${f} 含切换链接 ${other}`);
+    ok(html.includes(`>${label}<`) || html.includes(label), `${f} 标题含「${label}」`);
+    // 每部分都要有「解题」与「备考」字样（用户要求：介绍解题和备考方法）
+    ok(/解题/.test(html), `${f} 含「解题」`);
+    ok(/备考/.test(html), `${f} 含「备考」`);
+  }
+
+  // 语法两级：两个子页必须互相链接，且都能回到语法总览
+  const fam = read('special-grammar-fam.html');
+  const sent = read('special-grammar-sent.html');
+  for (const [name, html] of [['单选语法族页', fam], ['汉译英页', sent]]) {
+    ok(html.includes('href="special-grammar.html"'), `${name} 可返回语法总览`);
+    ok(html.includes('href="special-grammar-fam.html"') && html.includes('href="special-grammar-sent.html"'),
+      `${name} 含两级切换链接`);
+  }
+  // 语法总览必须指向两个子页
+  const gram = read('special-grammar.html');
+  ok(gram.includes('special-grammar-fam.html') && gram.includes('special-grammar-sent.html'),
+    '语法总览链接到两个子页');
+
+  // 例子：写作 4 题场景都要上写作页
+  const wr = read('special-write.html');
+  ok(WRITE_ITEMS.every((w) => wr.includes(w.scene)), '写作 4 题场景全部上写作页');
   // 有范文的必须展示，没范文的必须标「原卷未给」
   const withEssay = WRITE_ITEMS.filter((w) => w.essay);
   ok(withEssay.length === WRITE_STATS.withEssay, `有范文 ${withEssay.length} 套与派生一致`);
-  for (const w of withEssay) ok(html.includes(w.essay.slice(0, 40)), `范文「${w.scene}」已展示`);
-  ok(html.includes('原卷未给'), '无范文的卷子标注「原卷未给」');
+  for (const w of withEssay) ok(wr.includes(w.essay.slice(0, 40)), `范文「${w.scene}」已展示`);
+  ok(wr.includes('原卷未给'), '无范文的卷子标注「原卷未给」');
 
-  // 阅读数据
-  ok(html.includes(`${READ_STATS.selFams[0].pct}%`), `阅读细节题占比 ${READ_STATS.selFams[0].pct}% 上页`);
-  ok(html.includes(`${READ_ANS_TYPES.retrievePerPaper} 题`), `简答检索题 ${READ_ANS_TYPES.retrievePerPaper} 题/年上页`);
+  // 不做练习题：任何专项页都不得出现题干式「练习」「做题」入口
+  for (const f of SPECIAL_PAGES) {
+    ok(!/练习题|开始练习|做一题/.test(read(f)), `${f} 不含练习题入口`);
+  }
 
-  // 不做练习题：不得出现题干式「练习」「做题」入口
-  ok(!/练习题|开始练习|做一题/.test(html), '专项复习页不含练习题入口');
+  // 章节 id 唯一（逐页查，不是跨页查）
+  for (const f of SPECIAL_PAGES) {
+    const ids = (read(f).match(/id="[a-z0-9-]+"/g) || []);
+    ok(new Set(ids).size === ids.length, `${f} 章节 id 唯一（${ids.length} 个）`);
+  }
 
-  // 章节 id 唯一
-  const ids = (html.match(/id="[a-z0-9-]+"/g) || []);
-  ok(new Set(ids).size === ids.length, `章节 id 唯一（${ids.length} 个）`);
+  // 总览页不应再是最长的一页——拆页的目的就是不让信息打平
+  const sizes = SPECIAL_PAGES.map((f) => [f, read(f).length]);
+  const maxSize = Math.max(...sizes.map(([, n]) => n));
+  ok(overview.length < maxSize, `专项总览不是最大页（总览 ${(overview.length / 1024).toFixed(1)} KB，最大 ${(maxSize / 1024).toFixed(1)} KB）`);
+
+  // 提示问题条数：必须按问号数派生，不能按斜杠切（题干里有 he/she）
+  ok(WRITE_Q_COUNTS.every((n) => n >= 1 && n <= 5),
+    `提示问题条数合理（${WRITE_Q_COUNTS.join('/')}）`);
+  ok(wr.includes(`${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max} 个提示问题`),
+    `写作页显示提示问题区间 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max}`);
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */
 // esc() 不解析 Markdown，漏网的 ** 会原样显示成星号。
-for (const f of ALL_PAGES) {
+for (const f of ALL_HTML) {
   const html = readFileSync(f, 'utf8');
   const n = (html.match(/\*\*/g) || []).length;
   ok(n === 0, `${f} 无裸 Markdown 星号（发现 ${n} 处）`);

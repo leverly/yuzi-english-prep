@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>汉译英专项 · 西城初一英语</title>
+<meta name="description" content="12 句汉译英逐句拆解：提示词、语法动作、参考答案，以及固定搭配为何是主战场。">
+<style>
+:root{
+  --r:16px; --r-sm:10px; --r-lg:22px; --r-pill:999px;
+  --max:1140px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+
+  --bg:#f6f8fc; --bg-2:#fff; --bg-3:#edf2f9;
+  --surface:#fff; --surface-2:#f8fafd;
+  --border:rgba(15,23,42,.085); --border-2:rgba(15,23,42,.16);
+  --text:#0f172a; --text-2:#475569; --text-3:#64748b;
+
+  --accent:#2563eb; --accent-h:#1d4ed8;
+  --accent-soft:rgba(37,99,235,.08); --accent-soft-2:rgba(37,99,235,.14);
+  --accent-grad:linear-gradient(135deg,#2563eb 0%,#4f46e5 100%);
+
+  --purple:#7c3aed; --purple-soft:rgba(124,58,237,.09);
+  --gold:#d97706; --gold-soft:rgba(245,158,11,.12);
+  --gold-grad:linear-gradient(135deg,#f59e0b 0%,#d97706 100%);
+  --ok:#059669; --ok-soft:rgba(16,185,129,.10);
+  --rose:#e11d48; --rose-soft:rgba(225,29,72,.085);
+
+  --shadow-1:0 1px 2px rgba(15,23,42,.04),0 1px 3px rgba(15,23,42,.03);
+  --shadow-2:0 4px 12px -2px rgba(15,23,42,.06),0 2px 4px -1px rgba(15,23,42,.04);
+  --shadow-3:0 16px 36px -10px rgba(15,23,42,.11),0 4px 12px -2px rgba(15,23,42,.05);
+  --shadow-accent:0 10px 26px -8px rgba(37,99,235,.36);
+  --hero-glow:radial-gradient(ellipse 80% 55% at 50% -10%,rgba(37,99,235,.11),transparent 70%);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  font-family:var(--sans); background:var(--bg); color:var(--text);
+  line-height:1.68; font-size:15px; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+
+.site-head{
+  position:sticky;top:0;z-index:60;
+  background:rgba(246,248,252,.86);
+  backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--border);
+}
+.hdr-in{max-width:var(--max);margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;font-weight:750;font-size:15px;letter-spacing:-.01em;white-space:nowrap}
+.brand-mark{
+  width:30px;height:30px;border-radius:9px;background:var(--accent-grad);
+  display:grid;place-items:center;color:#fff;font-size:14px;font-weight:800;
+  box-shadow:var(--shadow-accent);flex:none;
+}
+.brand small{font-family:var(--mono);font-size:.68rem;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:2px 6px;border-radius:5px;margin-left:2px}
+.hdr-nav{display:flex;gap:2px;margin-left:auto;overflow-x:auto;scrollbar-width:none}
+.hdr-nav::-webkit-scrollbar{display:none}
+.hdr-nav a{
+  padding:7px 13px;border-radius:9px;color:var(--text-2);text-decoration:none;
+  font-size:14px;font-weight:550;white-space:nowrap;transition:.16s var(--ease);
+}
+.hdr-nav a:hover{background:var(--accent-soft);color:var(--accent)}
+.hdr-nav a.on{background:var(--accent);color:#fff;font-weight:650;box-shadow:var(--shadow-accent)}
+.hdr-nav a.nav-slides{background:var(--purple-soft);color:var(--purple);font-weight:650;display:inline-flex;align-items:center;gap:5px}
+.hdr-nav a.nav-slides::before{content:"▶";font-size:9px}
+.hdr-nav a.nav-slides:hover{background:var(--purple);color:#fff}
+.hdr-nav a.nav-slides.on{background:var(--purple);color:#fff}
+
+.hero{padding:54px 0 30px;position:relative;background:var(--hero-glow)}
+.hero-split{display:grid;grid-template-columns:1.12fr .98fr;gap:38px;align-items:start}
+.hero-split.wide{grid-template-columns:1.45fr .9fr;gap:44px}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;
+  color:var(--accent);border:1px solid rgba(37,99,235,.24);background:var(--surface);
+  padding:5px 13px;border-radius:var(--r-pill);margin-bottom:20px;box-shadow:var(--shadow-1);
+}
+.dot-live{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.16)}
+h1{font-size:clamp(28px,3.6vw,42px);line-height:1.22;font-weight:800;letter-spacing:-.03em;margin-bottom:16px}
+.accent-word{background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{font-size:15.5px;color:var(--text-2);line-height:1.75}
+.lede b{color:var(--text);font-weight:650}
+.hero-cta{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:7px;padding:11px 20px;border-radius:11px;
+  font-size:14.5px;font-weight:650;text-decoration:none;border:1px solid var(--border-2);
+  background:var(--surface);color:var(--text);transition:.18s var(--ease);box-shadow:var(--shadow-1);
+}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-2)}
+.btn.primary{background:var(--accent-grad);color:#fff;border-color:transparent;box-shadow:var(--shadow-accent)}
+.btn.primary:hover{box-shadow:0 14px 30px -8px rgba(37,99,235,.46)}
+.hero-trust{display:flex;gap:16px;margin-top:20px;flex-wrap:wrap;font-size:12.8px;color:var(--text-3)}
+.hero-trust b{color:var(--ok);margin-right:3px}
+.hero-stats{
+  display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:0 28px;
+  margin-top:24px;padding-top:20px;border-top:1px solid var(--border);
+}
+.hero-stats>div{display:flex;flex-direction:column;gap:1px;min-width:0}
+.hero-stats b{font-size:26px;font-weight:780;letter-spacing:-.03em;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hero-stats .hs-of{font-size:13px;font-weight:650;color:var(--text-3);margin-left:1px}
+.hero-stats span{font-size:12px;color:var(--text-3)}
+
+.cockpit{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:22px;box-shadow:var(--shadow-3);position:relative;overflow:hidden;
+}
+.cockpit::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--accent-grad)}
+.cockpit-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.level-pill{font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill)}
+.metric-row{display:flex;align-items:baseline;gap:11px;padding:12px 0;border-bottom:1px solid var(--border)}
+.metric-row:last-of-type{border-bottom:none}
+.metric-row .mv{font-size:25px;font-weight:780;letter-spacing:-.03em;font-variant-numeric:tabular-nums;min-width:54px}
+.metric-row .mv.accent{color:var(--accent)}
+.metric-row .mv.gold{color:var(--gold)}
+.metric-row .mv.ok{color:var(--ok)}
+.metric-row .mv.rose{color:var(--rose)}
+.metric-row .ml{font-size:12.5px;color:var(--text-2);line-height:1.45}
+.metric-row .ml b{display:block;color:var(--text);font-weight:650;font-size:13.5px}
+.mission-list{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:5px}
+.mission-item{
+  display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;
+  text-decoration:none;color:var(--text);transition:.16s var(--ease);
+}
+.mission-item:hover{background:var(--surface-2)}
+.mi-ico{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;font-size:15px;flex:none}
+.mi-ico.blue{background:var(--accent-soft)}
+.mi-ico.purple{background:var(--purple-soft)}
+.mi-ico.gold{background:var(--gold-soft)}
+.mi-ico.rose{background:var(--rose-soft)}
+.mi-main{display:flex;flex-direction:column;line-height:1.4;min-width:0}
+.mi-main b{font-size:13.5px;font-weight:650}
+.mi-main small{font-size:11.8px;color:var(--text-3)}
+.mi-go{margin-left:auto;font-size:12px;font-weight:600;color:var(--accent);white-space:nowrap}
+
+.section{margin:54px 0}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.section-head-left{min-width:0}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:8px;display:block;
+}
+h2{font-size:clamp(21px,2.4vw,27px);font-weight:780;letter-spacing:-.025em;line-height:1.3}
+.sub{font-size:13.2px;color:var(--text-3);display:block;margin-top:6px}
+h3{font-size:16px;font-weight:700;letter-spacing:-.01em;margin-bottom:10px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--shadow-1)}
+.card+.card{margin-top:14px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+
+.sell-rows{display:flex;flex-direction:column;gap:12px}
+.sell-row{
+  display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:0;
+  border:1px solid var(--border);border-radius:var(--r);background:var(--surface);
+  overflow:hidden;transition:.18s var(--ease);
+}
+.sell-row:hover{border-color:rgba(37,99,235,.3);box-shadow:var(--shadow-2)}
+.sell-pain{padding:22px 24px;background:var(--bg-3);display:flex;flex-direction:column;gap:7px;position:relative}
+.sell-no{font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--accent);opacity:.75}
+.sell-pain b{font-size:15px;font-weight:700;line-height:1.45;letter-spacing:-.01em}
+.sell-pain-sub{font-size:12.8px;color:var(--text-3)}
+.sell-fix{padding:22px 24px;display:flex;flex-direction:column;gap:9px}
+.sell-tag{
+  align-self:flex-start;font-size:.7rem;font-weight:800;padding:3px 10px;border-radius:var(--r-pill);
+  background:var(--accent-soft);color:var(--accent);letter-spacing:.02em;
+}
+.sell-fix p{font-size:13.6px;color:var(--text-2);line-height:1.72}
+.sell-fix p b{color:var(--text);font-weight:650}
+.sell-link{font-size:13px;font-weight:650;color:var(--accent);text-decoration:none;margin-top:auto}
+.sell-link:hover{text-decoration:underline}
+
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tier-card{
+  display:block;text-decoration:none;color:var(--text);background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow-1);
+  transition:.18s var(--ease);position:relative;overflow:hidden;
+}
+.tier-card::before{content:"";position:absolute;inset:0 auto 0 0;width:4px}
+.tier-card.t-blue::before{background:var(--accent)}
+.tier-card.t-gold::before{background:var(--gold)}
+.tier-card.t-rose::before{background:var(--rose)}
+.tier-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+.tier-n{font-size:31px;font-weight:800;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
+.tier-card.t-blue .tier-n{color:var(--accent)}
+.tier-card.t-gold .tier-n{color:var(--gold)}
+.tier-card.t-rose .tier-n{color:var(--rose)}
+.tier-n small{font-size:14px;font-weight:650;color:var(--text-3);margin-left:2px}
+.tier-l{font-size:13px;font-weight:650;margin-top:5px}
+.tier-d{font-size:12.4px;color:var(--text-3);margin-top:3px;line-height:1.55}
+.tier-goal{font-size:12px;font-weight:700;color:var(--accent);margin-top:10px;padding-top:9px;border-top:1px solid var(--border)}
+
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--r);border:1px solid var(--border);background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:13.4px}
+th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th{font-size:11.5px;font-weight:700;color:var(--text-3);letter-spacing:.04em;background:var(--surface-2);border-bottom:1px solid var(--border-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+tfoot td{font-weight:700;border-top:2px solid var(--border-2);border-bottom:none;background:var(--bg-3)}
+.cell-hi{color:var(--accent);font-weight:700}
+td.wrap-cell{white-space:normal;min-width:180px}
+
+.tag{display:inline-block;font-size:11.5px;font-weight:650;padding:2.5px 8px;border-radius:6px;line-height:1.55;white-space:nowrap}
+.tag.must{background:var(--rose-soft);color:var(--rose)}
+.tag.often{background:var(--gold-soft);color:var(--gold)}
+.tag.rare{background:var(--bg-3);color:var(--text-3)}
+.tag.easy{background:var(--ok-soft);color:var(--ok)}
+.tag.mid{background:var(--accent-soft);color:var(--accent)}
+.tag.hard{background:var(--gold-soft);color:var(--gold)}
+.tag.bonus{background:var(--purple-soft);color:var(--purple)}
+.tag.ch{background:var(--accent-soft);color:var(--accent)}
+.tag.cat{background:var(--bg-3);color:var(--text-2)}
+.tag.write{background:var(--rose-soft);color:var(--rose)}
+.tag.select{background:var(--accent-soft);color:var(--accent)}
+
+.dist-row{display:grid;grid-template-columns:130px 1fr 96px;align-items:center;gap:12px;padding:7px 0}
+.dist-name{font-size:13.4px;font-weight:600;color:var(--text)}
+.dist-bar-wrap{display:block;height:8px;background:var(--bg-3);border-radius:var(--r-pill);overflow:hidden}
+.dist-bar{display:block;height:100%;background:var(--accent-grad);border-radius:var(--r-pill)}
+.dist-bar.gold{background:var(--gold-grad)}
+.dist-bar.ok{background:linear-gradient(135deg,#10b981,#059669)}
+.dist-bar.rose{background:linear-gradient(135deg,#f43f5e,#e11d48)}
+.dist-val{font-size:12.8px;color:var(--text-2);text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+
+.fam{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:17px 19px;box-shadow:var(--shadow-1);transition:.18s var(--ease);
+}
+.fam:hover{border-color:rgba(37,99,235,.28);box-shadow:var(--shadow-2)}
+.fam-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin-bottom:7px}
+.fam-name{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.fam-score{font-size:12.6px;color:var(--text-3);font-variant-numeric:tabular-nums;margin-left:auto}
+.fam-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;font-size:11.5px;color:var(--text-3);align-items:center}
+.fam-note{font-size:12.9px;color:var(--text-2);line-height:1.65}
+.fam-years{display:flex;gap:4px;margin-top:10px;flex-wrap:wrap}
+.yr{font-size:11px;padding:2px 6px;border-radius:5px;background:var(--bg-3);color:var(--text-3);font-variant-numeric:tabular-nums}
+.yr.hit{background:var(--accent-soft);color:var(--accent);font-weight:650}
+
+.note{
+  border-left:3px solid var(--accent);background:var(--accent-soft);
+  padding:14px 18px;border-radius:0 var(--r-sm) var(--r-sm) 0;
+  font-size:13.6px;color:var(--text-2);line-height:1.72;
+}
+.note b{color:var(--text)}
+.note.warn{border-color:var(--gold);background:var(--gold-soft)}
+.note.info{border-color:var(--accent);background:var(--accent-soft)}
+.note.risk{border-color:var(--rose);background:var(--rose-soft)}
+.note+.note{margin-top:10px}
+
+ul.clean{list-style:none}
+ul.clean li{position:relative;padding-left:20px;margin:9px 0;font-size:13.8px;color:var(--text-2);line-height:1.72}
+ul.clean li::before{content:"";position:absolute;left:5px;top:9px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+ul.clean li b{color:var(--text);font-weight:650}
+
+.pri{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:19px 21px;box-shadow:var(--shadow-1);position:relative;overflow:hidden;
+  transition:.18s var(--ease);
+}
+.pri:hover{box-shadow:var(--shadow-2)}
+.pri::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--accent)}
+.pri.p2::before{background:var(--purple)}
+.pri.p3::before{background:var(--ok)}
+.pri.p4::before{background:var(--gold)}
+.pri.p5::before{background:var(--text-3)}
+.pri-rank{font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.09em;color:var(--accent);display:block;margin-bottom:7px}
+.pri.p2 .pri-rank{color:var(--purple)}
+.pri.p3 .pri-rank{color:var(--ok)}
+.pri.p4 .pri-rank{color:var(--gold)}
+.pri.p5 .pri-rank{color:var(--text-3)}
+.pri h3{margin:0 0 7px;font-size:15px;font-weight:700}
+.pri .meta{font-size:12.3px;color:var(--text-3);margin-bottom:10px;font-variant-numeric:tabular-nums;padding-bottom:9px;border-bottom:1px solid var(--border)}
+.pri p{font-size:13.3px;color:var(--text-2);line-height:1.72}
+.pri p b{color:var(--text);font-weight:650}
+
+.phase{display:grid;grid-template-columns:104px 1fr;border:1px solid var(--border);background:var(--surface);overflow:hidden}
+.phase:first-of-type{border-radius:var(--r) var(--r) 0 0}
+.phase:last-of-type{border-radius:0 0 var(--r) var(--r)}
+.phase+.phase{border-top:none}
+.phase-w{
+  background:var(--bg-3);padding:16px 13px;font-size:12.2px;font-weight:700;color:var(--accent);
+  border-right:1px solid var(--border);display:flex;align-items:center;white-space:nowrap;
+}
+.phase-b{padding:16px 18px}
+.phase-b h4{font-size:14px;font-weight:700;margin-bottom:5px}
+.phase-b p{font-size:13.2px;color:var(--text-2);line-height:1.65}
+.phase-ok{font-size:12.2px;color:var(--ok);margin-top:8px;font-weight:650}
+
+/* 分层导航：面包屑 / 一级切换 / 二级切换 */
+.crumb{display:flex;align-items:center;gap:7px;font-size:12.6px;color:var(--text-3);margin-bottom:16px;flex-wrap:wrap}
+.crumb a{color:var(--text-2);text-decoration:none;font-weight:550}
+.crumb a:hover{color:var(--accent);text-decoration:underline}
+.crumb .sep{opacity:.45}
+.crumb b{color:var(--text);font-weight:650}
+.subtabs{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:26px;padding:5px;
+  background:var(--surface);border:1px solid var(--border);border-radius:13px;box-shadow:var(--shadow-1);
+}
+.subtabs a{
+  display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;
+  text-decoration:none;color:var(--text-2);font-size:13.6px;font-weight:600;
+  transition:.16s var(--ease);white-space:nowrap;
+}
+.subtabs a:hover{background:var(--bg-3);color:var(--text)}
+.subtabs a.on{background:var(--accent);color:#fff;box-shadow:var(--shadow-accent)}
+.subtabs a .sn{font-family:var(--mono);font-size:11px;opacity:.72}
+.subtabs a.on .sn{opacity:.85}
+.subtabs.sub{margin:-14px 0 26px;padding:0;background:transparent;border:none;box-shadow:none;gap:8px}
+.subtabs.sub a{border:1px solid var(--border);background:var(--surface);padding:7px 14px;font-size:13px}
+.subtabs.sub a:hover{background:var(--surface-2)}
+.subtabs.sub a.on{background:var(--purple);border-color:transparent;color:#fff;box-shadow:0 8px 20px -8px rgba(124,58,237,.42)}
+
+/* 总览页的四部分入口卡 */
+.part-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.part-card{
+  display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-1);
+  transition:.18s var(--ease);position:relative;overflow:hidden;
+}
+.part-card::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--accent)}
+.part-card.p-grammar::before{background:var(--purple)}
+.part-card.p-read::before{background:var(--rose)}
+.part-card.p-write::before{background:var(--gold)}
+.part-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+.part-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.part-n{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);opacity:.8}
+.part-card.p-grammar .part-n{color:var(--purple)}
+.part-card.p-read .part-n{color:var(--rose)}
+.part-card.p-write .part-n{color:var(--gold)}
+.part-title{font-size:18px;font-weight:750;letter-spacing:-.015em}
+.part-score{margin-left:auto;font-size:13px;font-weight:700;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.part-how{font-size:13.2px;color:var(--text-2);line-height:1.7;margin:8px 0 14px}
+.part-how b{color:var(--text);font-weight:650}
+.part-links{display:flex;flex-direction:column;gap:6px;margin-top:auto}
+.part-link{
+  display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;
+  background:var(--surface-2);border:1px solid var(--border);
+  text-decoration:none;color:var(--text);font-size:13.2px;font-weight:600;transition:.16s var(--ease);
+}
+.part-link:hover{background:var(--accent-soft);border-color:rgba(37,99,235,.28);color:var(--accent)}
+.part-link .pl-go{margin-left:auto;font-size:12px;color:var(--accent);font-weight:650}
+.part-link small{font-size:11.8px;color:var(--text-3);font-weight:500}
+
+/* 紧凑的分值构成：不占一屏，不把 hero 撑高 */
+.seg-list{display:flex;flex-direction:column;gap:1px;margin-top:12px}
+.seg-row{display:flex;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.8px}
+.seg-row:last-child{border-bottom:none}
+.seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
+.seg-row .sr-l{color:var(--text-2);font-weight:550}
+.seg-row .sr-c{margin-left:auto;color:var(--text-3);font-size:11.8px;white-space:nowrap}
+.hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
+.hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
+
+footer{margin-top:60px;padding:30px 0 40px;border-top:1px solid var(--border);font-size:12.5px;color:var(--text-3)}
+footer p{margin:5px 0}
+footer b{color:var(--text-2)}
+
+@media(max-width:960px){
+  .hero-split,.hero-split.wide{grid-template-columns:1fr;gap:26px}
+  .g3,.g4,.tier-grid{grid-template-columns:repeat(2,1fr)}
+  .part-grid{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  body{font-size:14.5px}
+  .wrap,.hdr-in{padding:0 16px}
+  .hdr-in{height:58px}
+  .brand small{display:none}
+  .hero{padding:34px 0 22px}
+  .hero-stats{grid-template-columns:repeat(2,1fr);gap:12px 0}
+  .hero-stats b{font-size:22px}
+  .g2,.g3,.g4,.tier-grid{grid-template-columns:1fr}
+  .sell-row{grid-template-columns:1fr}
+  .section{margin:38px 0}
+  .card{padding:17px}
+  .cockpit{padding:18px}
+  .dist-row{grid-template-columns:100px 1fr 76px;gap:9px}
+  table{font-size:12.4px}
+  /* 分层导航在窄屏上要能横滑，不能撑破页面 */
+  .subtabs{padding:4px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .subtabs::-webkit-scrollbar{display:none}
+  .subtabs a{padding:8px 12px;font-size:13px;flex:none}
+  .subtabs.sub{overflow-x:auto;flex-wrap:nowrap}
+  .part-grid{gap:12px}
+  .part-card{padding:18px}
+  .crumb{font-size:12px;margin-bottom:12px}
+  /* 窄屏防溢出：h1 与 hero 内的长串不换行会撑破视口 */
+  h1{font-size:clamp(22px,6.4vw,28px);overflow-wrap:break-word}
+  .lede,.part-how{overflow-wrap:break-word}
+  .hero-split,.hero-split.wide{min-width:0}
+  .hero-split>div,.hero-split>aside{min-width:0}
+  main.wrap{overflow-x:hidden}
+  th,td{padding:8px 9px}
+  .phase{grid-template-columns:1fr}
+  .phase-w{border-right:none;border-bottom:1px solid var(--border)}
+  .pri{padding:16px 18px}
+}
+</style>
+</head>
+<body>
+<header class="site-head"><div class="hdr-in">
+  <a class="brand" href="index.html">
+    <span class="brand-mark">英</span>
+    <span>西城初一英语<small>初一上·期末</small></span>
+  </a>
+  <nav class="hdr-nav">
+    <a href="index.html" class="">总览</a><a href="papers.html" class="">逐年真题</a><a href="trend.html" class="">趋势与考点</a><a href="special.html" class="on">专项复习</a><a href="plan.html" class="">冲刺计划</a><a href="slides.html" class="nav-slides">演示</a>
+  </nav>
+</div></header>
+<main class="wrap">
+
+<div class="crumb"><a href="special.html">专项复习</a><span class="sep">/</span><a href="special-grammar.html">语法</a><span class="sep">/</span><b>汉译英</b></div>
+<div class="subtabs">
+  <a href="special.html" class="">专项总览</a>
+  <a href="special-word.html" class=""><span class="sn">①</span>单词</a><a href="special-grammar.html" class="on"><span class="sn">②</span>语法</a><a href="special-read.html" class=""><span class="sn">③</span>阅读</a><a href="special-write.html" class=""><span class="sn">④</span>写作</a>
+</div>
+<div class="subtabs sub">
+  <a href="special-grammar-fam.html" class="">单选语法族</a><a href="special-grammar-sent.html" class="on">汉译英</a>
+</div>
+
+
+<section class="hero" style="padding-bottom:8px">
+  <div class="hero-split wide">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>2·B 汉译英</div>
+      <h1 style="font-size:clamp(25px,3vw,34px)">12 句：语法真正被「写」出来的地方</h1>
+      <p class="lede">汉译英 6 分、每年 3 句。
+     每句都标了提示词和实际要求的语法动作——<b>提示词就是骨架，不要自己换说法</b>。</p>
+    </div>
+    <aside class="cockpit">
+  <div class="cockpit-top"><span class="level-pill">动作分布</span></div>
+  <div class="hero-metric"><span class="hm-n">12</span><span class="hm-l">句汉译英<br>每句 1–2 个语法动作</span></div>
+  <div class="seg-list">
+    <div class="seg-row">
+      <span class="sr-n">3</span><span class="sr-l">时态</span><span class="sr-c">3 句</span>
+    </div><div class="seg-row">
+      <span class="sr-n">3</span><span class="sr-l">主谓一致</span><span class="sr-c">3 句</span>
+    </div><div class="seg-row">
+      <span class="sr-n">5</span><span class="sr-l">固定搭配</span><span class="sr-c">5 句</span>
+    </div><div class="seg-row">
+      <span class="sr-n">3</span><span class="sr-l">固定句式</span><span class="sr-c">3 句</span>
+    </div><div class="seg-row">
+      <span class="sr-n">1</span><span class="sr-l">there be</span><span class="sr-c">1 句</span>
+    </div>
+  </div>
+  <div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--border);font-size:12.2px;color:var(--text-3);line-height:1.6">固定搭配 5 句最多——它最容易补</div></aside>
+  </div>
+</section>
+
+<div class="note warn">
+  <b>固定搭配 5 句，比任何单一语法规则都多。</b>
+  汉译英的主战场不是「语法规则」，是<b>短语能不能直接写出来</b>。
+</div>
+
+
+<section class="section" id="g-sent">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">真题证据</span>
+    <h2>12 句逐句拆解</h2>
+    <span class="sub">中文原句 / 提示词 / 语法动作 / 参考答案</span>
+  </div></div>
+  
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>年份</th><th class="num">题号</th><th>中文原句</th><th>提示词</th><th>语法动作</th><th>参考答案</th></tr></thead>
+<tbody>
+<tr>
+  <td style="color:var(--text-3);font-size:12.4px">2021-22</td>
+  <td class="num" style="color:var(--text-3)">52</td>
+  <td class="wrap-cell"><b>休息的时间到了。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">have a break</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 have a break</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">It is time to do</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">It's time to have a break.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2021-22</td>
+  <td class="num" style="color:var(--text-3)">53</td>
+  <td class="wrap-cell"><b>吃太多肉对儿童不好。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">too much meat</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">主谓一致</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">too much + 不可数</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">be bad for</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Eating too much meat is bad for children.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2021-22</td>
+  <td class="num" style="color:var(--text-3)">54</td>
+  <td class="wrap-cell"><b>她正在等公共汽车。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">wait for</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">现在进行时</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 wait for</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">She is waiting for a bus.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2022-23</td>
+  <td class="num" style="color:var(--text-3)">52</td>
+  <td class="wrap-cell"><b>学生们正在打扫教室。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">clean</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">现在进行时</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">The students are cleaning the classroom.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2022-23</td>
+  <td class="num" style="color:var(--text-3)">53</td>
+  <td class="wrap-cell"><b>Jack 经常和他爸爸一起看足球比赛。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">watch</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">主谓一致（三单）</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">频率副词 often</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Jack often watches football matches with his dad.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2022-23</td>
+  <td class="num" style="color:var(--text-3)">54</td>
+  <td class="wrap-cell"><b>图书馆里有许多新书。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">there be</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">there be 句型</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">There are many new books in the library.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2023-24</td>
+  <td class="num" style="color:var(--text-3)">52</td>
+  <td class="wrap-cell"><b>大明擅长踢足球。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">be good at</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 be good at + 动名词</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Daming is good at playing football.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2023-24</td>
+  <td class="num" style="color:var(--text-3)">53</td>
+  <td class="wrap-cell"><b>到了大扫除的时间了。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">do some cleaning</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定句式 It is time to do</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">It's time to do some cleaning.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2023-24</td>
+  <td class="num" style="color:var(--text-3)">54</td>
+  <td class="wrap-cell"><b>我们正在为春节做准备。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">get ready for</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">现在进行时</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 get ready for</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">We are getting ready for the Spring Festival.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2024-25</td>
+  <td class="num" style="color:var(--text-3)">40</td>
+  <td class="wrap-cell"><b>茶有益于我们的健康。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">good for, health</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 be good for</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Tea is good for our health.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2024-25</td>
+  <td class="num" style="color:var(--text-3)">41</td>
+  <td class="wrap-cell"><b>在学习中，思考很重要。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">important, in learning</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定句式 It is + adj + to do</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">It is important to think in learning.</td>
+</tr><tr>
+  <td style="color:var(--text-3);font-size:12.4px">2024-25</td>
+  <td class="num" style="color:var(--text-3)">42</td>
+  <td class="wrap-cell"><b>老师们总是尽力帮助我们。</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">try their best</td>
+  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">主谓一致（复数 + 原形）</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">频率副词 always</span></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Teachers always try their best to help us.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+</section>
+
+
+<section class="section">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">动作频次</span>
+    <h2>5 类动作，固定搭配最多</h2>
+    <span class="sub">一句可能同时考两个动作，所以频次合计大于句数</span>
+  </div></div>
+  
+<div class="card">
+  <div class="dist-row">
+    <span class="dist-name">时态</span>
+    <span class="dist-bar-wrap"><span class="dist-bar " style="width:60%"></span></span>
+    <span class="dist-val">3 句</span>
+  </div><div class="dist-row">
+    <span class="dist-name">主谓一致</span>
+    <span class="dist-bar-wrap"><span class="dist-bar " style="width:60%"></span></span>
+    <span class="dist-val">3 句</span>
+  </div><div class="dist-row">
+    <span class="dist-name">固定搭配</span>
+    <span class="dist-bar-wrap"><span class="dist-bar " style="width:100%"></span></span>
+    <span class="dist-val">5 句</span>
+  </div><div class="dist-row">
+    <span class="dist-name">固定句式</span>
+    <span class="dist-bar-wrap"><span class="dist-bar " style="width:60%"></span></span>
+    <span class="dist-val">3 句</span>
+  </div><div class="dist-row">
+    <span class="dist-name">there be</span>
+    <span class="dist-bar-wrap"><span class="dist-bar " style="width:20%"></span></span>
+    <span class="dist-val">1 句</span>
+  </div>
+</div>
+<div class="note info" style="margin-top:14px">
+  <b>按这个顺序练：</b>时态（3） > 主谓一致（3） > 固定搭配（5） > 固定句式（3） > there be（1）。
+  固定搭配占比最高，也最容易补——它是「背了就会」的那一类。
+</div>
+
+</section>
+
+
+<section class="section">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">解题与备考</span>
+    <h2>解题动作：先定句型，再套词，最后查一致性</h2>
+    <span class="sub">不刷语法题册，只做「一句多改」</span>
+  </div></div>
+  
+<div class="grid g2">
+  <div class="card">
+    <h3 style="margin-bottom:10px">汉译英解题三步</h3>
+    <ul class="clean">
+      <li><b>看提示词定句型。</b>提示词就是骨架：给 <code style="font-family:var(--mono);font-size:12.4px">be good at</code> 就用 be good at，给 <code style="font-family:var(--mono);font-size:12.4px">there be</code> 就用 there be——不要自己换说法。</li>
+      <li><b>套词后查主谓一致。</b>主语是单数还是复数？3 句汉译英都在考这个。</li>
+      <li><b>最后查时态与标点。</b>句末有没有句号？中文的「正在」= 现在进行时，别写成一般现在时。</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">备考：一句多改</h3>
+    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
+      拿一个基础句，改成四种形式——<b>三单 / 过去 / 否定 / 疑问</b>。<br><br>
+      <code style="font-family:var(--mono);font-size:12.4px;background:var(--bg-3);padding:2px 6px;border-radius:4px">She is waiting for the bus.</code><br>
+      → <code style="font-family:var(--mono);font-size:12.4px">He waits for the bus.</code>（三单）<br>
+      → <code style="font-family:var(--mono);font-size:12.4px">She waited for the bus.</code>（过去）<br>
+      → <code style="font-family:var(--mono);font-size:12.4px">She isn't waiting for the bus.</code>（否定）<br>
+      → <code style="font-family:var(--mono);font-size:12.4px">Is she waiting for the bus?</code>（疑问）
+    </p>
+    <p style="font-size:12.8px;color:var(--text-3);margin-top:10px;line-height:1.7">
+      <b>为什么有效：</b>一次操练覆盖时态、主谓一致、否定句、疑问句四族——
+      正好是单选占比最高的四族，而且是在「写」的场景下练。
+    </p>
+  </div>
+</div>
+
+</section>
+
+</main>
+<footer class="wrap">
+  <p><b>西城区初一(上)英语期末考情分析站</b> · 样本：西城区 2021-22 / 2022-23 / 2023-24 / 2024-25 4 套期末真题，共 233 题逐题标注</p>
+  <p>所有统计数字由逐题台账派生，非人工填写。频次结论基于 4 套样本，不构成押题。</p>
+</footer>
+</body>
+</html>

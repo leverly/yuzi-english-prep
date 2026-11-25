@@ -17,7 +17,7 @@ import {
   PROP_STABILITY, PROP_LEVEL_NAME, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_ACTIONS, SENT_GROUPS, GRAMMAR_DOUBLE,
-  WRITE_ITEMS, WRITE_STATS, READ_ITEMS, READ_STATS, READ_ANS_TYPES,
+  WRITE_ITEMS, WRITE_STATS, WRITE_Q_RANGE, READ_ITEMS, READ_STATS, READ_ANS_TYPES,
 } from './work/papers/stats.mjs';
 import { LEDGER, CAT_NOTE, FAM_DEFS } from './work/papers/ledger.mjs';
 
@@ -358,13 +358,80 @@ ul.clean li b{color:var(--text);font-weight:650}
 .phase-b p{font-size:13.2px;color:var(--text-2);line-height:1.65}
 .phase-ok{font-size:12.2px;color:var(--ok);margin-top:8px;font-weight:650}
 
+/* 分层导航：面包屑 / 一级切换 / 二级切换 */
+.crumb{display:flex;align-items:center;gap:7px;font-size:12.6px;color:var(--text-3);margin-bottom:16px;flex-wrap:wrap}
+.crumb a{color:var(--text-2);text-decoration:none;font-weight:550}
+.crumb a:hover{color:var(--accent);text-decoration:underline}
+.crumb .sep{opacity:.45}
+.crumb b{color:var(--text);font-weight:650}
+.subtabs{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:26px;padding:5px;
+  background:var(--surface);border:1px solid var(--border);border-radius:13px;box-shadow:var(--shadow-1);
+}
+.subtabs a{
+  display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;
+  text-decoration:none;color:var(--text-2);font-size:13.6px;font-weight:600;
+  transition:.16s var(--ease);white-space:nowrap;
+}
+.subtabs a:hover{background:var(--bg-3);color:var(--text)}
+.subtabs a.on{background:var(--accent);color:#fff;box-shadow:var(--shadow-accent)}
+.subtabs a .sn{font-family:var(--mono);font-size:11px;opacity:.72}
+.subtabs a.on .sn{opacity:.85}
+.subtabs.sub{margin:-14px 0 26px;padding:0;background:transparent;border:none;box-shadow:none;gap:8px}
+.subtabs.sub a{border:1px solid var(--border);background:var(--surface);padding:7px 14px;font-size:13px}
+.subtabs.sub a:hover{background:var(--surface-2)}
+.subtabs.sub a.on{background:var(--purple);border-color:transparent;color:#fff;box-shadow:0 8px 20px -8px rgba(124,58,237,.42)}
+
+/* 总览页的四部分入口卡 */
+.part-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.part-card{
+  display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-1);
+  transition:.18s var(--ease);position:relative;overflow:hidden;
+}
+.part-card::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--accent)}
+.part-card.p-grammar::before{background:var(--purple)}
+.part-card.p-read::before{background:var(--rose)}
+.part-card.p-write::before{background:var(--gold)}
+.part-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+.part-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.part-n{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);opacity:.8}
+.part-card.p-grammar .part-n{color:var(--purple)}
+.part-card.p-read .part-n{color:var(--rose)}
+.part-card.p-write .part-n{color:var(--gold)}
+.part-title{font-size:18px;font-weight:750;letter-spacing:-.015em}
+.part-score{margin-left:auto;font-size:13px;font-weight:700;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.part-how{font-size:13.2px;color:var(--text-2);line-height:1.7;margin:8px 0 14px}
+.part-how b{color:var(--text);font-weight:650}
+.part-links{display:flex;flex-direction:column;gap:6px;margin-top:auto}
+.part-link{
+  display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;
+  background:var(--surface-2);border:1px solid var(--border);
+  text-decoration:none;color:var(--text);font-size:13.2px;font-weight:600;transition:.16s var(--ease);
+}
+.part-link:hover{background:var(--accent-soft);border-color:rgba(37,99,235,.28);color:var(--accent)}
+.part-link .pl-go{margin-left:auto;font-size:12px;color:var(--accent);font-weight:650}
+.part-link small{font-size:11.8px;color:var(--text-3);font-weight:500}
+
+/* 紧凑的分值构成：不占一屏，不把 hero 撑高 */
+.seg-list{display:flex;flex-direction:column;gap:1px;margin-top:12px}
+.seg-row{display:flex;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.8px}
+.seg-row:last-child{border-bottom:none}
+.seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
+.seg-row .sr-l{color:var(--text-2);font-weight:550}
+.seg-row .sr-c{margin-left:auto;color:var(--text-3);font-size:11.8px;white-space:nowrap}
+.hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
+.hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
+
 footer{margin-top:60px;padding:30px 0 40px;border-top:1px solid var(--border);font-size:12.5px;color:var(--text-3)}
 footer p{margin:5px 0}
 footer b{color:var(--text-2)}
 
 @media(max-width:960px){
-  .hero-split{grid-template-columns:1fr;gap:26px}
+  .hero-split,.hero-split.wide{grid-template-columns:1fr;gap:26px}
   .g3,.g4,.tier-grid{grid-template-columns:repeat(2,1fr)}
+  .part-grid{grid-template-columns:1fr}
 }
 @media(max-width:680px){
   body{font-size:14.5px}
@@ -381,6 +448,20 @@ footer b{color:var(--text-2)}
   .cockpit{padding:18px}
   .dist-row{grid-template-columns:100px 1fr 76px;gap:9px}
   table{font-size:12.4px}
+  /* 分层导航在窄屏上要能横滑，不能撑破页面 */
+  .subtabs{padding:4px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .subtabs::-webkit-scrollbar{display:none}
+  .subtabs a{padding:8px 12px;font-size:13px;flex:none}
+  .subtabs.sub{overflow-x:auto;flex-wrap:nowrap}
+  .part-grid{gap:12px}
+  .part-card{padding:18px}
+  .crumb{font-size:12px;margin-bottom:12px}
+  /* 窄屏防溢出：h1 与 hero 内的长串不换行会撑破视口 */
+  h1{font-size:clamp(22px,6.4vw,28px);overflow-wrap:break-word}
+  .lede,.part-how{overflow-wrap:break-word}
+  .hero-split,.hero-split.wide{min-width:0}
+  .hero-split>div,.hero-split>aside{min-width:0}
+  main.wrap{overflow-x:hidden}
   th,td{padding:8px 9px}
   .phase{grid-template-columns:1fr}
   .phase-w{border-right:none;border-bottom:1px solid var(--border)}
@@ -397,6 +478,38 @@ const NAV = [
   ['plan.html', '冲刺计划'],
   ['slides.html', '演示', 'nav-slides'],
 ];
+
+// 专项复习的分层结构：一级 = 四个部分，二级只在语法下面。
+// 导航「专项复习」始终指向 special.html（总览），子页靠面包屑与二级切换互通。
+const SPECIAL_PARTS = [
+  { id: 'word', file: 'special-word.html', n: '①', title: '单词', label: '单词' },
+  { id: 'grammar', file: 'special-grammar.html', n: '②', title: '语法', label: '语法' },
+  { id: 'read', file: 'special-read.html', n: '③', title: '阅读', label: '阅读' },
+  { id: 'write', file: 'special-write.html', n: '④', title: '写作', label: '写作' },
+];
+const GRAMMAR_SUBS = [
+  { id: 'fam', file: 'special-grammar-fam.html', label: '单选语法族' },
+  { id: 'sent', file: 'special-grammar-sent.html', label: '汉译英' },
+];
+
+// 专项子页的二级切换条（只在四个部分页上出现）
+function specialTabs(activePart) {
+  return `<div class="subtabs">
+  <a href="special.html" class="${activePart ? '' : 'on'}">专项总览</a>
+  ${SPECIAL_PARTS.map((p) => `<a href="${p.file}" class="${p.id === activePart ? 'on' : ''}"><span class="sn">${p.n}</span>${p.label}</a>`).join('')}
+</div>`;
+}
+
+// 语法两个子页的三级切换条
+function grammarTabs(activeSub) {
+  return `<div class="subtabs sub">
+  ${GRAMMAR_SUBS.map((s) => `<a href="${s.file}" class="${s.id === activeSub ? 'on' : ''}">${s.label}</a>`).join('')}
+</div>`;
+}
+
+const crumb = (items) => `<div class="crumb">${items
+  .map((it, i) => (i === items.length - 1 ? `<b>${it.label}</b>` : `<a href="${it.href}">${it.label}</a><span class="sep">/</span>`))
+  .join('')}</div>`;
 
 function page(active, title, desc, body) {
   return `<!DOCTYPE html>
@@ -512,7 +625,7 @@ function buildHome() {
         </a>
         <a class="mission-item" href="special.html">
           <span class="mi-ico rose">📝</span>
-          <span class="mi-main"><b>专项：单词与语法</b><small>音标 ${SPELL_STATS.total} 词 · 单选 ${GRAMMAR_FAMS.length} 族</small></span>
+          <span class="mi-main"><b>专项复习</b><small>单词 / 语法 / 阅读 / 写作 四页</small></span>
           <span class="mi-go">查看 →</span>
         </a>
         <a class="mission-item" href="plan.html">
@@ -1169,56 +1282,174 @@ ${section('待确认', '需要先确认的一件事', '这条不确认，上面�
 }
 
 /* ============================ 输出 ============================ */
-/* ============================ 专项复习（单词 / 语法 / 阅读 / 写作） ============================ */
-function buildSpecial() {
-  const body = `
-<section class="hero" style="padding-bottom:10px">
+
+/* ============================ 专项复习（分层：总览 → 四部分 → 语法两子页） ============================ */
+// 每个部分一个页面，语法下面再分「单选语法族 / 汉译英」两级。
+// 数字仍全部从 stats.mjs 派生，不写常量。
+
+const SPECIAL_CRUMB = (part, sub) => {
+  const items = [{ href: 'special.html', label: '专项复习' }];
+  if (part) items.push({ href: part.file, label: part.title });
+  if (sub) items.push({ label: sub.label });
+  return crumb(items);
+};
+
+const specialHead = (kicker, title, lede, aside) => `
+<section class="hero" style="padding-bottom:8px">
   <div class="hero-split wide">
     <div>
-      <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套真题 · 四部分逐题实证</div>
-      <h1 style="font-size:clamp(26px,3.2vw,36px)">专项复习</h1>
-      <p class="lede">
-        单词、语法、阅读、写作——四部分的解题动作不一样，所以练法也不一样。
-        这一页不讲通用技巧，每一部分都给出<b>真题证据 → 解题方法 → 备考动作</b>。
-      </p>
+      <div class="hero-badge"><span class="dot-live"></span>${kicker}</div>
+      <h1 style="font-size:clamp(25px,3vw,34px)">${title}</h1>
+      <p class="lede">${lede}</p>
     </div>
-    <aside class="cockpit">
-      <div class="cockpit-top"><span class="level-pill">四部分分值</span></div>
-      <div class="metric-row"><span class="mv accent">${fmt(SEG_SCORE['音标填词'].avg + SEG_SCORE['听填'].avg)}</span><span class="ml"><b>单词</b>音标 ${fmt(SEG_SCORE['音标填词'].avg)} + 听填 ${fmt(SEG_SCORE['听填'].avg)}</span></div>
-      <div class="metric-row"><span class="mv accent">${fmt(SEG_SCORE['单选'].avg)}</span><span class="ml"><b>语法</b>单选 ${GRAMMAR_FAMS.length} 族</span></div>
-      <div class="metric-row"><span class="mv rose">${fmt(READ_STATS.totalScore)}</span><span class="ml"><b>阅读</b>选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}</span></div>
-      <div class="metric-row" style="border-bottom:none"><span class="mv gold">${fmt(WRITE_STATS.score)}</span><span class="ml"><b>写作</b>文段表达，≥${WRITE_STATS.wordMin} 词</span></div>
-    </aside>
+    ${aside ? `<aside class="cockpit">${aside}</aside>` : ''}
   </div>
-</section>
+</section>`;
+
+// 右栏的紧凑指标：一个大数 + 若干构成行，不把 hero 撑成一屏
+const segAside = (pill, bigN, bigLabel, rows, foot) => `
+  <div class="cockpit-top"><span class="level-pill">${pill}</span></div>
+  <div class="hero-metric"><span class="hm-n">${bigN}</span><span class="hm-l">${bigLabel}</span></div>
+  <div class="seg-list">
+    ${rows.map(([n, label, count]) => `<div class="seg-row">
+      <span class="sr-n">${n}</span><span class="sr-l">${label}</span><span class="sr-c">${count}</span>
+    </div>`).join('')}
+  </div>
+  ${foot ? `<div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--border);font-size:12.2px;color:var(--text-3);line-height:1.6">${foot}</div>` : ''}`;
+
+/* ---------- 专项总览 ---------- */
+function buildSpecial() {
+  const partScore = {
+    word: SEG_SCORE['音标填词'].avg + SEG_SCORE['听填'].avg,
+    grammar: SEG_SCORE['单选'].avg,
+    read: READ_STATS.totalScore,
+    write: WRITE_STATS.score,
+  };
+
+  const body = `
+${specialHead(
+    `${N_PAPERS} 套真题 · 四部分逐题实证`,
+    '专项复习',
+    `单词、语法、阅读、写作——四部分的解题动作不一样，所以练法也不一样。
+     这里不讲通用技巧，每一部分都给出<b>真题证据 → 解题方法 → 备考动作</b>。
+     四部分各占一页，语法下面再分「单选语法族」和「汉译英」两页。`,
+    `<div class="cockpit-top"><span class="level-pill">四部分分值</span></div>
+      <div class="metric-row"><span class="mv accent">${fmt(partScore.word)}</span><span class="ml"><b>单词</b>音标 ${fmt(SEG_SCORE['音标填词'].avg)} + 听填 ${fmt(SEG_SCORE['听填'].avg)}</span></div>
+      <div class="metric-row"><span class="mv" style="color:var(--purple)">${fmt(partScore.grammar)}</span><span class="ml"><b>语法</b>单选 ${GRAMMAR_FAMS.length} 族</span></div>
+      <div class="metric-row"><span class="mv rose">${fmt(partScore.read)}</span><span class="ml"><b>阅读</b>选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}</span></div>
+      <div class="metric-row" style="border-bottom:none"><span class="mv gold">${fmt(partScore.write)}</span><span class="ml"><b>写作</b>文段表达，≥${WRITE_STATS.wordMin} 词</span></div>`
+  )}
 
 <div class="note info" style="margin-top:6px">
-  <b>这一页的顺序不是按分值排，是按「可练性」排。</b>单词最容易拿满（范围就是课本词表），
+  <b>这个顺序不是按分值排，是按「可练性」排。</b>单词最容易拿满（范围就是课本词表），
   阅读提分最慢（依赖词汇量）。所以从单词开始，把写作放最后——它是前三项能力的合成。
 </div>
 
-${section('① 单词', '解题方法：先分清「会写」还是「认识」', '全卷 90 分里只有 36 分要动笔', `
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>板块</th><th class="num">分值</th><th class="num">题量</th><th>要求</th></tr></thead>
-<tbody>
-${SPELL_SEGMENTS.map((s) => `<tr>
-  <td><b>${esc(s.name)}</b></td>
-  <td class="num cell-hi">${fmt(s.score)}</td>
-  <td class="num">${s.count}</td>
-  <td style="color:var(--text-3);font-size:12.6px">写出单词 / 句子 / 短文</td>
-</tr>`).join('')}
-</tbody>
-<tfoot><tr><td>合计</td><td class="num">${fmt(SPELL_TOTAL)}</td><td class="num">—</td><td></td></tr></tfoot>
-</table>
+<section class="section" style="margin-top:30px">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">四个部分</span>
+    <h2>每一部分一页，语法再分两级</h2>
+    <span class="sub">每页都是同一套结构：真题证据 → 解题方法 → 备考动作</span>
+  </div></div>
+
+  <div class="part-grid">
+    <div class="part-card">
+      <div class="part-head"><span class="part-n">①</span><span class="part-title">单词</span><span class="part-score">${fmt(partScore.word)} 分</span></div>
+      <p class="part-how"><b>先分清「会写」还是「认识」。</b>全卷 ${MAIN_TOTAL} 分里只有 ${fmt(SPELL_TOTAL)} 分要动笔，
+        其余只需认得出。音标题 ${SPELL_STATS.total} 个词全是基础词，失分不是「不认识」是「拼不对」。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-word.html">
+          <span>音标 ${SPELL_STATS.total} 词 · ${SPELL_STATS.featureCount} 类拼写特征</span>
+          <small>${fmt(SPELL_STATS.avgLen)} 字母均值</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="part-card p-grammar">
+      <div class="part-head"><span class="part-n">②</span><span class="part-title">语法</span><span class="part-score">${fmt(partScore.grammar)} 分</span></div>
+      <p class="part-how"><b>单选考「认」，汉译英考「写」。</b>${GRAMMAR_FAMS.length} 个语法族全部只出现在单选里，
+        但其中 ${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).length} 族在汉译英里被二次考核——会选不等于会写。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-grammar.html">
+          <span>语法总览</span><small>${GRAMMAR_FAMS.length} 族 × 两次考核</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+        <a class="part-link" href="special-grammar-fam.html">
+          <span>2·A 单选语法族</span><small>${GRAMMAR_FAMS.length} 族</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+        <a class="part-link" href="special-grammar-sent.html">
+          <span>2·B 汉译英</span><small>${SENT_ITEMS.length} 句</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="part-card p-read">
+      <div class="part-head"><span class="part-n">③</span><span class="part-title">阅读</span><span class="part-score">${fmt(partScore.read)} 分</span></div>
+      <p class="part-how"><b>一半是细节题，先练「找」不练「猜」。</b>细节定位占选择题的 ${READ_STATS.selFams[0].pct}%，
+        这类题不需要技巧，需要「回原文划证据句」这个动作。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-read.html">
+          <span>选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}</span>
+          <small>${READ_STATS.selFams.length} 种题型</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="part-card p-write">
+      <div class="part-head"><span class="part-n">④</span><span class="part-title">写作</span><span class="part-score">${fmt(partScore.write)} 分</span></div>
+      <p class="part-how"><b>提示问题就是提纲。</b>${WRITE_STATS.total} 套题都给了 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max} 个提示问题，
+        照着题目结构写，${WRITE_STATS.wordMin} 词轻松够——不需要另想结构。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-write.html">
+          <span>${WRITE_STATS.total} 套真题 · ${WRITE_STATS.withEssay} 套有范文</span>
+          <small>≥${WRITE_STATS.wordMin} 词</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="note risk">
+  <b>写作排在最后，因为它是前三项的合成：</b>单词拼写（${fmt(SPELL_TOTAL)} 分那部分）、
+  语法形式（${fmt(SEG_SCORE['单选'].avg)} 分那部分）、阅读积累的句式。前面三项稳了，写作的 ${fmt(WRITE_STATS.score)} 分才拿得住。
 </div>
-<div class="note warn" style="margin-top:14px">
+`;
+  return page('special.html', `专项复习 · ${SITE.short}`,
+    `单词、语法、阅读、写作四部分，每部分一页；语法再分单选语法族与汉译英两页。全部基于 ${N_PAPERS} 套真题。`, body);
+}
+
+/* ---------- ① 单词 ---------- */
+function buildSpecialWord() {
+  const part = SPECIAL_PARTS[0];
+  const body = `
+${SPECIAL_CRUMB(part)}
+${specialTabs('word')}
+
+${specialHead(
+    '① 单词 · 音标与听填',
+    '单词：先分清「会写」还是「认识」',
+    `全卷 ${MAIN_TOTAL} 分里只有 <b>${fmt(SPELL_TOTAL)} 分要动笔</b>，其余 ${fmt(MAIN_TOTAL - SPELL_TOTAL)} 分只需认得出。
+     而音标题考的 ${SPELL_STATS.total} 个词，全是课本里最基础的词。`,
+    segAside(
+      '要拼写的板块',
+      fmt(SPELL_TOTAL),
+      '分必须写出文字<br>其余 ' + fmt(MAIN_TOTAL - SPELL_TOTAL) + ' 分只需认得出',
+      SPELL_SEGMENTS.map((s) => [fmt(s.score), esc(s.name), `${s.count} 题`]),
+      '音标题 ' + SPELL_STATS.total + ' 词，全是基础词'
+    )
+  )}
+
+<div class="note warn">
   <b>背单词背错方向，是把力气花在了不考的地方。</b>
   其余 ${fmt(MAIN_TOTAL - SPELL_TOTAL)} 分（阅读、单选、完形）只需认得出，不必会写。
 </div>
-`)}
 
-${section('① 单词 · 真题证据', `音标 ${SPELL_STATS.total} 个词：平均 ${SPELL_STATS.avgLen} 个字母`, `四年全部考词，最长 ${SPELL_STATS.maxLen} 个字母——不是难词`, `
+${section('真题证据', `音标 ${SPELL_STATS.total} 个词：平均 ${SPELL_STATS.avgLen} 个字母`, `四年全部考词，最长 ${SPELL_STATS.maxLen} 个字母——不是难词`, `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>年份</th><th class="num">题号</th><th>音标</th><th>答案</th><th class="num">字母</th><th>句子原境</th><th>拼写特征</th></tr></thead>
@@ -1241,7 +1472,7 @@ ${SPELL_ITEMS.map((it) => `<tr>
 </div>
 `, 'w-evidence')}
 
-${section('① 单词 · 解题与备考', `按易错点归成 ${SPELL_STATS.featureCount} 类`, '解题动作：看音标 → 定音节 → 拼字母 → 查形式', `
+${section('解题与备考', `按易错点归成 ${SPELL_STATS.featureCount} 类`, '解题动作：看音标 → 定音节 → 拼字母 → 查形式', `
 <div class="grid g2">
   <div class="card">
     <h3 style="margin-bottom:10px">解题四步</h3>
@@ -1273,39 +1504,252 @@ ${SPELL_FEATURES.slice(0, 6).map((f) => `<div class="card" style="padding:15px 1
 </div>`).join('')}
 </div>
 `)}
+`;
+  return page('special.html', `单词专项 · ${SITE.short}`,
+    `音标填词 ${SPELL_STATS.total} 词、听填 ${fmt(SEG_SCORE['听填'].avg)} 分：真题证据、解题四步与备考动作。`, body);
+}
 
-${section('② 语法', '解题方法：单选考「认」，汉译英考「写」', '同一能力，两次考核，两种练法', `
+/* ---------- ② 语法总览 ---------- */
+function buildSpecialGrammar() {
+  const part = SPECIAL_PARTS[1];
+  const doubleN = GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).length;
+  const body = `
+${SPECIAL_CRUMB(part)}
+${specialTabs('grammar')}
+${grammarTabs('')}
+
+${specialHead(
+    '② 语法 · 两级入口',
+    '语法：单选考「认」，汉译英考「写」',
+    `同一批语法能力，在卷面上被考核两次：单选里选出来，汉译英里写出来。
+     <b>${GRAMMAR_FAMS.length} 个语法族全部只出现在单项填空</b>，但 ${doubleN} 族在汉译英里被二次考核。`,
+    segAside(
+      '同一能力 · 两次考核',
+      fmt(SEG_SCORE['单选'].avg + SEG_SCORE['汉译英'].avg),
+      '分都落在语法能力上<br>一半靠选、一半靠写',
+      [
+        [fmt(SEG_SCORE['单选'].avg), '单选 · 只涂卡', `${GRAMMAR_FAMS.length} 族`],
+        [fmt(SEG_SCORE['汉译英'].avg), '汉译英 · 要写出', `${SENT_ITEMS.length} 句`],
+      ],
+      `其中 <b style="color:var(--rose)">${doubleN}</b> 个族两处都考——既要会选又要会写`
+    )
+  )}
+
 <div class="note risk">
   <b>${GRAMMAR_FAMS.length} 个语法族全部只出现在单项填空里，产出分为 0。</b>
   但这不等于语法只在单选考 ${fmt(SEG_SCORE['单选'].avg)} 分——它换了名字出现在汉译英和文段表达里。
   <b>会选不等于会写，这是两个动作。</b>
 </div>
-<div class="tbl-wrap" style="margin-top:16px">
-<table>
-<thead><tr>
-  <th>语法族</th><th class="num">年均分</th>
-  ${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
-  <th>单选命中</th><th class="num">汉译英出现</th><th>判定</th>
-</tr></thead>
-<tbody>
-${GRAMMAR_DOUBLE.map((g) => `<tr>
-  <td><b>${esc(g.name)}</b></td>
-  <td class="num cell-hi">${fmt(g.avgPerYear)}</td>
-  ${g.per.map((v) => `<td class="num" style="color:${v > 0 ? 'var(--text)' : 'var(--text-3)'}">${v > 0 ? fmt(v) : '—'}</td>`).join('')}
-  <td><span class="yr ${g.hit === N_PAPERS ? 'hit' : ''}">${g.hit}/${N_PAPERS}</span></td>
-  <td class="num" style="font-weight:${g.writeHits ? 700 : 400};color:${g.writeHits ? 'var(--rose)' : 'var(--text-3)'}">${g.writeHits || '—'}</td>
-  <td><span class="tag ${g.level === 'stable' ? 'easy' : g.level === 'variable' ? 'mid' : 'rare'}">${PROP_LEVEL_NAME[g.level]}</span></td>
-</tr>`).join('')}
-</tbody>
-</table>
-</div>
-<div class="note info" style="margin-top:14px">
-  <b>${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).length} 个族是「双重考核」</b>：${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).map((g) => `${esc(g.name)}（单选 ${g.hit}/${N_PAPERS} + 汉译英 ${g.writeHits} 句）`).join('、')}。
-  这几族既要会选又要会写，<b>优先级高于只在单选出现的族</b>。
-</div>
-`, 'g-evidence')}
 
-${section('② 语法 · 真题证据', `${SENT_ITEMS.length} 句汉译英：语法真正被「写」出来的地方`, '每句都标了实际要求的语法动作', `
+<section class="section" style="margin-top:30px">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">先看两张表</span>
+    <h2>哪些族只考「认」，哪些要「写」</h2>
+    <span class="sub">单选命中 ${N_PAPERS} 套全中的族，按年均分排序</span>
+  </div></div>
+  <div class="tbl-wrap">
+  <table>
+  <thead><tr>
+    <th>语法族</th><th class="num">年均分</th>
+    ${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
+    <th>单选命中</th><th class="num">汉译英出现</th><th>判定</th>
+  </tr></thead>
+  <tbody>
+  ${GRAMMAR_DOUBLE.map((g) => `<tr>
+    <td><b>${esc(g.name)}</b></td>
+    <td class="num cell-hi">${fmt(g.avgPerYear)}</td>
+    ${g.per.map((v) => `<td class="num" style="color:${v > 0 ? 'var(--text)' : 'var(--text-3)'}">${v > 0 ? fmt(v) : '—'}</td>`).join('')}
+    <td><span class="yr ${g.hit === N_PAPERS ? 'hit' : ''}">${g.hit}/${N_PAPERS}</span></td>
+    <td class="num" style="font-weight:${g.writeHits ? 700 : 400};color:${g.writeHits ? 'var(--rose)' : 'var(--text-3)'}">${g.writeHits || '—'}</td>
+    <td><span class="tag ${g.level === 'stable' ? 'easy' : g.level === 'variable' ? 'mid' : 'rare'}">${PROP_LEVEL_NAME[g.level]}</span></td>
+  </tr>`).join('')}
+  </tbody>
+  </table>
+  </div>
+  <div class="note info" style="margin-top:14px">
+    <b>${doubleN} 个族是「双重考核」</b>：${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).map((g) => `${esc(g.name)}（单选 ${g.hit}/${N_PAPERS} + 汉译英 ${g.writeHits} 句）`).join('、')}。
+    这几族既要会选又要会写，<b>优先级高于只在单选出现的族</b>。
+  </div>
+</section>
+
+<section class="section" style="margin-top:26px">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">往下分两级</span>
+    <h2>两种练法，各一页</h2>
+    <span class="sub">先练「写」的那一侧，因为它的证据更硬</span>
+  </div></div>
+  <div class="part-grid">
+    <div class="part-card p-grammar">
+      <div class="part-head"><span class="part-n">2·A</span><span class="part-title">单选语法族</span><span class="part-score">${fmt(SEG_SCORE['单选'].avg)} 分</span></div>
+      <p class="part-how">${GRAMMAR_FAMS.length} 个族的逐族证据：每年考几题、考的是哪一句、${PROP_LEVEL_NAME.stable}的是哪 ${GRAMMAR_FAMS.filter((g) => g.level === 'stable').length} 个。
+        这一页回答「单选到底考什么」，以及每族该练哪个动作。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-grammar-fam.html">
+          <span>${GRAMMAR_FAMS.length} 族 · ${N_PAPERS} 套逐题</span>
+          <small>${PROP_LEVEL_NAME.stable} ${GRAMMAR_FAMS.filter((g) => g.level === 'stable').length} / 轮换 ${GRAMMAR_FAMS.filter((g) => g.level !== 'stable').length}</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+    <div class="part-card p-grammar">
+      <div class="part-head"><span class="part-n">2·B</span><span class="part-title">汉译英</span><span class="part-score">${fmt(SEG_SCORE['汉译英'].avg)} 分</span></div>
+      <p class="part-how">${SENT_ITEMS.length} 句逐句拆解：提示词是什么、要求哪个语法动作、参考答案怎么写。
+        这一页回答「语法被写出来时长什么样」，以及固定搭配为什么是主战场。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-grammar-sent.html">
+          <span>${SENT_ITEMS.length} 句 · ${SENT_GROUPS.length} 类动作</span>
+          <small>固定搭配 ${SENT_GROUPS.find((g) => g.id === 'colloc')?.count || 0} 句最多</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+${section('解题与备考', '两条总原则，两级页面各自展开', '先分清动作，再分页练', `
+<div class="grid g2">
+  <div class="card">
+    <h3 style="margin-bottom:10px">解题：先判断是「认」还是「写」</h3>
+    <ul class="clean">
+      <li><b>单选题问自己：能不能只靠排除？</b>能排除出来的，说明你「认」得，但未必「写」得出。</li>
+      <li><b>汉译英题问自己：提示词给了什么骨架？</b>提示词是 <code style="font-family:var(--mono);font-size:12.4px">there be</code> 就不要换句型。</li>
+      <li><b>两处都错的族才是真弱项。</b>单选对、汉译英错 = 会选不会写，这是${fmt(SEG_SCORE['汉译英'].avg)} 分丢分的主要形态。</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">备考：两条腿一起走</h3>
+    <ul class="clean">
+      <li><b>单选侧按族刷。</b>先练${PROP_LEVEL_NAME.stable}的 ${GRAMMAR_FAMS.filter((g) => g.level === 'stable').length} 族，它们 ${N_PAPERS} 套全中。</li>
+      <li><b>写侧按句改。</b>拿一个基础句改成三单 / 过去 / 否定 / 疑问，一次覆盖四族。</li>
+      <li><b>双重考核族优先。</b>${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).map((g) => esc(g.name)).join(' / ')} 两处都考，投入回报最高。</li>
+    </ul>
+  </div>
+</div>
+`)}
+`;
+  return page('special.html', `语法专项 · ${SITE.short}`,
+    `语法分两级：单选 ${GRAMMAR_FAMS.length} 族与汉译英 ${SENT_ITEMS.length} 句，同一能力的两次考核。`, body);
+}
+
+/* ---------- 2·A 单选语法族 ---------- */
+function buildSpecialGrammarFam() {
+  const part = SPECIAL_PARTS[1];
+  const sub = GRAMMAR_SUBS[0];
+  const famNote = (id) => FAM_MAP.find((f) => f.id === id)?.note || '';
+  const famTopics = (id) => FAM_MAP.find((f) => f.id === id)?.qs || [];
+
+  const body = `
+${SPECIAL_CRUMB(part, sub)}
+${specialTabs('grammar')}
+${grammarTabs('fam')}
+
+${specialHead(
+    '2·A 单选语法族',
+    `${GRAMMAR_FAMS.length} 个族的逐族证据`,
+    `单选 ${fmt(SEG_SCORE['单选'].avg)} 分、每年 ${PAPER_STATS[0].segN['单选'] || 10} 题。
+     下面按「年均分 × 命中年数」排，每族给出考点原文，<b>不按语法书章节排</b>——按卷面实际考法排。`,
+    segAside(
+      '族的分档',
+      `${GRAMMAR_FAMS.length}`,
+      '个语法族<br>全部只出现在单选',
+      [
+        [`${GRAMMAR_FAMS.filter((g) => g.level === 'stable').length}`, PROP_LEVEL_NAME.stable, `${N_PAPERS}/${N_PAPERS} 年`],
+        [`${GRAMMAR_FAMS.filter((g) => g.level === 'variable').length}`, PROP_LEVEL_NAME.variable, '多数年'],
+        [`${GRAMMAR_FAMS.filter((g) => g.level === 'sporadic').length}`, PROP_LEVEL_NAME.sporadic, '个别年'],
+      ],
+      '前两档要练到会用，第三档认识即可'
+    )
+  )}
+
+<div class="note warn">
+  <b>${PROP_LEVEL_NAME.stable}的 ${GRAMMAR_FAMS.filter((g) => g.level === 'stable').length} 族是骨架，其余 ${GRAMMAR_FAMS.filter((g) => g.level !== 'stable').length} 族是轮换。</b>
+  轮换项不要当必考背——${N_PAPERS} 套样本里它们最多出现 2 次。
+</div>
+
+${section('逐族证据', `${GRAMMAR_FAMS.length} 族 · 每年考几题`, '每张卡片的考点原文来自卷面，不是归纳', `
+<div class="grid g2">
+${GRAMMAR_FAMS.map((g) => {
+  const qs = famTopics(g.id);
+  return `<div class="fam">
+  <div class="fam-head">
+    <span class="fam-name">${esc(g.name)}</span>
+    <span class="fam-score">年均 ${fmt(g.avgPerYear)} 分</span>
+  </div>
+  <div class="fam-meta">
+    <span class="tag ${g.level === 'stable' ? 'easy' : g.level === 'variable' ? 'mid' : 'rare'}">${PROP_LEVEL_NAME[g.level]}</span>
+    <span>${g.hit}/${N_PAPERS} 套命中</span>
+  </div>
+  <div class="fam-note">${esc(famNote(g.id))}</div>
+  <div class="fam-years">
+    ${g.per.map((v, i) => `<span class="yr ${v > 0 ? 'hit' : ''}" title="${YEARS[i]}">${YEARS[i].slice(2)} ${v > 0 ? v + ' 题' : '—'}</span>`).join('')}
+  </div>
+  <div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--border);font-size:12.2px;color:var(--text-3);line-height:1.65">
+    <b style="color:var(--text-2)">卷面考点：</b>${qs.map((q) => esc(q.topic)).join(' · ')}
+  </div>
+</div>`;
+}).join('')}
+</div>
+`)}
+
+${section('解题与备考', '先分「形式题」和「语境题」', '两种错的修法不一样', `
+<div class="grid g2">
+  <div class="card">
+    <h3 style="margin-bottom:10px">解题动作</h3>
+    <ul class="clean">
+      <li><b>先定考什么。</b>看选项差异：四个选项是同一个词的不同形式 → 考形式；是四个不同词 → 考语境。</li>
+      <li><b>形式题查三处。</b>主语单复数、时间状语、空前助动词——这三处决定动词形式。</li>
+      <li><b>语境题回句意。</b>把选项逐个代进句子读一遍，读不通的直接排除，不靠「感觉」。</li>
+      <li><b>标出证据。</b>在题干上圈出决定答案的那个词（时间词 / 主语 / 提示词），圈不出来就是猜的。</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">备考动作</h3>
+    <ul class="clean">
+      <li><b>按族练，不按题号练。</b>换卷时单选可能从第 1 题重新编号，背「第 13 题考代词」会失手。</li>
+      <li><b>先练${PROP_LEVEL_NAME.stable}的 ${GRAMMAR_FAMS.filter((g) => g.level === 'stable').length} 族。</b>它们四年全中，年均分也最高。</li>
+      <li><b>双重考核族优先。</b>${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).map((g) => esc(g.name)).join(' / ')} 在汉译英里还要写一遍。</li>
+      <li><b>错题只记「错在哪一处」。</b>是形式选错还是语境读错——两类错的修法完全不同。</li>
+    </ul>
+  </div>
+</div>
+`)}
+`;
+  return page('special.html', `单选语法族 · ${SITE.short}`,
+    `${GRAMMAR_FAMS.length} 个语法族的逐族真题证据：每年考几题、考点原文、解题与备考动作。`, body);
+}
+
+/* ---------- 2·B 汉译英 ---------- */
+function buildSpecialGrammarSent() {
+  const part = SPECIAL_PARTS[1];
+  const sub = GRAMMAR_SUBS[1];
+  const collocN = SENT_GROUPS.find((g) => g.id === 'colloc')?.count || 0;
+  const maxGroup = Math.max(...SENT_GROUPS.map((g) => g.count));
+
+  const body = `
+${SPECIAL_CRUMB(part, sub)}
+${specialTabs('grammar')}
+${grammarTabs('sent')}
+
+${specialHead(
+    '2·B 汉译英',
+    `${SENT_ITEMS.length} 句：语法真正被「写」出来的地方`,
+    `汉译英 ${fmt(SEG_SCORE['汉译英'].avg)} 分、每年 ${PAPER_STATS[0].segN['汉译英'] || 3} 句。
+     每句都标了提示词和实际要求的语法动作——<b>提示词就是骨架，不要自己换说法</b>。`,
+    segAside(
+      '动作分布',
+      SENT_ITEMS.length,
+      '句汉译英<br>每句 1–2 个语法动作',
+      SENT_GROUPS.map((g) => [g.count, esc(g.label), `${g.count} 句`]),
+      `固定搭配 ${collocN} 句最多——它最容易补`
+    )
+  )}
+
+<div class="note warn">
+  <b>固定搭配 ${collocN} 句，比任何单一语法规则都多。</b>
+  汉译英的主战场不是「语法规则」，是<b>短语能不能直接写出来</b>。
+</div>
+
+${section('真题证据', `${SENT_ITEMS.length} 句逐句拆解`, '中文原句 / 提示词 / 语法动作 / 参考答案', `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>年份</th><th class="num">题号</th><th>中文原句</th><th>提示词</th><th>语法动作</th><th>参考答案</th></tr></thead>
@@ -1321,13 +1765,19 @@ ${SENT_ITEMS.map((it) => `<tr>
 </tbody>
 </table>
 </div>
-<div class="note warn" style="margin-top:14px">
-  <b>固定搭配 ${SENT_GROUPS.find((g) => g.id === 'colloc')?.count || 0} 句，比任何单一语法规则都多。</b>
-  汉译英的主战场不是「语法规则」，是<b>短语能不能直接写出来</b>。
-</div>
 `, 'g-sent')}
 
-${section('② 语法 · 解题与备考', '解题动作：先定句型，再套词，最后查一致性', '不刷语法题册，只做「一句多改」', `
+${section('动作频次', `${SENT_GROUPS.length} 类动作，固定搭配最多`, '一句可能同时考两个动作，所以频次合计大于句数', `
+<div class="card">
+  ${SENT_GROUPS.map((g) => distBar(g.label, g.count, maxGroup, ' 句')).join('')}
+</div>
+<div class="note info" style="margin-top:14px">
+  <b>按这个顺序练：</b>${SENT_GROUPS.map((g) => `${esc(g.label)}（${g.count}）`).join(' > ')}。
+  固定搭配占比最高，也最容易补——它是「背了就会」的那一类。
+</div>
+`)}
+
+${section('解题与备考', '解题动作：先定句型，再套词，最后查一致性', '不刷语法题册，只做「一句多改」', `
 <div class="grid g2">
   <div class="card">
     <h3 style="margin-bottom:10px">汉译英解题三步</h3>
@@ -1354,11 +1804,40 @@ ${section('② 语法 · 解题与备考', '解题动作：先定句型，再套
   </div>
 </div>
 `)}
+`;
+  return page('special.html', `汉译英专项 · ${SITE.short}`,
+    `${SENT_ITEMS.length} 句汉译英逐句拆解：提示词、语法动作、参考答案，以及固定搭配为何是主战场。`, body);
+}
 
-${section('③ 阅读', '解题方法：一半是细节题，先练「找」不练「猜」', `阅读 ${fmt(READ_STATS.totalScore)} 分 = 选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}`, `
+/* ---------- ③ 阅读 ---------- */
+function buildSpecialRead() {
+  const part = SPECIAL_PARTS[2];
+  const selTotal = READ_STATS.selFams.reduce((a, f) => a + f.count, 0);
+  const body = `
+${SPECIAL_CRUMB(part)}
+${specialTabs('read')}
+
+${specialHead(
+    '③ 阅读',
+    '阅读：一半是细节题，先练「找」不练「猜」',
+    `阅读 ${fmt(READ_STATS.totalScore)} 分 = 选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}。
+     细节定位占选择题的 ${READ_STATS.selFams[0].pct}%——<b>这类题不需要技巧，需要「回原文划证据句」这个动作</b>。`,
+    segAside(
+      '阅读构成',
+      fmt(READ_STATS.totalScore),
+      '分阅读<br>选择 ' + fmt(READ_STATS.selScore) + ' + 简答 ' + fmt(READ_STATS.ansScore),
+      [
+        [fmt(READ_STATS.selScore), '选择 · 年均分', `${READ_STATS.selCount} 题/年`],
+        [fmt(READ_STATS.ansScore), '简答 · 年均分', `${READ_STATS.ansCount} 题/年`],
+      ],
+      `${READ_STATS.selFams.length} 种题型，细节定位占 ${READ_STATS.selFams[0].pct}%`
+    )
+  )}
+
+${section('题型分布', `阅读选择 ${selTotal} 题怎么分`, '四年合计，按题量排', `
 <div class="grid g2">
   <div class="card">
-    <h3 style="margin-bottom:12px">阅读选择题型分布（四年 ${READ_STATS.selFams.reduce((a, f) => a + f.count, 0)} 题）</h3>
+    <h3 style="margin-bottom:12px">阅读选择题型分布（四年 ${selTotal} 题）</h3>
     ${READ_STATS.selFams.map((f) => distBar(f.name, f.count, READ_STATS.selFams[0].count, ' 题')).join('')}
   </div>
   <div class="card">
@@ -1383,31 +1862,25 @@ ${section('③ 阅读', '解题方法：一半是细节题，先练「找」不�
 </div>
 `, 'r-evidence')}
 
-${section('③ 阅读 · 解题与备考', '按题型给动作，不背「阅读技巧」', '四种题型，四种动作', `
+${section('解题与备考', '按题型给动作，不背「阅读技巧」', '五种题型，五种动作', `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>题型</th><th class="num">占比</th><th>解题动作</th><th>常见错因</th></tr></thead>
 <tbody>
-<tr>
-  <td><b>细节定位</b></td><td class="num">${READ_STATS.selFams[0].pct}%</td>
-  <td class="wrap-cell">回原文划出对应句，在题号旁标段落号</td>
-  <td class="wrap-cell">凭印象选；同义替换没认出来</td>
-</tr>
-<tr>
-  <td><b>主旨与标题</b></td><td class="num">${READ_STATS.selFams.find((f) => f.name.includes('主旨'))?.pct || 16}%</td>
-  <td class="wrap-cell">看首段末句 + 各段首句 + 末段；先用排除法去掉「太窄」和「太宽」</td>
-  <td class="wrap-cell">选了只讲某一段的选项</td>
-</tr>
-<tr>
-  <td><b>推断</b></td><td class="num">${READ_STATS.selFams.find((f) => f.name.includes('推断'))?.pct || 14}%</td>
-  <td class="wrap-cell">推断的答案一定能在原文找到支撑，找不到支撑的选项直接排除</td>
-  <td class="wrap-cell">选了「看似合理但文中没说」的</td>
-</tr>
-<tr>
-  <td><b>词义猜测</b></td><td class="num">${READ_STATS.selFams.find((f) => f.name.includes('词义'))?.pct || 7}%</td>
-  <td class="wrap-cell">看划线词前后一句：同义复现 / 反义对比 / 举例说明</td>
-  <td class="wrap-cell">凭「背过的意思」直选，不看上下文</td>
-</tr>
+${READ_STATS.selFams.map((f) => {
+  const act = {
+    'f-read-detail': ['回原文划出对应句，在题号旁标段落号', '凭印象选；同义替换没认出来'],
+    'f-read-main': ['看首段末句 + 各段首句 + 末段；先用排除法去掉「太窄」和「太宽」', '选了只讲某一段的选项'],
+    'f-read-infer': ['推断的答案一定能在原文找到支撑，找不到支撑的选项直接排除', '选了「看似合理但文中没说」的'],
+    'f-read-match': ['先看题干里的关键词，再回各段找同义改写；匹配题不要逐句读', '把「相关」当成「匹配」'],
+    'f-read-word': ['看划线词前后一句：同义复现 / 反义对比 / 举例说明', '凭「背过的意思」直选，不看上下文'],
+  }[f.id] || ['回原文定位', '凭感觉选'];
+  return `<tr>
+  <td><b>${esc(f.name.replace('阅读·', ''))}</b></td><td class="num">${f.pct}%</td>
+  <td class="wrap-cell">${act[0]}</td>
+  <td class="wrap-cell">${act[1]}</td>
+</tr>`;
+}).join('')}
 </tbody>
 </table>
 </div>
@@ -1436,8 +1909,37 @@ ${section('③ 阅读 · 解题与备考', '按题型给动作，不背「阅读
   </div>
 </div>
 `, 'r-how')}
+`;
+  return page('special.html', `阅读专项 · ${SITE.short}`,
+    `阅读 ${fmt(READ_STATS.totalScore)} 分：${READ_STATS.selFams.length} 种题型占比、简答检索与概括，以及每种题的解题动作。`, body);
+}
 
-${section('④ 写作', '解题方法：提示问题就是提纲，照抄题目结构', `文段表达 ${fmt(WRITE_STATS.score)} 分，≥${WRITE_STATS.wordMin} 词`, `
+/* ---------- ④ 写作 ---------- */
+function buildSpecialWrite() {
+  const part = SPECIAL_PARTS[3];
+  const withEssay = WRITE_ITEMS.filter((w) => w.essay);
+  const body = `
+${SPECIAL_CRUMB(part)}
+${specialTabs('write')}
+
+${specialHead(
+    '④ 写作',
+    '写作：提示问题就是提纲，照抄题目结构',
+    `文段表达 ${fmt(WRITE_STATS.score)} 分、≥${WRITE_STATS.wordMin} 词。
+     ${WRITE_STATS.total} 套题都给了 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max} 个提示问题——<b>每个问题写 1–2 句，${WRITE_STATS.wordMin} 词轻松够</b>。`,
+    segAside(
+      '文段表达',
+      fmt(WRITE_STATS.score),
+      '分<br>必做最后一题',
+      [
+        [WRITE_STATS.wordMin, '词数下限', '四套一致'],
+        [`${WRITE_STATS.withEssay}/${WRITE_STATS.total}`, '有范文', '其余原卷未给'],
+      ],
+      '提示问题就是提纲，不需要另想结构'
+    )
+  )}
+
+${section('真题证据', `${WRITE_STATS.total} 套的话题与提纲`, '提示问题 = 现成提纲', `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>年份</th><th>话题</th><th>提示问题（= 提纲）</th><th>提示词</th><th>范文</th></tr></thead>
@@ -1453,13 +1955,13 @@ ${WRITE_ITEMS.map((w) => `<tr>
 </table>
 </div>
 <div class="note warn" style="margin-top:14px">
-  <b>四套题都给了 2–3 个提示问题，这就是现成的提纲。</b>
-  每个问题写 1–2 句，40 词轻松够——不需要另想结构。
+  <b>${N_PAPERS} 套题都给了 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max} 个提示问题，这就是现成的提纲。</b>
+  每个问题写 1–2 句，${WRITE_STATS.wordMin} 词轻松够——不需要另想结构。
 </div>
 `, 'w-prompt')}
 
-${section('④ 写作 · 真题范文拆解', '范文不长，但每句都在回应题目', '两套卷给了范文，逐句看它怎么答', `
-${WRITE_ITEMS.filter((w) => w.essay).map((w) => `
+${section('范文拆解', '范文不长，但每句都在回应题目', `${withEssay.length} 套卷给了范文，逐句看它怎么答`, `
+${withEssay.map((w) => `
 <div class="card" style="margin-bottom:14px">
   <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
     <h3 style="margin:0">${esc(w.scene)}</h3>
@@ -1479,12 +1981,12 @@ ${WRITE_ITEMS.filter((w) => w.essay).map((w) => `
 </div>
 `, 'w-essay')}
 
-${section('④ 写作 · 解题与备考', '四步写完，最后一步决定分数', '内容分靠提纲，语言分靠检查', `
+${section('解题与备考', '四步写完，最后一步决定分数', '内容分靠提纲，语言分靠检查', `
 <div class="grid g2">
   <div class="card">
     <h3 style="margin-bottom:10px">解题四步</h3>
     <ul class="clean">
-      <li><b>读提示问题，抄成提纲。</b>${WRITE_STATS.total} 套题都有 2–3 个提示问题，一个问题是正文一段。</li>
+      <li><b>读提示问题，抄成提纲。</b>${WRITE_STATS.total} 套题都有 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max} 个提示问题，一个问题是正文一段。</li>
       <li><b>每段写 1–2 句。</b>第一句回应问题，第二句给细节（原因/例子/感受）。</li>
       <li><b>套提示词。</b>题目给的提示词是「可以用的词」，不是必须全用——挑 2–3 个用得顺的。</li>
       <li><b>检查三件事。</b>动词形式（三单/过去）、名词单复数、句末标点。<b>这一步最容易丢分。</b></li>
@@ -1494,19 +1996,19 @@ ${section('④ 写作 · 解题与备考', '四步写完，最后一步决定分
     <h3 style="margin-bottom:10px">备考三步</h3>
     <ul class="clean">
       <li><b>不背范文，背「结构」。</b>范文的话题每年换，但「问题→回答」的结构不变。</li>
-      <li><b>限时 10 分钟写 40 词。</b>写作在卷面最后，时间通常被前面挤掉——必须练到 10 分钟内完成。</li>
+      <li><b>限时 10 分钟写 ${WRITE_STATS.wordMin} 词。</b>写作在卷面最后，时间通常被前面挤掉——必须练到 10 分钟内完成。</li>
       <li><b>写完必自查。</b>按上面「检查三件事」逐条过，养成习惯后每次能捡回 1–2 分。</li>
     </ul>
   </div>
 </div>
 <div class="note risk" style="margin-top:16px">
   <b>写作是前三项的合成：</b>单词拼写（${fmt(SPELL_TOTAL)} 分那部分）、语法形式（${fmt(SEG_SCORE['单选'].avg)} 分那部分）、
-  阅读积累的句式。所以它排在最后——前面三项稳了，写作的 10 分才拿得住。
+  阅读积累的句式。所以它排在最后——前面三项稳了，写作的 ${fmt(WRITE_STATS.score)} 分才拿得住。
 </div>
 `)}
 `;
-  return page('special.html', `专项复习 · ${SITE.short}`,
-    `单词、语法、阅读、写作四部分的解题方法与备考动作，全部基于 ${N_PAPERS} 套真题。`, body);
+  return page('special.html', `写作专项 · ${SITE.short}`,
+    `文段表达 ${fmt(WRITE_STATS.score)} 分：${WRITE_STATS.total} 套真题的提纲与范文拆解，以及四步写法与自查清单。`, body);
 }
 
 const pages = {
@@ -1515,6 +2017,12 @@ const pages = {
   'trend.html': buildTrend(),
   'plan.html': buildPlan(),
   'special.html': buildSpecial(),
+  'special-word.html': buildSpecialWord(),
+  'special-grammar.html': buildSpecialGrammar(),
+  'special-grammar-fam.html': buildSpecialGrammarFam(),
+  'special-grammar-sent.html': buildSpecialGrammarSent(),
+  'special-read.html': buildSpecialRead(),
+  'special-write.html': buildSpecialWrite(),
 };
 
 for (const [name, html] of Object.entries(pages)) {

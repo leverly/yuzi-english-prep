@@ -81,9 +81,23 @@
 
 ---
 
-## 二·补二、专项页（单词与语法）
+## 二·补二、专项复习（分层：总览 → 四部分 → 语法两子页）
 
-第六页 `special.html`，导航里占一项「专项」。内容全部从台账派生，不写常量。
+导航第 4 项「专项复习」指向总览页 `special.html`，它只做分流，不承载明细。
+四部分各占一页，语法下面再分两级——因为「单选会选」和「汉译英会写」是两种能力。
+
+| 层级 | 页面 | 内容 |
+|---|---|---|
+| 总览 | `special.html` | 四部分分值 + 入口卡（不塞证据表） |
+| ① | `special-word.html` | 音标 16 词逐词 + 拼写特征 + 解题四步 |
+| ② | `special-grammar.html` | 两次考核总表 + 两子页入口 |
+| ②-A | `special-grammar-fam.html` | 10 个语法族逐族证据（含卷面考点原文） |
+| ②-B | `special-grammar-sent.html` | 汉译英 12 句逐句 + 动作频次 |
+| ③ | `special-read.html` | 5 种题型 + 简答检索/概括 + 解题动作 |
+| ④ | `special-write.html` | 4 套提纲 + 范文拆解 + 四步写法 |
+
+导航互通：每个子页都有面包屑（专项复习 / 语法 / 汉译英）+ 一级切换条；语法三页额外有二级切换条。
+内容全部从台账派生，不写常量。
 
 ### 单词侧
 
@@ -198,7 +212,7 @@ check('汉译英', [40,41,42]);
 
 ```
 english/
-├── build.mjs                  四页生成器（零依赖）
+├── build.mjs                  生成器（零依赖）
 ├── verify.mjs                 校验：数字可重算 + 无假断言（100+ 条）
 ├── work/papers/
 │   ├── ledger.mjs             逐题台账（233 题，唯一数字来源）
@@ -206,9 +220,14 @@ english/
 ├── index.html                 总览
 ├── papers.html                逐年真题
 ├── trend.html                 趋势与考点
-├── special.html               专项：单词与语法（逐题实证）
+├── special.html               专项复习（总览：四部分分流）
+├── special-word.html          ① 单词
+├── special-grammar.html       ② 语法（总览：同一能力的两次考核）
+├── special-grammar-fam.html   ②-A 单选语法族
+├── special-grammar-sent.html  ②-B 汉译英
+├── special-read.html          ③ 阅读
+├── special-write.html         ④ 写作
 ├── plan.html                  冲刺计划
-├── book.html                  教材对照（教材侧待核）
 └── 英语真题/                   四份七上卷（已剔除七下卷与地理卷）
 ```
 

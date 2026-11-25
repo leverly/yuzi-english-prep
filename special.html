@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>专项复习 · 西城初一英语</title>
-<meta name="description" content="单词、语法、阅读、写作四部分的解题方法与备考动作，全部基于 4 套真题。">
+<meta name="description" content="单词、语法、阅读、写作四部分，每部分一页；语法再分单选语法族与汉译英两页。全部基于 4 套真题。">
 <style>
 :root{
   --r:16px; --r-sm:10px; --r-lg:22px; --r-pill:999px;
@@ -292,13 +292,80 @@ ul.clean li b{color:var(--text);font-weight:650}
 .phase-b p{font-size:13.2px;color:var(--text-2);line-height:1.65}
 .phase-ok{font-size:12.2px;color:var(--ok);margin-top:8px;font-weight:650}
 
+/* 分层导航：面包屑 / 一级切换 / 二级切换 */
+.crumb{display:flex;align-items:center;gap:7px;font-size:12.6px;color:var(--text-3);margin-bottom:16px;flex-wrap:wrap}
+.crumb a{color:var(--text-2);text-decoration:none;font-weight:550}
+.crumb a:hover{color:var(--accent);text-decoration:underline}
+.crumb .sep{opacity:.45}
+.crumb b{color:var(--text);font-weight:650}
+.subtabs{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:26px;padding:5px;
+  background:var(--surface);border:1px solid var(--border);border-radius:13px;box-shadow:var(--shadow-1);
+}
+.subtabs a{
+  display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;
+  text-decoration:none;color:var(--text-2);font-size:13.6px;font-weight:600;
+  transition:.16s var(--ease);white-space:nowrap;
+}
+.subtabs a:hover{background:var(--bg-3);color:var(--text)}
+.subtabs a.on{background:var(--accent);color:#fff;box-shadow:var(--shadow-accent)}
+.subtabs a .sn{font-family:var(--mono);font-size:11px;opacity:.72}
+.subtabs a.on .sn{opacity:.85}
+.subtabs.sub{margin:-14px 0 26px;padding:0;background:transparent;border:none;box-shadow:none;gap:8px}
+.subtabs.sub a{border:1px solid var(--border);background:var(--surface);padding:7px 14px;font-size:13px}
+.subtabs.sub a:hover{background:var(--surface-2)}
+.subtabs.sub a.on{background:var(--purple);border-color:transparent;color:#fff;box-shadow:0 8px 20px -8px rgba(124,58,237,.42)}
+
+/* 总览页的四部分入口卡 */
+.part-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.part-card{
+  display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-1);
+  transition:.18s var(--ease);position:relative;overflow:hidden;
+}
+.part-card::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--accent)}
+.part-card.p-grammar::before{background:var(--purple)}
+.part-card.p-read::before{background:var(--rose)}
+.part-card.p-write::before{background:var(--gold)}
+.part-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+.part-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.part-n{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);opacity:.8}
+.part-card.p-grammar .part-n{color:var(--purple)}
+.part-card.p-read .part-n{color:var(--rose)}
+.part-card.p-write .part-n{color:var(--gold)}
+.part-title{font-size:18px;font-weight:750;letter-spacing:-.015em}
+.part-score{margin-left:auto;font-size:13px;font-weight:700;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.part-how{font-size:13.2px;color:var(--text-2);line-height:1.7;margin:8px 0 14px}
+.part-how b{color:var(--text);font-weight:650}
+.part-links{display:flex;flex-direction:column;gap:6px;margin-top:auto}
+.part-link{
+  display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;
+  background:var(--surface-2);border:1px solid var(--border);
+  text-decoration:none;color:var(--text);font-size:13.2px;font-weight:600;transition:.16s var(--ease);
+}
+.part-link:hover{background:var(--accent-soft);border-color:rgba(37,99,235,.28);color:var(--accent)}
+.part-link .pl-go{margin-left:auto;font-size:12px;color:var(--accent);font-weight:650}
+.part-link small{font-size:11.8px;color:var(--text-3);font-weight:500}
+
+/* 紧凑的分值构成：不占一屏，不把 hero 撑高 */
+.seg-list{display:flex;flex-direction:column;gap:1px;margin-top:12px}
+.seg-row{display:flex;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.8px}
+.seg-row:last-child{border-bottom:none}
+.seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
+.seg-row .sr-l{color:var(--text-2);font-weight:550}
+.seg-row .sr-c{margin-left:auto;color:var(--text-3);font-size:11.8px;white-space:nowrap}
+.hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
+.hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
+
 footer{margin-top:60px;padding:30px 0 40px;border-top:1px solid var(--border);font-size:12.5px;color:var(--text-3)}
 footer p{margin:5px 0}
 footer b{color:var(--text-2)}
 
 @media(max-width:960px){
-  .hero-split{grid-template-columns:1fr;gap:26px}
+  .hero-split,.hero-split.wide{grid-template-columns:1fr;gap:26px}
   .g3,.g4,.tier-grid{grid-template-columns:repeat(2,1fr)}
+  .part-grid{grid-template-columns:1fr}
 }
 @media(max-width:680px){
   body{font-size:14.5px}
@@ -315,6 +382,20 @@ footer b{color:var(--text-2)}
   .cockpit{padding:18px}
   .dist-row{grid-template-columns:100px 1fr 76px;gap:9px}
   table{font-size:12.4px}
+  /* 分层导航在窄屏上要能横滑，不能撑破页面 */
+  .subtabs{padding:4px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .subtabs::-webkit-scrollbar{display:none}
+  .subtabs a{padding:8px 12px;font-size:13px;flex:none}
+  .subtabs.sub{overflow-x:auto;flex-wrap:nowrap}
+  .part-grid{gap:12px}
+  .part-card{padding:18px}
+  .crumb{font-size:12px;margin-bottom:12px}
+  /* 窄屏防溢出：h1 与 hero 内的长串不换行会撑破视口 */
+  h1{font-size:clamp(22px,6.4vw,28px);overflow-wrap:break-word}
+  .lede,.part-how{overflow-wrap:break-word}
+  .hero-split,.hero-split.wide{min-width:0}
+  .hero-split>div,.hero-split>aside{min-width:0}
+  main.wrap{overflow-x:hidden}
   th,td{padding:8px 9px}
   .phase{grid-template-columns:1fr}
   .phase-w{border-right:none;border-bottom:1px solid var(--border)}
@@ -334,797 +415,102 @@ footer b{color:var(--text-2)}
 </div></header>
 <main class="wrap">
 
-<section class="hero" style="padding-bottom:10px">
+
+<section class="hero" style="padding-bottom:8px">
   <div class="hero-split wide">
     <div>
       <div class="hero-badge"><span class="dot-live"></span>4 套真题 · 四部分逐题实证</div>
-      <h1 style="font-size:clamp(26px,3.2vw,36px)">专项复习</h1>
-      <p class="lede">
-        单词、语法、阅读、写作——四部分的解题动作不一样，所以练法也不一样。
-        这一页不讲通用技巧，每一部分都给出<b>真题证据 → 解题方法 → 备考动作</b>。
-      </p>
+      <h1 style="font-size:clamp(25px,3vw,34px)">专项复习</h1>
+      <p class="lede">单词、语法、阅读、写作——四部分的解题动作不一样，所以练法也不一样。
+     这里不讲通用技巧，每一部分都给出<b>真题证据 → 解题方法 → 备考动作</b>。
+     四部分各占一页，语法下面再分「单选语法族」和「汉译英」两页。</p>
     </div>
-    <aside class="cockpit">
-      <div class="cockpit-top"><span class="level-pill">四部分分值</span></div>
+    <aside class="cockpit"><div class="cockpit-top"><span class="level-pill">四部分分值</span></div>
       <div class="metric-row"><span class="mv accent">12</span><span class="ml"><b>单词</b>音标 4 + 听填 8</span></div>
-      <div class="metric-row"><span class="mv accent">10</span><span class="ml"><b>语法</b>单选 10 族</span></div>
+      <div class="metric-row"><span class="mv" style="color:var(--purple)">10</span><span class="ml"><b>语法</b>单选 10 族</span></div>
       <div class="metric-row"><span class="mv rose">30</span><span class="ml"><b>阅读</b>选择 22 + 简答 8</span></div>
-      <div class="metric-row" style="border-bottom:none"><span class="mv gold">10</span><span class="ml"><b>写作</b>文段表达，≥40 词</span></div>
-    </aside>
+      <div class="metric-row" style="border-bottom:none"><span class="mv gold">10</span><span class="ml"><b>写作</b>文段表达，≥40 词</span></div></aside>
   </div>
 </section>
 
 <div class="note info" style="margin-top:6px">
-  <b>这一页的顺序不是按分值排，是按「可练性」排。</b>单词最容易拿满（范围就是课本词表），
+  <b>这个顺序不是按分值排，是按「可练性」排。</b>单词最容易拿满（范围就是课本词表），
   阅读提分最慢（依赖词汇量）。所以从单词开始，把写作放最后——它是前三项能力的合成。
 </div>
 
-
-<section class="section">
+<section class="section" style="margin-top:30px">
   <div class="section-head"><div class="section-head-left">
-    <span class="kicker">① 单词</span>
-    <h2>解题方法：先分清「会写」还是「认识」</h2>
-    <span class="sub">全卷 90 分里只有 36 分要动笔</span>
+    <span class="kicker">四个部分</span>
+    <h2>每一部分一页，语法再分两级</h2>
+    <span class="sub">每页都是同一套结构：真题证据 → 解题方法 → 备考动作</span>
   </div></div>
-  
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>板块</th><th class="num">分值</th><th class="num">题量</th><th>要求</th></tr></thead>
-<tbody>
-<tr>
-  <td><b>听力·填词</b></td>
-  <td class="num cell-hi">8</td>
-  <td class="num">4</td>
-  <td style="color:var(--text-3);font-size:12.6px">写出单词 / 句子 / 短文</td>
-</tr><tr>
-  <td><b>阅读·简答</b></td>
-  <td class="num cell-hi">8</td>
-  <td class="num">4</td>
-  <td style="color:var(--text-3);font-size:12.6px">写出单词 / 句子 / 短文</td>
-</tr><tr>
-  <td><b>音标填词</b></td>
-  <td class="num cell-hi">4</td>
-  <td class="num">4</td>
-  <td style="color:var(--text-3);font-size:12.6px">写出单词 / 句子 / 短文</td>
-</tr><tr>
-  <td><b>汉译英</b></td>
-  <td class="num cell-hi">6</td>
-  <td class="num">3</td>
-  <td style="color:var(--text-3);font-size:12.6px">写出单词 / 句子 / 短文</td>
-</tr><tr>
-  <td><b>文段表达</b></td>
-  <td class="num cell-hi">10</td>
-  <td class="num">1</td>
-  <td style="color:var(--text-3);font-size:12.6px">写出单词 / 句子 / 短文</td>
-</tr>
-</tbody>
-<tfoot><tr><td>合计</td><td class="num">36</td><td class="num">—</td><td></td></tr></tfoot>
-</table>
-</div>
-<div class="note warn" style="margin-top:14px">
-  <b>背单词背错方向，是把力气花在了不考的地方。</b>
-  其余 54 分（阅读、单选、完形）只需认得出，不必会写。
-</div>
 
+  <div class="part-grid">
+    <div class="part-card">
+      <div class="part-head"><span class="part-n">①</span><span class="part-title">单词</span><span class="part-score">12 分</span></div>
+      <p class="part-how"><b>先分清「会写」还是「认识」。</b>全卷 90 分里只有 36 分要动笔，
+        其余只需认得出。音标题 16 个词全是基础词，失分不是「不认识」是「拼不对」。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-word.html">
+          <span>音标 16 词 · 16 类拼写特征</span>
+          <small>4.4 字母均值</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="part-card p-grammar">
+      <div class="part-head"><span class="part-n">②</span><span class="part-title">语法</span><span class="part-score">10 分</span></div>
+      <p class="part-how"><b>单选考「认」，汉译英考「写」。</b>10 个语法族全部只出现在单选里，
+        但其中 4 族在汉译英里被二次考核——会选不等于会写。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-grammar.html">
+          <span>语法总览</span><small>10 族 × 两次考核</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+        <a class="part-link" href="special-grammar-fam.html">
+          <span>2·A 单选语法族</span><small>10 族</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+        <a class="part-link" href="special-grammar-sent.html">
+          <span>2·B 汉译英</span><small>12 句</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="part-card p-read">
+      <div class="part-head"><span class="part-n">③</span><span class="part-title">阅读</span><span class="part-score">30 分</span></div>
+      <p class="part-how"><b>一半是细节题，先练「找」不练「猜」。</b>细节定位占选择题的 50%，
+        这类题不需要技巧，需要「回原文划证据句」这个动作。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-read.html">
+          <span>选择 22 + 简答 8</span>
+          <small>5 种题型</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="part-card p-write">
+      <div class="part-head"><span class="part-n">④</span><span class="part-title">写作</span><span class="part-score">10 分</span></div>
+      <p class="part-how"><b>提示问题就是提纲。</b>4 套题都给了 2–3 个提示问题，
+        照着题目结构写，40 词轻松够——不需要另想结构。</p>
+      <div class="part-links">
+        <a class="part-link" href="special-write.html">
+          <span>4 套真题 · 2 套有范文</span>
+          <small>≥40 词</small>
+          <span class="pl-go">进入 →</span>
+        </a>
+      </div>
+    </div>
+  </div>
 </section>
 
-
-<section class="section" id="w-evidence">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">① 单词 · 真题证据</span>
-    <h2>音标 16 个词：平均 4.4 个字母</h2>
-    <span class="sub">四年全部考词，最长 6 个字母——不是难词</span>
-  </div></div>
-  
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>年份</th><th class="num">题号</th><th>音标</th><th>答案</th><th class="num">字母</th><th>句子原境</th><th>拼写特征</th></tr></thead>
-<tbody>
-<tr>
-  <td class="num" style="color:var(--text-3)">2021-22</td>
-  <td class="num" style="color:var(--text-3)">48</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[tʃek]</b></td>
-  <td><b style="color:var(--accent)">check</b></td>
-  <td class="num">5</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">His father often goes on the Internet to ___ the times of trains.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">字母组合 ch</span><span class="tag cat" style="margin-right:4px">ck 收尾</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2021-22</td>
-  <td class="num" style="color:var(--text-3)">49</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[swiːt]</b></td>
-  <td><b style="color:var(--accent)">sweet</b></td>
-  <td class="num">5</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">Candy and cola are ___ food and drink.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">ee 组合</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2021-22</td>
-  <td class="num" style="color:var(--text-3)">50</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[sprɪŋ]</b></td>
-  <td><b style="color:var(--accent)">spring</b></td>
-  <td class="num">6</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">My parents take me on a trip in ___ every year.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">三辅音丛 spr</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2021-22</td>
-  <td class="num" style="color:var(--text-3)">51</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[ˈpændə]</b></td>
-  <td><b style="color:var(--accent)">panda</b></td>
-  <td class="num">5</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">The ___ eats about 30 kilos of bamboo a day.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">短元音 æ</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2022-23</td>
-  <td class="num" style="color:var(--text-3)">48</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[kʌt]</b></td>
-  <td><b style="color:var(--accent)">cut</b></td>
-  <td class="num">3</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">Sam, let's ___ the big birthday cake together.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">短元音 ʌ</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2022-23</td>
-  <td class="num" style="color:var(--text-3)">49</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[fɪlm]</b></td>
-  <td><b style="color:var(--accent)">film</b></td>
-  <td class="num">4</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">Would you like to see a ___ with me this Sunday?</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">短元音 ɪ</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2022-23</td>
-  <td class="num" style="color:var(--text-3)">50</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[ˈfʌni]</b></td>
-  <td><b style="color:var(--accent)">funny</b></td>
-  <td class="num">5</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">When you are sad, try to read some ___ stories.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">双写 nn</span><span class="tag cat" style="margin-right:4px">y 收尾</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2022-23</td>
-  <td class="num" style="color:var(--text-3)">51</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[ˈdraɪvə]</b></td>
-  <td><b style="color:var(--accent)">driver</b></td>
-  <td class="num">6</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">My uncle is a ___ and he works for a bus company.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">辅音丛 dr</span><span class="tag cat" style="margin-right:4px">er 弱读</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2023-24</td>
-  <td class="num" style="color:var(--text-3)">48</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[mæp]</b></td>
-  <td><b style="color:var(--accent)">map</b></td>
-  <td class="num">3</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">There is a ___ on the wall in my room.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">短元音 æ</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2023-24</td>
-  <td class="num" style="color:var(--text-3)">49</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[ˈpɑːti]</b></td>
-  <td><b style="color:var(--accent)">party</b></td>
-  <td class="num">5</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">I usually hold a ___ at home on my birthday.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">ar 组合</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2023-24</td>
-  <td class="num" style="color:var(--text-3)">50</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[fɪʃ]</b></td>
-  <td><b style="color:var(--accent)">fish</b></td>
-  <td class="num">4</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">Meat and ___ are healthy food but too much meat isn't healthy.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">sh 组合</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2023-24</td>
-  <td class="num" style="color:var(--text-3)">51</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[bɪg]</b></td>
-  <td><b style="color:var(--accent)">big</b></td>
-  <td class="num">3</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">In the evening before Spring Festival we usually have a ___ family dinner.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">短元音 ɪ</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2024-25</td>
-  <td class="num" style="color:var(--text-3)">36</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[rest]</b></td>
-  <td><b style="color:var(--accent)">rest</b></td>
-  <td class="num">4</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">It's going to get dark. The workers will take a ___.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">短元音 e</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2024-25</td>
-  <td class="num" style="color:var(--text-3)">37</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[dɪʃ]</b></td>
-  <td><b style="color:var(--accent)">dish</b></td>
-  <td class="num">4</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">The Lion's Head is a special ___ at Spring Festival.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">sh 组合</span><span class="tag cat" style="margin-right:4px">短元音 ɪ</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2024-25</td>
-  <td class="num" style="color:var(--text-3)">38</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[fiːd]</b></td>
-  <td><b style="color:var(--accent)">feed</b></td>
-  <td class="num">4</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">The girl went to the park to ___ the pigeons.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">ee 组合</span></td>
-</tr><tr>
-  <td class="num" style="color:var(--text-3)">2024-25</td>
-  <td class="num" style="color:var(--text-3)">39</td>
-  <td><b style="font-family:var(--mono);font-size:13.4px">[smel]</b></td>
-  <td><b style="color:var(--accent)">smell</b></td>
-  <td class="num">5</td>
-  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">Rescue dogs have a strong sense of ___.</td>
-  <td style="white-space:normal"><span class="tag cat" style="margin-right:4px">辅音丛 sm</span><span class="tag cat" style="margin-right:4px">双写 ll</span></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="note warn" style="margin-top:14px">
-  <b>这些不是难词，是最基础的词。</b>最短 3 个字母（cut / map / big）。
-  所以音标题的失分<b>不是「不认识」，是「拼不对」</b>。
-</div>
-
-</section>
-
-
-<section class="section">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">① 单词 · 解题与备考</span>
-    <h2>按易错点归成 16 类</h2>
-    <span class="sub">解题动作：看音标 → 定音节 → 拼字母 → 查形式</span>
-  </div></div>
-  
-<div class="grid g2">
-  <div class="card">
-    <h3 style="margin-bottom:10px">解题四步</h3>
-    <ul class="clean">
-      <li><b>看音标定元音。</b>先确定重读元音是哪个字母组合（短元音 ɪ / 短元音 æ / ee 组合 是最常见的三类）。</li>
-      <li><b>数音节。</b>4.4 个字母平均 1–2 个音节，音节数对不上就是拼错了。</li>
-      <li><b>查辅音丛。</b>spring 的 spr、driver 的 dr、smell 的 sm——漏一个字母就零分。</li>
-      <li><b>查形式。</b>空前有 a / an 还是复数？句子的时态要不要加 -s / -ed？<b>这一步最容易丢分。</b></li>
-    </ul>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">备考三步</h3>
-    <ul class="clean">
-      <li><b>不背整本词表。</b>按上面 16 类特征分批练，先练词数最多的三类。</li>
-      <li><b>听写而不是默看。</b>看着单词背是「认读」，听写才是「拼写」——考的是后者。</li>
-      <li><b>错词进本子，隔日回抽。</b>当天对的题不算掌握，隔一天还能写对才算。</li>
-    </ul>
-  </div>
-</div>
-<div class="grid g3" style="margin-top:14px">
-<div class="card" style="padding:15px 17px">
-  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
-    <b style="font-size:14px">短元音 ɪ</b>
-    <span style="font-size:12px;color:var(--text-3);margin-left:auto">3 词</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:5px">
-    <span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">film</span><span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">big</span><span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">dish</span>
-  </div>
-</div><div class="card" style="padding:15px 17px">
-  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
-    <b style="font-size:14px">短元音 æ</b>
-    <span style="font-size:12px;color:var(--text-3);margin-left:auto">2 词</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:5px">
-    <span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">panda</span><span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">map</span>
-  </div>
-</div><div class="card" style="padding:15px 17px">
-  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
-    <b style="font-size:14px">ee 组合</b>
-    <span style="font-size:12px;color:var(--text-3);margin-left:auto">2 词</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:5px">
-    <span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">sweet</span><span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">feed</span>
-  </div>
-</div><div class="card" style="padding:15px 17px">
-  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
-    <b style="font-size:14px">sh 组合</b>
-    <span style="font-size:12px;color:var(--text-3);margin-left:auto">2 词</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:5px">
-    <span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">fish</span><span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">dish</span>
-  </div>
-</div><div class="card" style="padding:15px 17px">
-  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
-    <b style="font-size:14px">短元音 e</b>
-    <span style="font-size:12px;color:var(--text-3);margin-left:auto">1 词</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:5px">
-    <span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">rest</span>
-  </div>
-</div><div class="card" style="padding:15px 17px">
-  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
-    <b style="font-size:14px">短元音 ʌ</b>
-    <span style="font-size:12px;color:var(--text-3);margin-left:auto">1 词</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:5px">
-    <span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">cut</span>
-  </div>
-</div>
-</div>
-
-</section>
-
-
-<section class="section" id="g-evidence">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">② 语法</span>
-    <h2>解题方法：单选考「认」，汉译英考「写」</h2>
-    <span class="sub">同一能力，两次考核，两种练法</span>
-  </div></div>
-  
 <div class="note risk">
-  <b>10 个语法族全部只出现在单项填空里，产出分为 0。</b>
-  但这不等于语法只在单选考 10 分——它换了名字出现在汉译英和文段表达里。
-  <b>会选不等于会写，这是两个动作。</b>
+  <b>写作排在最后，因为它是前三项的合成：</b>单词拼写（36 分那部分）、
+  语法形式（10 分那部分）、阅读积累的句式。前面三项稳了，写作的 10 分才拿得住。
 </div>
-<div class="tbl-wrap" style="margin-top:16px">
-<table>
-<thead><tr>
-  <th>语法族</th><th class="num">年均分</th>
-  <th class="num">2021-22</th><th class="num">2022-23</th><th class="num">2023-24</th><th class="num">2024-25</th>
-  <th>单选命中</th><th class="num">汉译英出现</th><th>判定</th>
-</tr></thead>
-<tbody>
-<tr>
-  <td><b>时态与动词形式</b></td>
-  <td class="num cell-hi">2</td>
-  <td class="num" style="color:var(--text)">2</td><td class="num" style="color:var(--text)">2</td><td class="num" style="color:var(--text)">2</td><td class="num" style="color:var(--text)">2</td>
-  <td><span class="yr hit">4/4</span></td>
-  <td class="num" style="font-weight:700;color:var(--rose)">3</td>
-  <td><span class="tag easy">年年考</span></td>
-</tr><tr>
-  <td><b>主谓一致</b></td>
-  <td class="num cell-hi">1.5</td>
-  <td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">2</td><td class="num" style="color:var(--text)">2</td><td class="num" style="color:var(--text)">1</td>
-  <td><span class="yr hit">4/4</span></td>
-  <td class="num" style="font-weight:700;color:var(--rose)">3</td>
-  <td><span class="tag easy">年年考</span></td>
-</tr><tr>
-  <td><b>介词</b></td>
-  <td class="num cell-hi">1.3</td>
-  <td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">2</td><td class="num" style="color:var(--text)">1</td>
-  <td><span class="yr hit">4/4</span></td>
-  <td class="num" style="font-weight:700;color:var(--rose)">1</td>
-  <td><span class="tag easy">年年考</span></td>
-</tr><tr>
-  <td><b>there be 句型</b></td>
-  <td class="num cell-hi">1</td>
-  <td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">1</td>
-  <td><span class="yr hit">4/4</span></td>
-  <td class="num" style="font-weight:700;color:var(--rose)">1</td>
-  <td><span class="tag easy">年年考</span></td>
-</tr><tr>
-  <td><b>代词</b></td>
-  <td class="num cell-hi">1.5</td>
-  <td class="num" style="color:var(--text)">3</td><td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">1</td>
-  <td><span class="yr hit">4/4</span></td>
-  <td class="num" style="font-weight:400;color:var(--text-3)">—</td>
-  <td><span class="tag easy">年年考</span></td>
-</tr><tr>
-  <td><b>疑问句</b></td>
-  <td class="num cell-hi">1.5</td>
-  <td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text)">2</td><td class="num" style="color:var(--text)">2</td>
-  <td><span class="yr hit">4/4</span></td>
-  <td class="num" style="font-weight:400;color:var(--text-3)">—</td>
-  <td><span class="tag easy">年年考</span></td>
-</tr><tr>
-  <td><b>连词与逻辑</b></td>
-  <td class="num cell-hi">0.5</td>
-  <td class="num" style="color:var(--text-3)">—</td><td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text-3)">—</td><td class="num" style="color:var(--text)">1</td>
-  <td><span class="yr ">2/4</span></td>
-  <td class="num" style="font-weight:400;color:var(--text-3)">—</td>
-  <td><span class="tag mid">多数年考</span></td>
-</tr><tr>
-  <td><b>否定句</b></td>
-  <td class="num cell-hi">0.3</td>
-  <td class="num" style="color:var(--text-3)">—</td><td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text-3)">—</td><td class="num" style="color:var(--text-3)">—</td>
-  <td><span class="yr ">1/4</span></td>
-  <td class="num" style="font-weight:400;color:var(--text-3)">—</td>
-  <td><span class="tag rare">个别年考</span></td>
-</tr><tr>
-  <td><b>情景交际</b></td>
-  <td class="num cell-hi">0.3</td>
-  <td class="num" style="color:var(--text)">1</td><td class="num" style="color:var(--text-3)">—</td><td class="num" style="color:var(--text-3)">—</td><td class="num" style="color:var(--text-3)">—</td>
-  <td><span class="yr ">1/4</span></td>
-  <td class="num" style="font-weight:400;color:var(--text-3)">—</td>
-  <td><span class="tag rare">个别年考</span></td>
-</tr><tr>
-  <td><b>形容词副词辨析</b></td>
-  <td class="num cell-hi">0.3</td>
-  <td class="num" style="color:var(--text-3)">—</td><td class="num" style="color:var(--text-3)">—</td><td class="num" style="color:var(--text-3)">—</td><td class="num" style="color:var(--text)">1</td>
-  <td><span class="yr ">1/4</span></td>
-  <td class="num" style="font-weight:400;color:var(--text-3)">—</td>
-  <td><span class="tag rare">个别年考</span></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="note info" style="margin-top:14px">
-  <b>4 个族是「双重考核」</b>：时态与动词形式（单选 4/4 + 汉译英 3 句）、主谓一致（单选 4/4 + 汉译英 3 句）、介词（单选 4/4 + 汉译英 1 句）、there be 句型（单选 4/4 + 汉译英 1 句）。
-  这几族既要会选又要会写，<b>优先级高于只在单选出现的族</b>。
-</div>
-
-</section>
-
-
-<section class="section" id="g-sent">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">② 语法 · 真题证据</span>
-    <h2>12 句汉译英：语法真正被「写」出来的地方</h2>
-    <span class="sub">每句都标了实际要求的语法动作</span>
-  </div></div>
-  
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>年份</th><th class="num">题号</th><th>中文原句</th><th>提示词</th><th>语法动作</th><th>参考答案</th></tr></thead>
-<tbody>
-<tr>
-  <td style="color:var(--text-3);font-size:12.4px">2021-22</td>
-  <td class="num" style="color:var(--text-3)">52</td>
-  <td class="wrap-cell"><b>休息的时间到了。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">have a break</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 have a break</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">It is time to do</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">It's time to have a break.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2021-22</td>
-  <td class="num" style="color:var(--text-3)">53</td>
-  <td class="wrap-cell"><b>吃太多肉对儿童不好。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">too much meat</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">主谓一致</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">too much + 不可数</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">be bad for</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Eating too much meat is bad for children.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2021-22</td>
-  <td class="num" style="color:var(--text-3)">54</td>
-  <td class="wrap-cell"><b>她正在等公共汽车。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">wait for</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">现在进行时</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 wait for</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">She is waiting for a bus.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2022-23</td>
-  <td class="num" style="color:var(--text-3)">52</td>
-  <td class="wrap-cell"><b>学生们正在打扫教室。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">clean</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">现在进行时</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">The students are cleaning the classroom.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2022-23</td>
-  <td class="num" style="color:var(--text-3)">53</td>
-  <td class="wrap-cell"><b>Jack 经常和他爸爸一起看足球比赛。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">watch</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">主谓一致（三单）</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">频率副词 often</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Jack often watches football matches with his dad.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2022-23</td>
-  <td class="num" style="color:var(--text-3)">54</td>
-  <td class="wrap-cell"><b>图书馆里有许多新书。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">there be</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">there be 句型</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">There are many new books in the library.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2023-24</td>
-  <td class="num" style="color:var(--text-3)">52</td>
-  <td class="wrap-cell"><b>大明擅长踢足球。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">be good at</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 be good at + 动名词</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Daming is good at playing football.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2023-24</td>
-  <td class="num" style="color:var(--text-3)">53</td>
-  <td class="wrap-cell"><b>到了大扫除的时间了。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">do some cleaning</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定句式 It is time to do</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">It's time to do some cleaning.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2023-24</td>
-  <td class="num" style="color:var(--text-3)">54</td>
-  <td class="wrap-cell"><b>我们正在为春节做准备。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">get ready for</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">现在进行时</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 get ready for</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">We are getting ready for the Spring Festival.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2024-25</td>
-  <td class="num" style="color:var(--text-3)">40</td>
-  <td class="wrap-cell"><b>茶有益于我们的健康。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">good for, health</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定搭配 be good for</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Tea is good for our health.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2024-25</td>
-  <td class="num" style="color:var(--text-3)">41</td>
-  <td class="wrap-cell"><b>在学习中，思考很重要。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">important, in learning</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">固定句式 It is + adj + to do</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">It is important to think in learning.</td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2024-25</td>
-  <td class="num" style="color:var(--text-3)">42</td>
-  <td class="wrap-cell"><b>老师们总是尽力帮助我们。</b></td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">try their best</td>
-  <td style="white-space:normal"><span class="tag write" style="margin-right:4px;margin-bottom:3px">主谓一致（复数 + 原形）</span><span class="tag write" style="margin-right:4px;margin-bottom:3px">频率副词 always</span></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">Teachers always try their best to help us.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="note warn" style="margin-top:14px">
-  <b>固定搭配 5 句，比任何单一语法规则都多。</b>
-  汉译英的主战场不是「语法规则」，是<b>短语能不能直接写出来</b>。
-</div>
-
-</section>
-
-
-<section class="section">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">② 语法 · 解题与备考</span>
-    <h2>解题动作：先定句型，再套词，最后查一致性</h2>
-    <span class="sub">不刷语法题册，只做「一句多改」</span>
-  </div></div>
-  
-<div class="grid g2">
-  <div class="card">
-    <h3 style="margin-bottom:10px">汉译英解题三步</h3>
-    <ul class="clean">
-      <li><b>看提示词定句型。</b>提示词就是骨架：给 <code style="font-family:var(--mono);font-size:12.4px">be good at</code> 就用 be good at，给 <code style="font-family:var(--mono);font-size:12.4px">there be</code> 就用 there be——不要自己换说法。</li>
-      <li><b>套词后查主谓一致。</b>主语是单数还是复数？3 句汉译英都在考这个。</li>
-      <li><b>最后查时态与标点。</b>句末有没有句号？中文的「正在」= 现在进行时，别写成一般现在时。</li>
-    </ul>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">备考：一句多改</h3>
-    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
-      拿一个基础句，改成四种形式——<b>三单 / 过去 / 否定 / 疑问</b>。<br><br>
-      <code style="font-family:var(--mono);font-size:12.4px;background:var(--bg-3);padding:2px 6px;border-radius:4px">She is waiting for the bus.</code><br>
-      → <code style="font-family:var(--mono);font-size:12.4px">He waits for the bus.</code>（三单）<br>
-      → <code style="font-family:var(--mono);font-size:12.4px">She waited for the bus.</code>（过去）<br>
-      → <code style="font-family:var(--mono);font-size:12.4px">She isn't waiting for the bus.</code>（否定）<br>
-      → <code style="font-family:var(--mono);font-size:12.4px">Is she waiting for the bus?</code>（疑问）
-    </p>
-    <p style="font-size:12.8px;color:var(--text-3);margin-top:10px;line-height:1.7">
-      <b>为什么有效：</b>一次操练覆盖时态、主谓一致、否定句、疑问句四族——
-      正好是单选占比最高的四族，而且是在「写」的场景下练。
-    </p>
-  </div>
-</div>
-
-</section>
-
-
-<section class="section" id="r-evidence">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">③ 阅读</span>
-    <h2>解题方法：一半是细节题，先练「找」不练「猜」</h2>
-    <span class="sub">阅读 30 分 = 选择 22 + 简答 8</span>
-  </div></div>
-  
-<div class="grid g2">
-  <div class="card">
-    <h3 style="margin-bottom:12px">阅读选择题型分布（四年 44 题）</h3>
-    <div class="dist-row">
-    <span class="dist-name">阅读·细节定位</span>
-    <span class="dist-bar-wrap"><span class="dist-bar " style="width:100%"></span></span>
-    <span class="dist-val">22 题</span>
-  </div><div class="dist-row">
-    <span class="dist-name">阅读·主旨与标题</span>
-    <span class="dist-bar-wrap"><span class="dist-bar " style="width:32%"></span></span>
-    <span class="dist-val">7 题</span>
-  </div><div class="dist-row">
-    <span class="dist-name">阅读·推断</span>
-    <span class="dist-bar-wrap"><span class="dist-bar " style="width:27%"></span></span>
-    <span class="dist-val">6 题</span>
-  </div><div class="dist-row">
-    <span class="dist-name">阅读·信息匹配</span>
-    <span class="dist-bar-wrap"><span class="dist-bar " style="width:27%"></span></span>
-    <span class="dist-val">6 题</span>
-  </div><div class="dist-row">
-    <span class="dist-name">阅读·词义猜测</span>
-    <span class="dist-bar-wrap"><span class="dist-bar " style="width:14%"></span></span>
-    <span class="dist-val">3 题</span>
-  </div>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:12px">阅读简答：4 题 8 分</h3>
-    <div style="font-size:13.4px;color:var(--text-2);line-height:1.9">
-      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
-        <span><b>前三题：检索</b>（问什么答什么）</span><span style="font-weight:700;color:var(--accent)">3 题 / 6 分</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;padding:6px 0">
-        <span><b>末题：概括或开放</b>（全文/看法）</span><span style="font-weight:700;color:var(--rose)">1 题 / 2 分</span>
-      </div>
-    </div>
-    <div class="note" style="margin-top:14px;font-size:12.8px">
-      <b>末题四年分别是</b>：蚂蚁教我们什么 / 末段作者想说什么 / 全文主要讲什么 / 是否想尝试观鸟及理由。
-      <b>永远考「概括」，不考「找」。</b>
-    </div>
-  </div>
-</div>
-<div class="note info" style="margin-top:16px">
-  <b>细节题占 50%，是阅读选择的一半。</b>
-  这类题不需要技巧，需要「回原文找」这个动作——<b>每道题划出证据句</b>，划不出来就是靠猜。
-</div>
-
-</section>
-
-
-<section class="section" id="r-how">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">③ 阅读 · 解题与备考</span>
-    <h2>按题型给动作，不背「阅读技巧」</h2>
-    <span class="sub">四种题型，四种动作</span>
-  </div></div>
-  
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>题型</th><th class="num">占比</th><th>解题动作</th><th>常见错因</th></tr></thead>
-<tbody>
-<tr>
-  <td><b>细节定位</b></td><td class="num">50%</td>
-  <td class="wrap-cell">回原文划出对应句，在题号旁标段落号</td>
-  <td class="wrap-cell">凭印象选；同义替换没认出来</td>
-</tr>
-<tr>
-  <td><b>主旨与标题</b></td><td class="num">16%</td>
-  <td class="wrap-cell">看首段末句 + 各段首句 + 末段；先用排除法去掉「太窄」和「太宽」</td>
-  <td class="wrap-cell">选了只讲某一段的选项</td>
-</tr>
-<tr>
-  <td><b>推断</b></td><td class="num">14%</td>
-  <td class="wrap-cell">推断的答案一定能在原文找到支撑，找不到支撑的选项直接排除</td>
-  <td class="wrap-cell">选了「看似合理但文中没说」的</td>
-</tr>
-<tr>
-  <td><b>词义猜测</b></td><td class="num">7%</td>
-  <td class="wrap-cell">看划线词前后一句：同义复现 / 反义对比 / 举例说明</td>
-  <td class="wrap-cell">凭「背过的意思」直选，不看上下文</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="grid g2" style="margin-top:16px">
-  <div class="card">
-    <h3 style="margin-bottom:10px">简答三查</h3>
-    <ul class="clean">
-      <li><b>查问什么。</b>问 Why 不要答 What，问 When 不要答 Where。</li>
-      <li><b>查人称时态。</b>问句是 he，答案不能照抄原文的 I；问句过去时，答案跟着过去时。</li>
-      <li><b>查是否抄多了。</b>原文一整句里只要那个短语，就只写那个短语。</li>
-    </ul>
-    <div class="note" style="margin-top:12px;font-size:12.6px">
-      <b>参考答案自己也不统一：</b>2022-23 第 44 题给的是 <code style="font-family:var(--mono)">Tiger sharks.</code>（短语），
-      2023-24 给的是完整句。所以<b>别硬凑完整句</b>——宁可短而准，不要长而错。
-    </div>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">末题两句话模板</h3>
-    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
-      <b>概括型</b>（全文讲什么）：<br>
-      <code style="font-family:var(--mono);font-size:12.4px">The passage is about ______.</code><br><br>
-      <b>开放型</b>（你想不想试）：<br>
-      <code style="font-family:var(--mono);font-size:12.4px">Yes. Because ______.</code><br><br>
-      <b>关键：</b>表态明确 + 理由具体。参考答案给的就是 <code style="font-family:var(--mono);font-size:12.4px">Yes. Because it is interesting.</code>——两句就是满分。
-    </p>
-  </div>
-</div>
-
-</section>
-
-
-<section class="section" id="w-prompt">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">④ 写作</span>
-    <h2>解题方法：提示问题就是提纲，照抄题目结构</h2>
-    <span class="sub">文段表达 10 分，≥40 词</span>
-  </div></div>
-  
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>年份</th><th>话题</th><th>提示问题（= 提纲）</th><th>提示词</th><th>范文</th></tr></thead>
-<tbody>
-<tr>
-  <td style="color:var(--text-3);font-size:12.4px">2021-22</td>
-  <td class="wrap-cell"><b>介绍一位家庭成员</b></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--text-2)">How old is he/she? / What is his/her job? / What does he/she like?</td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.2px;color:var(--text-3)">teacher, manager, do sports, travel</td>
-  <td><span class="tag rare">原卷未给</span></td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2022-23</td>
-  <td class="wrap-cell"><b>家庭欢乐时刻发言稿</b></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--text-2)">When is your family fun time? / What do you and your family usually do? / What do you think of your family fun time?</td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.2px;color:var(--text-3)">weekend, talk, exercise, movie, warm, love</td>
-  <td><span class="tag rare">原卷未给</span></td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2023-24</td>
-  <td class="wrap-cell"><b>感谢某人并说明做法与理由</b></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--text-2)">Who do you want to thank? / What do you want to do for him/her? / Why do you want to do so?</td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.2px;color:var(--text-3)">present, book, like reading, show</td>
-  <td><span class="tag easy">有</span></td>
-</tr><tr>
-  <td style="color:var(--text-3);font-size:12.4px">2024-25</td>
-  <td class="wrap-cell"><b>介绍喜欢的传统节日</b></td>
-  <td class="wrap-cell" style="font-size:12.6px;color:var(--text-2)">What is your favorite traditional Chinese festival? / How do you usually celebrate it?</td>
-  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.2px;color:var(--text-3)">take place, enjoy, have a big meal, family reunion</td>
-  <td><span class="tag easy">有</span></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="note warn" style="margin-top:14px">
-  <b>四套题都给了 2–3 个提示问题，这就是现成的提纲。</b>
-  每个问题写 1–2 句，40 词轻松够——不需要另想结构。
-</div>
-
-</section>
-
-
-<section class="section" id="w-essay">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">④ 写作 · 真题范文拆解</span>
-    <h2>范文不长，但每句都在回应题目</h2>
-    <span class="sub">两套卷给了范文，逐句看它怎么答</span>
-  </div></div>
-  
-
-<div class="card" style="margin-bottom:14px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-    <h3 style="margin:0">感谢某人并说明做法与理由</h3>
-    <span class="tag ch">2023-24</span>
-    <span style="font-size:12.3px;color:var(--text-3)">60 词</span>
-  </div>
-  <p style="font-size:13.4px;color:var(--text-2);line-height:1.85;background:var(--surface-2);padding:14px 16px;border-radius:10px;border-left:3px solid var(--ok)">
-    I want to buy some fish and books for my mother. I am getting fatter and fatter, while my mom is getting thinner and thinner. She should eat more fish and other delicious food. And she likes reading books. So I want to give her favourite books to thank her. I think it is good for her body and spirits.
-  </p>
-  <div style="margin-top:10px;font-size:12.6px;color:var(--text-3);line-height:1.7">
-    <b>结构拆解：</b>Who do you want to thank? / What do you want to do for him/her? / Why do you want to do so?
-  </div>
-</div>
-<div class="card" style="margin-bottom:14px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-    <h3 style="margin:0">介绍喜欢的传统节日</h3>
-    <span class="tag ch">2024-25</span>
-    <span style="font-size:12.3px;color:var(--text-3)">104 词</span>
-  </div>
-  <p style="font-size:13.4px;color:var(--text-2);line-height:1.85;background:var(--surface-2);padding:14px 16px;border-radius:10px;border-left:3px solid var(--ok)">
-    Spring Festival is my favorite festival. It usually happens in January or February. My family celebrate it by doing many interesting and meaningful activities. We often clean the house and buy a lot of food before the festival. On Spring Festival Eve, we get together and have a big reunion dinner. Jiaozi is a must, and we also prepare many other delicious dishes. Everyone wears new clothes and kids always get lucky money from the elders as a symbol of good wishes for good luck, health and prosperity in the new year. I like Spring Festival, because it makes me feel warm and loved.
-  </p>
-  <div style="margin-top:10px;font-size:12.6px;color:var(--text-3);line-height:1.7">
-    <b>结构拆解：</b>What is your favorite traditional Chinese festival? / How do you usually celebrate it?
-  </div>
-</div>
-<div class="note" style="margin-top:6px">
-  <b>两套卷原卷未给范文</b>（2021-22、2022-23），
-  所以只能分析题目结构，不能分析范文。这一条不补。
-</div>
-
-</section>
-
-
-<section class="section">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">④ 写作 · 解题与备考</span>
-    <h2>四步写完，最后一步决定分数</h2>
-    <span class="sub">内容分靠提纲，语言分靠检查</span>
-  </div></div>
-  
-<div class="grid g2">
-  <div class="card">
-    <h3 style="margin-bottom:10px">解题四步</h3>
-    <ul class="clean">
-      <li><b>读提示问题，抄成提纲。</b>4 套题都有 2–3 个提示问题，一个问题是正文一段。</li>
-      <li><b>每段写 1–2 句。</b>第一句回应问题，第二句给细节（原因/例子/感受）。</li>
-      <li><b>套提示词。</b>题目给的提示词是「可以用的词」，不是必须全用——挑 2–3 个用得顺的。</li>
-      <li><b>检查三件事。</b>动词形式（三单/过去）、名词单复数、句末标点。<b>这一步最容易丢分。</b></li>
-    </ul>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">备考三步</h3>
-    <ul class="clean">
-      <li><b>不背范文，背「结构」。</b>范文的话题每年换，但「问题→回答」的结构不变。</li>
-      <li><b>限时 10 分钟写 40 词。</b>写作在卷面最后，时间通常被前面挤掉——必须练到 10 分钟内完成。</li>
-      <li><b>写完必自查。</b>按上面「检查三件事」逐条过，养成习惯后每次能捡回 1–2 分。</li>
-    </ul>
-  </div>
-</div>
-<div class="note risk" style="margin-top:16px">
-  <b>写作是前三项的合成：</b>单词拼写（36 分那部分）、语法形式（10 分那部分）、
-  阅读积累的句式。所以它排在最后——前面三项稳了，写作的 10 分才拿得住。
-</div>
-
-</section>
 
 </main>
 <footer class="wrap">

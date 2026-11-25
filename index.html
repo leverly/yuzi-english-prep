@@ -292,13 +292,80 @@ ul.clean li b{color:var(--text);font-weight:650}
 .phase-b p{font-size:13.2px;color:var(--text-2);line-height:1.65}
 .phase-ok{font-size:12.2px;color:var(--ok);margin-top:8px;font-weight:650}
 
+/* 分层导航：面包屑 / 一级切换 / 二级切换 */
+.crumb{display:flex;align-items:center;gap:7px;font-size:12.6px;color:var(--text-3);margin-bottom:16px;flex-wrap:wrap}
+.crumb a{color:var(--text-2);text-decoration:none;font-weight:550}
+.crumb a:hover{color:var(--accent);text-decoration:underline}
+.crumb .sep{opacity:.45}
+.crumb b{color:var(--text);font-weight:650}
+.subtabs{
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:26px;padding:5px;
+  background:var(--surface);border:1px solid var(--border);border-radius:13px;box-shadow:var(--shadow-1);
+}
+.subtabs a{
+  display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;
+  text-decoration:none;color:var(--text-2);font-size:13.6px;font-weight:600;
+  transition:.16s var(--ease);white-space:nowrap;
+}
+.subtabs a:hover{background:var(--bg-3);color:var(--text)}
+.subtabs a.on{background:var(--accent);color:#fff;box-shadow:var(--shadow-accent)}
+.subtabs a .sn{font-family:var(--mono);font-size:11px;opacity:.72}
+.subtabs a.on .sn{opacity:.85}
+.subtabs.sub{margin:-14px 0 26px;padding:0;background:transparent;border:none;box-shadow:none;gap:8px}
+.subtabs.sub a{border:1px solid var(--border);background:var(--surface);padding:7px 14px;font-size:13px}
+.subtabs.sub a:hover{background:var(--surface-2)}
+.subtabs.sub a.on{background:var(--purple);border-color:transparent;color:#fff;box-shadow:0 8px 20px -8px rgba(124,58,237,.42)}
+
+/* 总览页的四部分入口卡 */
+.part-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.part-card{
+  display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-1);
+  transition:.18s var(--ease);position:relative;overflow:hidden;
+}
+.part-card::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--accent)}
+.part-card.p-grammar::before{background:var(--purple)}
+.part-card.p-read::before{background:var(--rose)}
+.part-card.p-write::before{background:var(--gold)}
+.part-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+.part-head{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.part-n{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);opacity:.8}
+.part-card.p-grammar .part-n{color:var(--purple)}
+.part-card.p-read .part-n{color:var(--rose)}
+.part-card.p-write .part-n{color:var(--gold)}
+.part-title{font-size:18px;font-weight:750;letter-spacing:-.015em}
+.part-score{margin-left:auto;font-size:13px;font-weight:700;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.part-how{font-size:13.2px;color:var(--text-2);line-height:1.7;margin:8px 0 14px}
+.part-how b{color:var(--text);font-weight:650}
+.part-links{display:flex;flex-direction:column;gap:6px;margin-top:auto}
+.part-link{
+  display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:9px;
+  background:var(--surface-2);border:1px solid var(--border);
+  text-decoration:none;color:var(--text);font-size:13.2px;font-weight:600;transition:.16s var(--ease);
+}
+.part-link:hover{background:var(--accent-soft);border-color:rgba(37,99,235,.28);color:var(--accent)}
+.part-link .pl-go{margin-left:auto;font-size:12px;color:var(--accent);font-weight:650}
+.part-link small{font-size:11.8px;color:var(--text-3);font-weight:500}
+
+/* 紧凑的分值构成：不占一屏，不把 hero 撑高 */
+.seg-list{display:flex;flex-direction:column;gap:1px;margin-top:12px}
+.seg-row{display:flex;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.8px}
+.seg-row:last-child{border-bottom:none}
+.seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
+.seg-row .sr-l{color:var(--text-2);font-weight:550}
+.seg-row .sr-c{margin-left:auto;color:var(--text-3);font-size:11.8px;white-space:nowrap}
+.hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
+.hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
+
 footer{margin-top:60px;padding:30px 0 40px;border-top:1px solid var(--border);font-size:12.5px;color:var(--text-3)}
 footer p{margin:5px 0}
 footer b{color:var(--text-2)}
 
 @media(max-width:960px){
-  .hero-split{grid-template-columns:1fr;gap:26px}
+  .hero-split,.hero-split.wide{grid-template-columns:1fr;gap:26px}
   .g3,.g4,.tier-grid{grid-template-columns:repeat(2,1fr)}
+  .part-grid{grid-template-columns:1fr}
 }
 @media(max-width:680px){
   body{font-size:14.5px}
@@ -315,6 +382,20 @@ footer b{color:var(--text-2)}
   .cockpit{padding:18px}
   .dist-row{grid-template-columns:100px 1fr 76px;gap:9px}
   table{font-size:12.4px}
+  /* 分层导航在窄屏上要能横滑，不能撑破页面 */
+  .subtabs{padding:4px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .subtabs::-webkit-scrollbar{display:none}
+  .subtabs a{padding:8px 12px;font-size:13px;flex:none}
+  .subtabs.sub{overflow-x:auto;flex-wrap:nowrap}
+  .part-grid{gap:12px}
+  .part-card{padding:18px}
+  .crumb{font-size:12px;margin-bottom:12px}
+  /* 窄屏防溢出：h1 与 hero 内的长串不换行会撑破视口 */
+  h1{font-size:clamp(22px,6.4vw,28px);overflow-wrap:break-word}
+  .lede,.part-how{overflow-wrap:break-word}
+  .hero-split,.hero-split.wide{min-width:0}
+  .hero-split>div,.hero-split>aside{min-width:0}
+  main.wrap{overflow-x:hidden}
   th,td{padding:8px 9px}
   .phase{grid-template-columns:1fr}
   .phase-w{border-right:none;border-bottom:1px solid var(--border)}
@@ -393,7 +474,7 @@ footer b{color:var(--text-2)}
         </a>
         <a class="mission-item" href="special.html">
           <span class="mi-ico rose">📝</span>
-          <span class="mi-main"><b>专项：单词与语法</b><small>音标 16 词 · 单选 10 族</small></span>
+          <span class="mi-main"><b>专项复习</b><small>单词 / 语法 / 阅读 / 写作 四页</small></span>
           <span class="mi-go">查看 →</span>
         </a>
         <a class="mission-item" href="plan.html">
