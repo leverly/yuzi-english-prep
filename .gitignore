@@ -1,0 +1,20 @@
+# 真题原卷是他人版权材料，不发布
+英语真题/
+*.pdf
+*.docx
+*.doc
+*.zip
+
+# 本地工具残留
+.v2c/
+.video_agent/
+.zcode/
+.DS_Store
+
+# 依赖（本项目建设零依赖，保留以防将来引入）
+node_modules
+node_modules/
+
+# 备份与临时文件
+*.bak
+*.tmp
