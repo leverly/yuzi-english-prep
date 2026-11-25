@@ -42,7 +42,7 @@ const WRITE_SEGS = SEG_ORDER.filter((s) => {
 const SELECT_SEGS = SEG_ORDER.filter((s) => !WRITE_SEGS.includes(s));
 
 const FAM_RANKED = FAM_MAP.filter((f) => !f.onlyBonus);
-const TOP_FAMS = FAM_RANKED.slice(0, 8);
+const TOP_FAMS = FAM_RANKED.slice(0, 7);
 const STABLE = PROP_SUMMARY.stable;
 const VARIABLE = PROP_SUMMARY.variable;
 const SPORADIC = PROP_SUMMARY.sporadic;
@@ -75,7 +75,9 @@ body{font-family:var(--sans);background:#0f172a;color:var(--text);-webkit-font-s
   transform-origin:center center;box-shadow:0 30px 80px -20px rgba(0,0,0,.6)}
 
 .slide{position:absolute;inset:0;padding:64px 72px;display:none;flex-direction:column;
-  background:var(--bg);overflow:hidden}
+  background:var(--bg);overflow:hidden;
+  text-wrap:pretty;            /* 避免末行只剩一两个字 */
+  word-break:normal;line-break:strict}
 .slide.on{display:flex}
 
 /* 标题页 */
@@ -166,7 +168,7 @@ body{font-family:var(--sans);background:#0f172a;color:var(--text);-webkit-font-s
 .card h4{font-size:15px;font-weight:700;margin-bottom:12px}
 
 /* 结论条 */
-.callout{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;
+.callout{text-wrap:pretty;background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;
   padding:15px 20px;font-size:14.5px;color:var(--text-2);line-height:1.72}
 .callout b{color:var(--text)}
 .callout.gold{background:var(--gold-soft);border-color:var(--gold)}
@@ -329,7 +331,7 @@ push('难度结构', `
     </table>
     <div class="callout" style="margin-top:20px">
       <b>难度指数</b>（1 = 全基础，3 = 全较难）逐年：${PAPER_STATS.map((p) => `${p.label} <b>${p.diffIndex}</b>`).join(' · ')}。
-      区间 ${DIFF_IDX_MIN}–${DIFF_IDX_MAX}，<b>说明难度是被稳定控制的</b>，不存在「某年突然变难」。
+      <br>区间 ${DIFF_IDX_MIN}–${DIFF_IDX_MAX}——<b>难度是被稳定控制的，没有「某年突然变难」这回事。</b>
     </div>
   </div>
 </div>`);
@@ -339,7 +341,7 @@ push('考点族权重', `
 <div class="slide">
   <div class="s-head">
     <span class="s-kicker">Weight</span>
-    <h2 class="s-title">分值最高的 8 个考点族</h2>
+    <h2 class="s-title">分值最高的 ${TOP_FAMS.length} 个考点族</h2>
     <p class="s-sub">按年均分值降序——这才该是排优先级的依据</p>
   </div>
   <div class="s-body">
@@ -359,8 +361,8 @@ push('考点族权重', `
         }).join('')}
       </tbody>
     </table>
-    <div class="callout gold" style="margin-top:18px">
-      前 8 族合计年均 <b>${fmt(sum(TOP_FAMS.map((f) => f.avgPerYear)))} 分</b>，
+    <div class="callout gold" style="margin-top:14px;font-size:13px">
+      前 ${TOP_FAMS.length} 族合计年均 <b>${fmt(sum(TOP_FAMS.map((f) => f.avgPerYear)))} 分</b>，
       占必做 ${MAIN} 分的 <b>${Math.round((sum(TOP_FAMS.map((f) => f.avgPerYear)) / MAIN) * 100)}%</b>。
       首末族年均分差 <b>${fmt(TOP_FAMS[0].avgPerYear - TOP_FAMS[TOP_FAMS.length - 1].avgPerYear)} 分</b>——这个差距就是优先级。
     </div>
@@ -409,7 +411,7 @@ push('语法两次考核', `
     <table class="tbl compact" style="font-size:13.2px">
       <thead><tr><th>语法族</th><th class="num">年均分</th><th class="num">单选命中</th><th class="num">汉译英出现</th><th>判定</th></tr></thead>
       <tbody>
-        ${GRAMMAR_DOUBLE.slice(0, 6).map((g) => `<tr>
+        ${GRAMMAR_DOUBLE.slice(0, 5).map((g) => `<tr>
           <td><b>${esc(g.name)}</b></td>
           <td class="num">${fmt(g.avgPerYear)}</td>
           <td class="num">${g.hit}/${N_PAPERS}</td>
@@ -463,7 +465,7 @@ push('音标拼写', `
     <table class="tbl compact">
       <thead><tr><th class="num">年份</th><th>音标</th><th>答案</th><th class="num">字母</th><th>拼写特征</th></tr></thead>
       <tbody>
-        ${SPELL_ITEMS.slice(0, 10).map((it) => `<tr>
+        ${SPELL_ITEMS.slice(0, 8).map((it) => `<tr>
           <td class="num" style="color:var(--text-3)">${PAPER_STATS.find((p) => p.id === it.p).label}</td>
           <td><b style="font-family:var(--mono)">${esc(it.ipa)}</b></td>
           <td><b style="color:var(--accent)">${esc(it.word)}</b></td>
@@ -472,9 +474,9 @@ push('音标拼写', `
         </tr>`).join('')}
       </tbody>
     </table>
-    <div class="callout gold" style="margin-top:18px">
-      <b>这些不是难词，是最基础的词。</b>平均 ${SPELL_STATS.avgLen} 个字母，最短 ${SPELL_STATS.minLen} 个（cut / map / big）。
-      所以音标题的失分<b>不是「不认识」，是「拼不对」</b>——练法应该是定向拼写，不是背难词。
+    <div class="callout gold" style="margin-top:14px;font-size:13px">
+      <b>这些不是难词，是最基础的词</b>——平均 ${SPELL_STATS.avgLen} 个字母，最短 ${SPELL_STATS.minLen} 个。
+      音标题的失分<b>不是「不认识」，是「拼不对」</b>：练法该是定向拼写，不是背难词。
     </div>
   </div>
 </div>`);
@@ -533,7 +535,7 @@ push('结论', `
     <div class="cp"><span class="cp-n">02</span><b>${fmt(WRI)} 分要写出来</b><span>输出型占 ${WRI_PCT}%，丢的是形式不是知识，靠定向操练</span></div>
     <div class="cp"><span class="cp-n">03</span><b>中档题才是主战场</b><span>基础+中档占 ${BASE_MID_PCT}%，较难只 ${DIFF_SCORE.hard.pct}%</span></div>
   </div>
-  <p class="cover-sub" style="margin-top:36px;font-size:16px">
+  <p class="cover-sub" style="margin-top:36px;font-size:16px;max-width:none">
     样本：西城区 ${YEARS.join(' / ')} ${N_PAPERS} 套期末真题，${LEDGER.length} 题逐题标注。
     所有数字由逐题台账派生，非人工填写。
   </p>

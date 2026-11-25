@@ -138,6 +138,7 @@ a{color:inherit}
 
 .hero{padding:54px 0 30px;position:relative;background:var(--hero-glow)}
 .hero-split{display:grid;grid-template-columns:1.12fr .98fr;gap:38px;align-items:start}
+.hero-split.wide{grid-template-columns:1.45fr .9fr;gap:44px}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;
   color:var(--accent);border:1px solid rgba(37,99,235,.24);background:var(--surface);
@@ -741,13 +742,28 @@ ${SEG_ORDER.map((k) => {
 
   const body = `
 <section class="hero" style="padding-bottom:10px">
-  <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套卷 · ${LEDGER.length} 题逐题台账</div>
-  <h1 style="font-size:clamp(26px,3.2vw,36px)">逐年真题</h1>
-  <p class="lede" style="max-width:760px">
-    ${N_PAPERS} 套西城期末卷（${YEARS.join(' / ')}）逐题拆解 <b>${LEDGER.length} 道</b>，
-    按 <b>板块 → 能力 → 难度 → 考点</b> 四个维度统计。
-    必做 ${MAIN_TOTAL} 分 / ${PAPER_STATS[0].mainCount} 小题，选做 ${BONUS_TOTAL} 分。
-  </p>
+  <div class="hero-split wide">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套卷 · ${LEDGER.length} 题逐题台账</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">逐年真题</h1>
+      <p class="lede">
+        ${N_PAPERS} 套西城期末卷（${YEARS.join(' / ')}）逐题拆解 <b>${LEDGER.length} 道</b>，
+        按 <b>板块 → 能力 → 难度 → 考点</b> 四个维度统计。
+        必做 ${MAIN_TOTAL} 分 / ${PAPER_STATS[0].mainCount} 小题，选做 ${BONUS_TOTAL} 分。
+      </p>
+    </div>
+    <aside class="cockpit">
+      <div class="cockpit-top"><span class="level-pill">卷面结构 · ${N_PAPERS} 套一致</span></div>
+      ${SEG_ORDER.slice(0, 5).map((k) => `<div class="metric-row">
+        <span class="mv accent">${fmt(SEG_SCORE[k].avg)}</span>
+        <span class="ml"><b>${SEG_NAME[k]}</b>年均 ${PAPER_STATS[0].segN[k]} 小题</span>
+      </div>`).join('')}
+      <div class="metric-row" style="border-bottom:none">
+        <span class="mv ok">${BONUS_TOTAL}</span>
+        <span class="ml"><b>选做</b>计入总分，卷面封顶 ${MAIN_TOTAL}</span>
+      </div>
+    </aside>
+  </div>
 </section>
 
 ${section('① 板块', '各板块分值', `条长 = ${N_PAPERS} 年平均分值；${SEG_FIXED.length} 个板块的逐年分值完全一致`, segTable)}
@@ -869,12 +885,22 @@ function buildTrend() {
 
   const body = `
 <section class="hero" style="padding-bottom:10px">
-  <div class="hero-badge"><span class="dot-live"></span>跨年对比 · ${N_PAPERS} 套样本</div>
-  <h1 style="font-size:clamp(26px,3.2vw,36px)">趋势与考点</h1>
-  <p class="lede" style="max-width:780px">
-    ${N_PAPERS} 套卷跨年对比：<b>什么没变</b>（结构、板块分值）、<b>什么在变</b>（能力与难度分布）、
-    以及 <b>${FAM_RANKED.length} 个考点族</b>的分值权重与逐年命中。
-  </p>
+  <div class="hero-split wide">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>跨年对比 · ${N_PAPERS} 套样本</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">趋势与考点</h1>
+      <p class="lede">
+        ${N_PAPERS} 套卷跨年对比：<b>什么没变</b>（结构、板块分值）、<b>什么在变</b>（能力与难度分布）、
+        以及 <b>${FAM_RANKED.length} 个考点族</b>的分值权重与逐年命中。
+      </p>
+    </div>
+    <aside class="cockpit">
+      <div class="cockpit-top"><span class="level-pill">命题稳定性 · ${N_PAPERS} 套</span></div>
+      <div class="metric-row"><span class="mv ok">${PROP_SUMMARY.stable.length}</span><span class="ml"><b>年年考</b>${N_PAPERS}/${N_PAPERS} 学年都出现</span></div>
+      <div class="metric-row"><span class="mv accent">${PROP_SUMMARY.variable.length}</span><span class="ml"><b>多数年考</b>要会，但不押</span></div>
+      <div class="metric-row" style="border-bottom:none"><span class="mv gold">${PROP_SUMMARY.sporadic.length}</span><span class="ml"><b>个别年考</b>认识即可</span></div>
+    </aside>
+  </div>
 </section>
 
 ${section('① 结构', `${SPAN_CN}年没变的部分`, '这些是「按板块复习」能成立的全部依据', `
@@ -1025,12 +1051,23 @@ function buildPlan() {
 
   const body = `
 <section class="hero" style="padding-bottom:10px">
-  <div class="hero-badge"><span class="dot-live"></span>输出端 ${fmt(WRITE_AVG)} 分 · 按分值排优先级</div>
-  <h1 style="font-size:clamp(26px,3.2vw,36px)">冲刺计划</h1>
-  <p class="lede" style="max-width:780px">
-    必做 ${MAIN_TOTAL} 分里，<b>${fmt(SELECT_AVG)} 分只要涂卡、${fmt(WRITE_AVG)} 分要写出文字</b>。
-    输入端对班内前列的学生已接近饱和，所以这份计划只做一件事：<b>把输出端的 ${fmt(WRITE_AVG)} 分练到不丢形式分</b>。
-  </p>
+  <div class="hero-split wide">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>输出端 ${fmt(WRITE_AVG)} 分 · 按分值排优先级</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">冲刺计划</h1>
+      <p class="lede">
+        必做 ${MAIN_TOTAL} 分里，<b>${fmt(SELECT_AVG)} 分只要涂卡、${fmt(WRITE_AVG)} 分要写出文字</b>。
+        输入端对班内前列的学生已接近饱和，所以这份计划只做一件事：<b>把输出端的 ${fmt(WRITE_AVG)} 分练到不丢形式分</b>。
+      </p>
+    </div>
+    <aside class="cockpit">
+      <div class="cockpit-top"><span class="level-pill">输出端拆解</span></div>
+      ${WRITE_SEG_LIST.slice().sort((a, b) => b.score - a.score).slice(0, 5).map((x) => `<div class="metric-row">
+        <span class="mv rose">${fmt(x.score)}</span>
+        <span class="ml"><b>${x.name}</b>${x.count} 小题</span>
+      </div>`).join('')}
+    </aside>
+  </div>
 </section>
 
 ${section('核心判断', '先练输出端，不是先刷阅读', `${fmt(WRITE_AVG)} 分 vs ${fmt(SELECT_AVG)} 分`, `
@@ -1185,12 +1222,23 @@ function buildSpecial() {
 
   const body = `
 <section class="hero" style="padding-bottom:10px">
-  <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套真题 · 逐题实证</div>
-  <h1 style="font-size:clamp(26px,3.2vw,36px)">专项：单词与语法</h1>
-  <p class="lede" style="max-width:790px">
-    输出型 <b>${fmt(SPELL_TOTAL)} 分</b>里，拼写和语法是绕不开的两件事。
-    这一页不讲通用方法，只列 ${N_PAPERS} 套卷<b>实际考过的词</b>和<b>实际考过的语法点</b>。
-  </p>
+  <div class="hero-split wide">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套真题 · 逐题实证</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">专项：单词与语法</h1>
+      <p class="lede">
+        输出型 <b>${fmt(SPELL_TOTAL)} 分</b>里，拼写和语法是绕不开的两件事。
+        这一页不讲通用方法，只列 ${N_PAPERS} 套卷<b>实际考过的词</b>和<b>实际考过的语法点</b>。
+      </p>
+    </div>
+    <aside class="cockpit">
+      <div class="cockpit-top"><span class="level-pill">专项数据</span></div>
+      <div class="metric-row"><span class="mv accent">${SPELL_STATS.total}</span><span class="ml"><b>音标词</b>平均 ${SPELL_STATS.avgLen} 字母</span></div>
+      <div class="metric-row"><span class="mv accent">${SPELL_STATS.featureCount}</span><span class="ml"><b>拼写特征类</b>按易错点归并</span></div>
+      <div class="metric-row"><span class="mv rose">${SENT_ITEMS.length}</span><span class="ml"><b>汉译英句</b>每句标语法动作</span></div>
+      <div class="metric-row" style="border-bottom:none"><span class="mv ok">${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).length}</span><span class="ml"><b>双重考核族</b>单选 + 汉译英都考</span></div>
+    </aside>
+  </div>
 </section>
 
 ${section('单词', '要拼写的只有这些板块', '其余 62 分只需认读，不必会写', `

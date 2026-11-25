@@ -73,6 +73,7 @@ a{color:inherit}
 
 .hero{padding:54px 0 30px;position:relative;background:var(--hero-glow)}
 .hero-split{display:grid;grid-template-columns:1.12fr .98fr;gap:38px;align-items:start}
+.hero-split.wide{grid-template-columns:1.45fr .9fr;gap:44px}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;
   color:var(--accent);border:1px solid rgba(37,99,235,.24);background:var(--surface);
@@ -334,12 +335,35 @@ footer b{color:var(--text-2)}
 <main class="wrap">
 
 <section class="hero" style="padding-bottom:10px">
-  <div class="hero-badge"><span class="dot-live"></span>输出端 36 分 · 按分值排优先级</div>
-  <h1 style="font-size:clamp(26px,3.2vw,36px)">冲刺计划</h1>
-  <p class="lede" style="max-width:780px">
-    必做 90 分里，<b>54 分只要涂卡、36 分要写出文字</b>。
-    输入端对班内前列的学生已接近饱和，所以这份计划只做一件事：<b>把输出端的 36 分练到不丢形式分</b>。
-  </p>
+  <div class="hero-split wide">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>输出端 36 分 · 按分值排优先级</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">冲刺计划</h1>
+      <p class="lede">
+        必做 90 分里，<b>54 分只要涂卡、36 分要写出文字</b>。
+        输入端对班内前列的学生已接近饱和，所以这份计划只做一件事：<b>把输出端的 36 分练到不丢形式分</b>。
+      </p>
+    </div>
+    <aside class="cockpit">
+      <div class="cockpit-top"><span class="level-pill">输出端拆解</span></div>
+      <div class="metric-row">
+        <span class="mv rose">10</span>
+        <span class="ml"><b>文段表达</b>1 小题</span>
+      </div><div class="metric-row">
+        <span class="mv rose">8</span>
+        <span class="ml"><b>听力·填词</b>4 小题</span>
+      </div><div class="metric-row">
+        <span class="mv rose">8</span>
+        <span class="ml"><b>阅读·简答</b>4 小题</span>
+      </div><div class="metric-row">
+        <span class="mv rose">6</span>
+        <span class="ml"><b>汉译英</b>3 小题</span>
+      </div><div class="metric-row">
+        <span class="mv rose">4</span>
+        <span class="ml"><b>音标填词</b>4 小题</span>
+      </div>
+    </aside>
+  </div>
 </section>
 
 

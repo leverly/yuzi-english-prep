@@ -73,6 +73,7 @@ a{color:inherit}
 
 .hero{padding:54px 0 30px;position:relative;background:var(--hero-glow)}
 .hero-split{display:grid;grid-template-columns:1.12fr .98fr;gap:38px;align-items:start}
+.hero-split.wide{grid-template-columns:1.45fr .9fr;gap:44px}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;
   color:var(--accent);border:1px solid rgba(37,99,235,.24);background:var(--surface);
@@ -334,12 +335,23 @@ footer b{color:var(--text-2)}
 <main class="wrap">
 
 <section class="hero" style="padding-bottom:10px">
-  <div class="hero-badge"><span class="dot-live"></span>4 套真题 · 逐题实证</div>
-  <h1 style="font-size:clamp(26px,3.2vw,36px)">专项：单词与语法</h1>
-  <p class="lede" style="max-width:790px">
-    输出型 <b>36 分</b>里，拼写和语法是绕不开的两件事。
-    这一页不讲通用方法，只列 4 套卷<b>实际考过的词</b>和<b>实际考过的语法点</b>。
-  </p>
+  <div class="hero-split wide">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>4 套真题 · 逐题实证</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">专项：单词与语法</h1>
+      <p class="lede">
+        输出型 <b>36 分</b>里，拼写和语法是绕不开的两件事。
+        这一页不讲通用方法，只列 4 套卷<b>实际考过的词</b>和<b>实际考过的语法点</b>。
+      </p>
+    </div>
+    <aside class="cockpit">
+      <div class="cockpit-top"><span class="level-pill">专项数据</span></div>
+      <div class="metric-row"><span class="mv accent">16</span><span class="ml"><b>音标词</b>平均 4.4 字母</span></div>
+      <div class="metric-row"><span class="mv accent">16</span><span class="ml"><b>拼写特征类</b>按易错点归并</span></div>
+      <div class="metric-row"><span class="mv rose">12</span><span class="ml"><b>汉译英句</b>每句标语法动作</span></div>
+      <div class="metric-row" style="border-bottom:none"><span class="mv ok">4</span><span class="ml"><b>双重考核族</b>单选 + 汉译英都考</span></div>
+    </aside>
+  </div>
 </section>
 
 
