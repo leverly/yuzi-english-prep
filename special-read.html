@@ -354,6 +354,47 @@ ul.clean li b{color:var(--text);font-weight:650}
 .seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
 .seg-row .sr-l{color:var(--text-2);font-weight:550}
 .seg-row .sr-c{margin-left:auto;color:var(--text-3);font-size:11.8px;white-space:nowrap}
+
+/* 考点族热力矩阵：行 = 族，列 = 学年，格子深浅 = 该年分值 */
+.heat-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow-1)}
+.heat{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;min-width:720px}
+.heat th,.heat td{padding:0;border:none;white-space:nowrap}
+.heat thead th{
+  position:sticky;top:0;z-index:2;background:var(--surface-2);
+  font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.03em;
+  padding:9px 8px;border-bottom:1px solid var(--border-2);text-align:center;
+}
+.heat thead th.hc-fam{text-align:left;padding-left:14px;min-width:168px}
+.heat thead th.hc-avg{text-align:right;padding-right:14px;min-width:96px}
+.heat tbody tr:hover td{background:var(--surface-2)}
+.heat .seg-row-h td{
+  background:var(--bg-3);font-size:11.5px;font-weight:700;color:var(--text-2);
+  padding:7px 14px;letter-spacing:.02em;
+}
+.heat .seg-row-h td .seg-sum{float:right;font-weight:600;color:var(--text-3);font-size:11px}
+.heat .hc-fam-cell{padding:6px 8px 6px 14px;border-bottom:1px solid var(--border)}
+.heat .fam-nm{font-size:12.9px;font-weight:600;color:var(--text);display:block;line-height:1.35}
+.heat .fam-sub{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.heat .hc-cell{padding:4px 5px;border-bottom:1px solid var(--border);text-align:center}
+.heat .cellbox{
+  display:grid;place-items:center;height:30px;border-radius:6px;
+  font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;
+  transition:.14s var(--ease);
+}
+.heat .cellbox.zero{background:transparent;color:var(--text-3);font-weight:500;font-size:11px;opacity:.55}
+.heat .cellbox[data-hl]{color:#fff}
+.heat tbody tr:hover .cellbox:not(.zero){outline:1px solid rgba(37,99,235,.4);outline-offset:-1px}
+.heat .hc-avg-cell{padding:6px 14px 6px 8px;border-bottom:1px solid var(--border);text-align:right}
+.heat .avg-bar{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+.heat .avg-bar i{display:block;height:6px;border-radius:var(--r-pill);background:var(--accent-grad)}
+.heat .avg-bar b{font-size:12.3px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+.heat tbody tr:last-child td{border-bottom:none}
+
+.heat-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:12.2px;color:var(--text-3)}
+.heat-legend .lg-scale{display:flex;align-items:center;gap:3px}
+.heat-legend .lg-scale i{display:block;width:24px;height:11px;border-radius:3px}
+.heat-legend .lg-note{display:inline-flex;align-items:center;gap:5px}
+.heat-legend .lg-zero{display:inline-block;width:24px;height:11px;border-radius:3px;border:1px dashed var(--border-2)}
 .hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
 .hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
@@ -496,6 +537,488 @@ footer b{color:var(--text-2)}
 <div class="note info" style="margin-top:16px">
   <b>细节题占 50%，是阅读选择的一半。</b>
   这类题不需要技巧，需要「回原文找」这个动作——<b>每道题划出证据句</b>，划不出来就是靠猜。
+</div>
+
+</section>
+
+
+<section class="section" id="r-proof">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">真题证据句</span>
+    <h2>60 道阅读题全部标了证据句</h2>
+    <span class="sub">每道题都能指出原文哪一句是依据——这就是「划证据句」这个动作的完整示范</span>
+  </div></div>
+  
+<div class="note info">
+  <b>这一节是本页最实用的部分。</b>下面按题型给出真题示例：题干 → 原文证据句 → 答案。
+  学生做阅读时照这个动作走一遍——<b>划不出证据句的题，就是靠猜</b>。
+</div>
+<div class="grid" style="margin-top:16px;gap:14px">
+<div class="card" style="padding:18px 20px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <span class="tag select">阅读·细节定位</span>
+    <span style="font-size:12.3px;color:var(--text-3)">2021-22 · 第 33 题</span>
+    <span style="margin-left:auto;font-size:12.3px;color:var(--text-3)">A 篇 长颈鹿海报</span>
+  </div>
+  <div style="font-size:13.4px;color:var(--text);margin-bottom:8px"><b>题目：</b>海报信息定位</div>
+  <div style="font-size:13.2px;color:var(--text-2);line-height:1.75;background:var(--accent-soft);padding:11px 14px;border-radius:8px;border-left:3px solid var(--accent)">
+    <b style="color:var(--accent);font-size:12.3px">证据句</b><br>“My Favorite Animal: Giraffe”
+  </div>
+  
+</div><div class="card" style="padding:18px 20px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <span class="tag select">阅读·推断</span>
+    <span style="font-size:12.3px;color:var(--text-3)">2021-22 · 第 38 题</span>
+    <span style="margin-left:auto;font-size:12.3px;color:var(--text-3)">B 篇 撒谎段</span>
+  </div>
+  <div style="font-size:13.4px;color:var(--text);margin-bottom:8px"><b>题目：</b>撒谎动机推断</div>
+  <div style="font-size:13.2px;color:var(--text-2);line-height:1.75;background:var(--accent-soft);padding:11px 14px;border-radius:8px;border-left:3px solid var(--accent)">
+    <b style="color:var(--accent);font-size:12.3px">证据句</b><br>“Nancy is struggling with the math homework but doesn’t want to say so”
+  </div>
+  
+</div><div class="card" style="padding:18px 20px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <span class="tag select">阅读·主旨与标题</span>
+    <span style="font-size:12.3px;color:var(--text-3)">2021-22 · 第 43 题</span>
+    <span style="margin-left:auto;font-size:12.3px;color:var(--text-3)">C 篇 首句+全篇</span>
+  </div>
+  <div style="font-size:13.4px;color:var(--text);margin-bottom:8px"><b>题目：</b>全文主旨</div>
+  <div style="font-size:13.2px;color:var(--text-2);line-height:1.75;background:var(--accent-soft);padding:11px 14px;border-radius:8px;border-left:3px solid var(--accent)">
+    <b style="color:var(--accent);font-size:12.3px">证据句</b><br>“Are friends making you yawn? That’s a good thing. … contagious yawning”
+  </div>
+  
+</div><div class="card" style="padding:18px 20px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <span class="tag write">阅读·简答（检索）</span>
+    <span style="font-size:12.3px;color:var(--text-3)">2021-22 · 第 44 题</span>
+    <span style="margin-left:auto;font-size:12.3px;color:var(--text-3)">简答 首段</span>
+  </div>
+  <div style="font-size:13.4px;color:var(--text);margin-bottom:8px"><b>题目：</b>人们对蚂蚁的感受</div>
+  <div style="font-size:13.2px;color:var(--text-2);line-height:1.75;background:var(--accent-soft);padding:11px 14px;border-radius:8px;border-left:3px solid var(--accent)">
+    <b style="color:var(--accent);font-size:12.3px">证据句</b><br>“Ants are everywhere! We usually feel angry about them”
+  </div>
+  <div style="font-size:13px;color:var(--ok);margin-top:8px"><b>参考答案：</b>We usually feel angry about them</div>
+</div><div class="card" style="padding:18px 20px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <span class="tag write">阅读·简答（概括开放）</span>
+    <span style="font-size:12.3px;color:var(--text-3)">2021-22 · 第 47 题</span>
+    <span style="margin-left:auto;font-size:12.3px;color:var(--text-3)">简答 全文（概括）</span>
+  </div>
+  <div style="font-size:13.4px;color:var(--text);margin-bottom:8px"><b>题目：</b>蚂蚁教给我们什么（概括）</div>
+  <div style="font-size:13.2px;color:var(--text-2);line-height:1.75;background:var(--accent-soft);padding:11px 14px;border-radius:8px;border-left:3px solid var(--accent)">
+    <b style="color:var(--accent);font-size:12.3px">证据句</b><br>“Never give up / Ask for help / Think winter in summer — 三个小标题即三条启示”
+  </div>
+  <div style="font-size:13px;color:var(--ok);margin-top:8px"><b>参考答案：</b>They teach us to never give up, to ask for help, and to plan ahead</div>
+</div><div class="card" style="padding:18px 20px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <span class="tag select">阅读·词义猜测</span>
+    <span style="font-size:12.3px;color:var(--text-3)">2022-23 · 第 41 题</span>
+    <span style="margin-left:auto;font-size:12.3px;color:var(--text-3)">C 篇 第6段</span>
+  </div>
+  <div style="font-size:13.4px;color:var(--text);margin-bottom:8px"><b>题目：</b>at an all-time high 释义</div>
+  <div style="font-size:13.2px;color:var(--text-2);line-height:1.75;background:var(--accent-soft);padding:11px 14px;border-radius:8px;border-left:3px solid var(--accent)">
+    <b style="color:var(--accent);font-size:12.3px">证据句</b><br>“Now my love for running is at an all-time high. … my love for the sport has grown stronger”
+  </div>
+  
+</div><div class="card" style="padding:18px 20px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <span class="tag select">阅读·信息匹配</span>
+    <span style="font-size:12.3px;color:var(--text-3)">2023-24 · 第 33 题</span>
+    <span style="margin-left:auto;font-size:12.3px;color:var(--text-3)">A 篇 Winter Nature Camp</span>
+  </div>
+  <div style="font-size:13.4px;color:var(--text);margin-bottom:8px"><b>题目：</b>匹配：爱动植物 → 自然营</div>
+  <div style="font-size:13.2px;color:var(--text-2);line-height:1.75;background:var(--accent-soft);padding:11px 14px;border-radius:8px;border-left:3px solid var(--accent)">
+    <b style="color:var(--accent);font-size:12.3px">证据句</b><br>“Do you love animals and plants? This is just for you”
+  </div>
+  
+</div>
+</div>
+<div class="note warn" style="margin-top:16px">
+  <b>B 篇 16 题、C 篇 16 题、简答 16 题、A 篇 12 题</b>——
+  证据句分布在三种篇章里，动作完全一样：<b>先定位，再划句，最后比对选项</b>。
+</div>
+
+</section>
+
+
+<section class="section" id="r-all">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">全部证据句</span>
+    <h2>60 题一览</h2>
+    <span class="sub">按年份与题号排列，可当核对表用</span>
+  </div></div>
+  
+<div class="tbl-wrap">
+<table style="font-size:12.8px">
+<thead><tr><th>年份</th><th class="num">题号</th><th>题型</th><th>证据句位置</th><th>原文证据句</th></tr></thead>
+<tbody>
+<tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">33</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 长颈鹿海报</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“My Favorite Animal: Giraffe”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">34</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 豹的海报</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“It can climb trees, sleep on trees and even hunt”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">35</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 壁虎海报</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“It eats mosquitoes (蚊子). That’s why people in my hometown often welcome it”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">36</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 第2段首句</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“On the way home, Nancy and Mary talk about the math homework for that night”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">37</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 电话段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">““I’m bored. What are you up to?” Mary asks, “Do you need any help?””</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">38</td>
+  <td><span class="tag select">阅读·推断</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 撒谎段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Nancy is struggling with the math homework but doesn’t want to say so”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">39</td>
+  <td><span class="tag select">阅读·推断</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 首段+结尾</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Mary, on the other hand, gets an A. … “Of course,” Mary says. “I’m bored. I need something to do.””</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">40</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第2段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Some people yawn when other people do”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">41</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第4段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“It seems to start when children are four or five years old. That is when children start to feel what other people feel”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">42</td>
+  <td><span class="tag select">阅读·推断</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第6段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“It might make them better at skills (技能) with feelings. Being a parent is one of those skills”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">43</td>
+  <td><span class="tag select">阅读·主旨与标题</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 首句+全篇</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Are friends making you yawn? That’s a good thing. … contagious yawning”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">44</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 首段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Ants are everywhere! We usually feel angry about them”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">45</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 Never give up 段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“when something is in front of ants, they do not sit down or become sad? They just keep (保持) going”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">46</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 Ask for help 段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“When a load (负荷) is too big, the ant signals (发信号) to the others for help”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2021-22</td>
+  <td class="num" style="color:var(--text-3)">47</td>
+  <td><span class="tag write">阅读·简答（概括开放）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 全文（概括）</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Never give up / Ask for help / Think winter in summer — 三个小标题即三条启示”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">33</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 Japan 栏</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Children enjoy having rice, fish and miso soup for breakfast”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">34</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 Brazil 栏</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Children eat the foods like cheese, bread and ham (火腿) for breakfast”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">35</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 Italy 栏</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Children eat Italian Frittata. Because it is quick and easy to make, it becomes the perfect meal for the family”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">36</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 首段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">““An invitation (邀请) to my pool party. It’s at two on Saturday.” Sarah said”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">37</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 中段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“But she didn’t want the whole school to find out she couldn’t swim”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">38</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 母亲段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Ava’s mother said, “Sarah is your friend. She won’t care that you can’t swim. You should go.””</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">39</td>
+  <td><span class="tag select">阅读·主旨与标题</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 父亲段+结尾</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">““Just be honest (坦诚的) with Sarah,” her father said. … “Sarah, I have to tell you something.””</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">40</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第2段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Both of my parents ran and they encouraged (鼓励) me to join them from an early age”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">41</td>
+  <td><span class="tag select">阅读·词义猜测</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第6段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Now my love for running is at an all-time high. … my love for the sport has grown stronger”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">42</td>
+  <td><span class="tag select">阅读·推断</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 首段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“running has always been quite an important part of our lives”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">43</td>
+  <td><span class="tag select">阅读·主旨与标题</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 首段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“But my feelings about running seem to change more often than I would like them to”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">44</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 第1段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“They did it using videos taken by some unusual helpers: tiger sharks”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">45</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 第3段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Sea grasses can be hard to see because the water is too deep and not clear enough”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">46</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 第4段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Tracking signals (追踪信号) helped the scientists find the floating cameras”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2022-23</td>
+  <td class="num" style="color:var(--text-3)">47</td>
+  <td><span class="tag write">阅读·简答（概括开放）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 末段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“The research also shows how useful large underwater animals can be in helping to learn more about life under the sea”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">33</td>
+  <td><span class="tag select">阅读·信息匹配</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 Winter Nature Camp</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Do you love animals and plants? This is just for you”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">34</td>
+  <td><span class="tag select">阅读·信息匹配</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 Snow Sports Camp</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“You can also try snowboarding. It’s fast and exciting. … you’ll also meet new friends”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">35</td>
+  <td><span class="tag select">阅读·信息匹配</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 Snow Art Camp</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Do you enjoy making things? … build sculptures out of snow and ice”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">36</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 第1段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Their family has a special tradition—spending summers at Grandma’s”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">37</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 第2段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“There, they find a box. Inside are some old letters”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">38</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 第5段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Emma listens closely and feels warm inside”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">39</td>
+  <td><span class="tag select">阅读·主旨与标题</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 第2+4段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“These letters are like windows, showing how her family has changed over the years”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">40</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第1段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“the best way is by making small changes”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">41</td>
+  <td><span class="tag select">阅读·推断</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第3段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“The good news is that it’s OK to take shorter “exercise breaks” during the day”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">42</td>
+  <td><span class="tag select">阅读·词义猜测</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第5段 上下文</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“there’s nothing wrong with a treat occasionally. A candy bar somehow tastes more special if we treat ourselves from time to time, not every day”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">43</td>
+  <td><span class="tag select">阅读·主旨与标题</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 首段末句</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Here’s the information you need to make healthy habits easy”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">44</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 第2段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“These 12 grapes stand for the 12 months of the year”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">45</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 第3段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“to bring good luck and welcome the New Year”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">46</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 第4段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“In Canada, some people celebrate the new year by jumping into the sea”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2023-24</td>
+  <td class="num" style="color:var(--text-3)">47</td>
+  <td><span class="tag write">阅读·简答（概括开放）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 首段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“There are many ways to celebrate the coming of a new year. … different New Year’s traditions”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">21</td>
+  <td><span class="tag select">阅读·信息匹配</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 Music Journey</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Our music teacher will introduce different kinds of Chinese music to you. She will also teach you how to sing Beijing Opera”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">22</td>
+  <td><span class="tag select">阅读·信息匹配</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 Culture Corner</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“We will learn about life, food and festivals in countries like England, America and Australia”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">23</td>
+  <td><span class="tag select">阅读·信息匹配</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">A 篇 Sports Fun</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“We will hold many exciting events, such as football matches and running races”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">24</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 首段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“She was careful to pick the big and sweet apples only”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">25</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 中段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">““No! ” Molly cried in anger, trying to pull out Sam’s apples”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">26</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 后段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Molly refused to try the sauce at first. Dad held a spoon … and she tasted just a little”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">27</td>
+  <td><span class="tag select">阅读·主旨与标题</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">B 篇 父亲的话</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">““Sometimes mistakes can turn out to be good surprises.””</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">28</td>
+  <td><span class="tag select">阅读·细节定位</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第2段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“When we keep a secret, we must always watch what we say, and it can be very tiring!”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">29</td>
+  <td><span class="tag select">阅读·词义猜测</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 第4段 上下文</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Keeping a shared secret with someone can strengthen the bond with that person. It can make us feel more connected to them”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">30</td>
+  <td><span class="tag select">阅读·主旨与标题</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 末段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“There is no rule on when to keep or share a secret. It is your choice”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">31</td>
+  <td><span class="tag select">阅读·推断</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">C 篇 末段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“if a secret does not make you or anybody else feel bad, it is probably OK to keep it”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">32</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 第1段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“At the beginning of Grade 7, I joined a birdwatching club at my school”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">33</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 第2段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“In my free time, I often watched birds in a park near my home”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">34</td>
+  <td><span class="tag write">阅读·简答（检索）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 第3段</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“Last summer, I went on a ten-day birdwatching trip to Yunnan with the birdwatching club”</td>
+</tr><tr>
+  <td style="color:var(--text-3)">2024-25</td>
+  <td class="num" style="color:var(--text-3)">35</td>
+  <td><span class="tag write">阅读·简答（概括开放）</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">简答 末段（开放）</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“It’s a simple hobby for everyone because you don’t need much to get started. So come and join me!”</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="note" style="margin-top:14px">
+  <b>怎么用这张表：</b>做完整卷后，逐题对照——<b>你划的证据句和表里的是不是同一句？</b>
+  不是同一句但也能推出答案，说明你找到了另一条路径；划不出任何一句，说明这题是靠猜对的，下次未必对。
 </div>
 
 </section>

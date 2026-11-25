@@ -354,6 +354,47 @@ ul.clean li b{color:var(--text);font-weight:650}
 .seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
 .seg-row .sr-l{color:var(--text-2);font-weight:550}
 .seg-row .sr-c{margin-left:auto;color:var(--text-3);font-size:11.8px;white-space:nowrap}
+
+/* 考点族热力矩阵：行 = 族，列 = 学年，格子深浅 = 该年分值 */
+.heat-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow-1)}
+.heat{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;min-width:720px}
+.heat th,.heat td{padding:0;border:none;white-space:nowrap}
+.heat thead th{
+  position:sticky;top:0;z-index:2;background:var(--surface-2);
+  font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.03em;
+  padding:9px 8px;border-bottom:1px solid var(--border-2);text-align:center;
+}
+.heat thead th.hc-fam{text-align:left;padding-left:14px;min-width:168px}
+.heat thead th.hc-avg{text-align:right;padding-right:14px;min-width:96px}
+.heat tbody tr:hover td{background:var(--surface-2)}
+.heat .seg-row-h td{
+  background:var(--bg-3);font-size:11.5px;font-weight:700;color:var(--text-2);
+  padding:7px 14px;letter-spacing:.02em;
+}
+.heat .seg-row-h td .seg-sum{float:right;font-weight:600;color:var(--text-3);font-size:11px}
+.heat .hc-fam-cell{padding:6px 8px 6px 14px;border-bottom:1px solid var(--border)}
+.heat .fam-nm{font-size:12.9px;font-weight:600;color:var(--text);display:block;line-height:1.35}
+.heat .fam-sub{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.heat .hc-cell{padding:4px 5px;border-bottom:1px solid var(--border);text-align:center}
+.heat .cellbox{
+  display:grid;place-items:center;height:30px;border-radius:6px;
+  font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;
+  transition:.14s var(--ease);
+}
+.heat .cellbox.zero{background:transparent;color:var(--text-3);font-weight:500;font-size:11px;opacity:.55}
+.heat .cellbox[data-hl]{color:#fff}
+.heat tbody tr:hover .cellbox:not(.zero){outline:1px solid rgba(37,99,235,.4);outline-offset:-1px}
+.heat .hc-avg-cell{padding:6px 14px 6px 8px;border-bottom:1px solid var(--border);text-align:right}
+.heat .avg-bar{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+.heat .avg-bar i{display:block;height:6px;border-radius:var(--r-pill);background:var(--accent-grad)}
+.heat .avg-bar b{font-size:12.3px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+.heat tbody tr:last-child td{border-bottom:none}
+
+.heat-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:12.2px;color:var(--text-3)}
+.heat-legend .lg-scale{display:flex;align-items:center;gap:3px}
+.heat-legend .lg-scale i{display:block;width:24px;height:11px;border-radius:3px}
+.heat-legend .lg-note{display:inline-flex;align-items:center;gap:5px}
+.heat-legend .lg-zero{display:inline-block;width:24px;height:11px;border-radius:3px;border:1px dashed var(--border-2)}
 .hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
 .hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
@@ -629,128 +670,504 @@ footer b{color:var(--text-2)}
   <div class="section-head"><div class="section-head-left">
     <span class="kicker">④ 考点</span>
     <h2>考点族与权重</h2>
-    <span class="sub">圆点字号 = 四年合计分值；颜色 = 命中次数（蓝 4/4 / 绿 3/4 / 琥珀 更少）</span>
+    <span class="sub">行 = 考点族，列 = 学年，格子深浅 = 该年分值；最右 = 年均分</span>
   </div></div>
   
 
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">听力·选择</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">3 族 · 四年合计 48 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="听力·事实细节｜年均 8.6 分｜4/4 年"
-      style="font-size:22px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">听力·事实细节</span><span class="fam-chip" data-tip="听力·数字与时间｜年均 2.3 分｜3/4 年"
-      style="font-size:17px;color:var(--ok);background:var(--ok-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">听力·数字与时间</span><span class="fam-chip" data-tip="听力·主旨与意图｜年均 1.1 分｜3/4 年"
-      style="font-size:15px;color:var(--ok);background:var(--ok-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">听力·主旨与意图</span>
-  </div>
+<div class="heat-wrap">
+<table class="heat">
+<thead><tr>
+  <th class="hc-fam">考点族</th>
+  <th>2021-22</th><th>2022-23</th><th>2023-24</th><th>2024-25</th>
+  <th class="hc-avg">年均</th>
+</tr></thead>
+<tbody>
+
+<tr class="seg-row-h"><td colspan="6">听力·选择<span class="seg-sum">3 族 · 四年合计 48 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">听力·事实细节</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="听力·事实细节｜2021-22｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="听力·事实细节｜2022-23｜12 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.92);color:#fff">12</span>
+    </td><td class="hc-cell" title="听力·事实细节｜2023-24｜7.5 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.50);color:#fff">7.5</span>
+    </td><td class="hc-cell" title="听力·事实细节｜2024-25｜9 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.72);color:#fff">9</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:44px"></i><b>8.6</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">听力·数字与时间</span>
+    <span class="fam-sub">3/4 年</span>
+  </td>
+  <td class="hc-cell" title="听力·数字与时间｜2021-22｜4.5 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4.5</span>
+    </td><td class="hc-cell" title="听力·数字与时间｜2022-23｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="听力·数字与时间｜2023-24｜3 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">3</span>
+    </td><td class="hc-cell" title="听力·数字与时间｜2024-25｜1.5 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1.5</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:12px"></i><b>2.3</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">听力·主旨与意图</span>
+    <span class="fam-sub">3/4 年</span>
+  </td>
+  <td class="hc-cell" title="听力·主旨与意图｜2021-22｜1.5 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1.5</span>
+    </td><td class="hc-cell" title="听力·主旨与意图｜2022-23｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="听力·主旨与意图｜2023-24｜1.5 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1.5</span>
+    </td><td class="hc-cell" title="听力·主旨与意图｜2024-25｜1.5 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1.5</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:6px"></i><b>1.1</b></span>
+  </td>
+</tr>
+
+<tr class="seg-row-h"><td colspan="6">听力·填词<span class="seg-sum">1 族 · 四年合计 32 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">听力·听写填空</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="听力·听写填空｜2021-22｜8 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.50);color:#fff">8</span>
+    </td><td class="hc-cell" title="听力·听写填空｜2022-23｜8 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.50);color:#fff">8</span>
+    </td><td class="hc-cell" title="听力·听写填空｜2023-24｜8 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.50);color:#fff">8</span>
+    </td><td class="hc-cell" title="听力·听写填空｜2024-25｜8 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.50);color:#fff">8</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:41px"></i><b>8</b></span>
+  </td>
+</tr>
+
+<tr class="seg-row-h"><td colspan="6">单项填空<span class="seg-sum">10 族 · 四年合计 40 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">时态与动词形式</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="时态与动词形式｜2021-22｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="时态与动词形式｜2022-23｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="时态与动词形式｜2023-24｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="时态与动词形式｜2024-25｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:10px"></i><b>2</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">代词</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="代词｜2021-22｜3 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">3</span>
+    </td><td class="hc-cell" title="代词｜2022-23｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="代词｜2023-24｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="代词｜2024-25｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:8px"></i><b>1.5</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">疑问句</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="疑问句｜2021-22｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="疑问句｜2022-23｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="疑问句｜2023-24｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="疑问句｜2024-25｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:8px"></i><b>1.5</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">主谓一致</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="主谓一致｜2021-22｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="主谓一致｜2022-23｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="主谓一致｜2023-24｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="主谓一致｜2024-25｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:8px"></i><b>1.5</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">介词</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="介词｜2021-22｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="介词｜2022-23｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="介词｜2023-24｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="介词｜2024-25｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:7px"></i><b>1.3</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">there be 句型</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="there be 句型｜2021-22｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="there be 句型｜2022-23｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="there be 句型｜2023-24｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="there be 句型｜2024-25｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:5px"></i><b>1</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">连词与逻辑</span>
+    <span class="fam-sub">2/4 年</span>
+  </td>
+  <td class="hc-cell" title="连词与逻辑｜2021-22｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="连词与逻辑｜2022-23｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="连词与逻辑｜2023-24｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="连词与逻辑｜2024-25｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:3px"></i><b>0.5</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">否定句</span>
+    <span class="fam-sub">1/4 年</span>
+  </td>
+  <td class="hc-cell" title="否定句｜2021-22｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="否定句｜2022-23｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="否定句｜2023-24｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="否定句｜2024-25｜未考">
+      <span class="cellbox zero" >—</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:2px"></i><b>0.3</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">情景交际</span>
+    <span class="fam-sub">1/4 年</span>
+  </td>
+  <td class="hc-cell" title="情景交际｜2021-22｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td><td class="hc-cell" title="情景交际｜2022-23｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="情景交际｜2023-24｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="情景交际｜2024-25｜未考">
+      <span class="cellbox zero" >—</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:2px"></i><b>0.3</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">形容词副词辨析</span>
+    <span class="fam-sub">1/4 年</span>
+  </td>
+  <td class="hc-cell" title="形容词副词辨析｜2021-22｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="形容词副词辨析｜2022-23｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="形容词副词辨析｜2023-24｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="形容词副词辨析｜2024-25｜1 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">1</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:2px"></i><b>0.3</b></span>
+  </td>
+</tr>
+
+<tr class="seg-row-h"><td colspan="6">完形·选词<span class="seg-sum">1 族 · 四年合计 16 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">完形·选词填空</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="完形·选词填空｜2021-22｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td><td class="hc-cell" title="完形·选词填空｜2022-23｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td><td class="hc-cell" title="完形·选词填空｜2023-24｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td><td class="hc-cell" title="完形·选词填空｜2024-25｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:20px"></i><b>4</b></span>
+  </td>
+</tr>
+
+<tr class="seg-row-h"><td colspan="6">完形·选择<span class="seg-sum">1 族 · 四年合计 24 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">完形·语境选择</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="完形·语境选择｜2021-22｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="完形·语境选择｜2022-23｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="完形·语境选择｜2023-24｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="完形·语境选择｜2024-25｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:31px"></i><b>6</b></span>
+  </td>
+</tr>
+
+<tr class="seg-row-h"><td colspan="6">阅读·选择<span class="seg-sum">5 族 · 四年合计 88 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">阅读·细节定位</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="阅读·细节定位｜2021-22｜14 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.92);color:#fff">14</span>
+    </td><td class="hc-cell" title="阅读·细节定位｜2022-23｜14 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.92);color:#fff">14</span>
+    </td><td class="hc-cell" title="阅读·细节定位｜2023-24｜8 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.50);color:#fff">8</span>
+    </td><td class="hc-cell" title="阅读·细节定位｜2024-25｜8 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.50);color:#fff">8</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:56px"></i><b>11</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">阅读·主旨与标题</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="阅读·主旨与标题｜2021-22｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="阅读·主旨与标题｜2022-23｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td><td class="hc-cell" title="阅读·主旨与标题｜2023-24｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td><td class="hc-cell" title="阅读·主旨与标题｜2024-25｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:18px"></i><b>3.5</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">阅读·推断</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="阅读·推断｜2021-22｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="阅读·推断｜2022-23｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="阅读·推断｜2023-24｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="阅读·推断｜2024-25｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:15px"></i><b>3</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">阅读·信息匹配</span>
+    <span class="fam-sub">2/4 年</span>
+  </td>
+  <td class="hc-cell" title="阅读·信息匹配｜2021-22｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="阅读·信息匹配｜2022-23｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="阅读·信息匹配｜2023-24｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="阅读·信息匹配｜2024-25｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:15px"></i><b>3</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">阅读·词义猜测</span>
+    <span class="fam-sub">3/4 年</span>
+  </td>
+  <td class="hc-cell" title="阅读·词义猜测｜2021-22｜未考">
+      <span class="cellbox zero" >—</span>
+    </td><td class="hc-cell" title="阅读·词义猜测｜2022-23｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="阅读·词义猜测｜2023-24｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="阅读·词义猜测｜2024-25｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:8px"></i><b>1.5</b></span>
+  </td>
+</tr>
+
+<tr class="seg-row-h"><td colspan="6">阅读·简答<span class="seg-sum">2 族 · 四年合计 32 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">阅读·简答（检索）</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="阅读·简答（检索）｜2021-22｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="阅读·简答（检索）｜2022-23｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="阅读·简答（检索）｜2023-24｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="阅读·简答（检索）｜2024-25｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:31px"></i><b>6</b></span>
+  </td>
+</tr><tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">阅读·简答（概括开放）</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="阅读·简答（概括开放）｜2021-22｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="阅读·简答（概括开放）｜2022-23｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="阅读·简答（概括开放）｜2023-24｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td><td class="hc-cell" title="阅读·简答（概括开放）｜2024-25｜2 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.13);color:var(--accent)">2</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:10px"></i><b>2</b></span>
+  </td>
+</tr>
+
+<tr class="seg-row-h"><td colspan="6">音标填词<span class="seg-sum">1 族 · 四年合计 16 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">音标拼写</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="音标拼写｜2021-22｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td><td class="hc-cell" title="音标拼写｜2022-23｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td><td class="hc-cell" title="音标拼写｜2023-24｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td><td class="hc-cell" title="音标拼写｜2024-25｜4 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">4</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:20px"></i><b>4</b></span>
+  </td>
+</tr>
+
+<tr class="seg-row-h"><td colspan="6">汉译英<span class="seg-sum">1 族 · 四年合计 24 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">汉译英单句</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="汉译英单句｜2021-22｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="汉译英单句｜2022-23｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="汉译英单句｜2023-24｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td><td class="hc-cell" title="汉译英单句｜2024-25｜6 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.30);color:#fff">6</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:31px"></i><b>6</b></span>
+  </td>
+</tr>
+
+<tr class="seg-row-h"><td colspan="6">文段表达<span class="seg-sum">1 族 · 四年合计 40 分</span></td></tr>
+<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">文段表达</span>
+    <span class="fam-sub">4/4 年</span>
+  </td>
+  <td class="hc-cell" title="文段表达｜2021-22｜10 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.72);color:#fff">10</span>
+    </td><td class="hc-cell" title="文段表达｜2022-23｜10 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.72);color:#fff">10</span>
+    </td><td class="hc-cell" title="文段表达｜2023-24｜10 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.72);color:#fff">10</span>
+    </td><td class="hc-cell" title="文段表达｜2024-25｜10 分">
+      <span class="cellbox " data-hl style="background:rgba(37,99,235,.72);color:#fff">10</span>
+    </td>
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:51px"></i><b>10</b></span>
+  </td>
+</tr>
+
+</tbody>
+</table>
 </div>
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">听力·填词</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">1 族 · 四年合计 32 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="听力·听写填空｜年均 8 分｜4/4 年"
-      style="font-size:22px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">听力·听写填空</span>
-  </div>
+<div class="heat-legend">
+  <span class="lg-note"><span class="lg-scale">
+    <i style="background:rgba(37,99,235,.13)"></i><i style="background:rgba(37,99,235,.30)"></i><i style="background:rgba(37,99,235,.50)"></i><i style="background:rgba(37,99,235,.72)"></i><i style="background:rgba(37,99,235,.92)"></i>
+  </span>分值低 → 高（1–14 分/年）</span>
+  <span class="lg-note"><span class="lg-zero"></span>该年未考</span>
+  <span class="lg-note">右侧条形 = 年均分</span>
 </div>
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">单项填空</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">10 族 · 四年合计 40 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="时态与动词形式｜年均 2 分｜4/4 年"
-      style="font-size:16px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">时态与动词形式</span><span class="fam-chip" data-tip="代词｜年均 1.5 分｜4/4 年"
-      style="font-size:16px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">代词</span><span class="fam-chip" data-tip="疑问句｜年均 1.5 分｜4/4 年"
-      style="font-size:16px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">疑问句</span><span class="fam-chip" data-tip="主谓一致｜年均 1.5 分｜4/4 年"
-      style="font-size:16px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">主谓一致</span><span class="fam-chip" data-tip="介词｜年均 1.3 分｜4/4 年"
-      style="font-size:15px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">介词</span><span class="fam-chip" data-tip="there be 句型｜年均 1 分｜4/4 年"
-      style="font-size:15px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">there be 句型</span><span class="fam-chip" data-tip="连词与逻辑｜年均 0.5 分｜2/4 年"
-      style="font-size:14px;color:var(--gold);background:var(--gold-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">连词与逻辑</span><span class="fam-chip" data-tip="否定句｜年均 0.3 分｜1/4 年"
-      style="font-size:13px;color:var(--gold);background:var(--gold-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">否定句</span><span class="fam-chip" data-tip="情景交际｜年均 0.3 分｜1/4 年"
-      style="font-size:13px;color:var(--gold);background:var(--gold-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">情景交际</span><span class="fam-chip" data-tip="形容词副词辨析｜年均 0.3 分｜1/4 年"
-      style="font-size:13px;color:var(--gold);background:var(--gold-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">形容词副词辨析</span>
-  </div>
-</div>
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">完形·选词</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">1 族 · 四年合计 16 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="完形·选词填空｜年均 4 分｜4/4 年"
-      style="font-size:19px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">完形·选词填空</span>
-  </div>
-</div>
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">完形·选择</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">1 族 · 四年合计 24 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="完形·语境选择｜年均 6 分｜4/4 年"
-      style="font-size:20px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">完形·语境选择</span>
-  </div>
-</div>
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">阅读·选择</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">5 族 · 四年合计 88 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="阅读·细节定位｜年均 11 分｜4/4 年"
-      style="font-size:24px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">阅读·细节定位</span><span class="fam-chip" data-tip="阅读·主旨与标题｜年均 3.5 分｜4/4 年"
-      style="font-size:18px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">阅读·主旨与标题</span><span class="fam-chip" data-tip="阅读·推断｜年均 3 分｜4/4 年"
-      style="font-size:18px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">阅读·推断</span><span class="fam-chip" data-tip="阅读·信息匹配｜年均 3 分｜2/4 年"
-      style="font-size:18px;color:var(--gold);background:var(--gold-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">阅读·信息匹配</span><span class="fam-chip" data-tip="阅读·词义猜测｜年均 1.5 分｜3/4 年"
-      style="font-size:16px;color:var(--ok);background:var(--ok-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">阅读·词义猜测</span>
-  </div>
-</div>
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">阅读·简答</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">2 族 · 四年合计 32 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="阅读·简答（检索）｜年均 6 分｜4/4 年"
-      style="font-size:20px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">阅读·简答（检索）</span><span class="fam-chip" data-tip="阅读·简答（概括开放）｜年均 2 分｜4/4 年"
-      style="font-size:16px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">阅读·简答（概括开放）</span>
-  </div>
-</div>
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">音标填词</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">1 族 · 四年合计 16 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="音标拼写｜年均 4 分｜4/4 年"
-      style="font-size:19px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">音标拼写</span>
-  </div>
-</div>
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">汉译英</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">1 族 · 四年合计 24 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="汉译英单句｜年均 6 分｜4/4 年"
-      style="font-size:20px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">汉译英单句</span>
-  </div>
-</div>
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">文段表达</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">1 族 · 四年合计 40 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  <span class="fam-chip" data-tip="文段表达｜年均 10 分｜4/4 年"
-      style="font-size:23px;color:var(--accent);background:var(--accent-soft);padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">文段表达</span>
-  </div>
-</div>
-<div class="note" style="margin-top:4px">
+<div class="note" style="margin-top:16px">
   按<b>板块</b>分组，组内按四年合计分值降序。共 26 个必做考点族，另有 1 个只在选做出现。
+  <b>整行满格</b> = 年年考且分值稳；<b>断续的格子</b> = 轮换项，认识即可。
 </div>
 
 </section>

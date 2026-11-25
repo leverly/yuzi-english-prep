@@ -8,6 +8,7 @@ import {
   PROP_STABILITY, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   WRITE_ITEMS, WRITE_STATS, WRITE_Q_COUNTS, WRITE_Q_RANGE, READ_STATS, READ_ANS_TYPES,
+  READ_EVIDENCE, READ_EVIDENCE_STATS, READ_EVIDENCE_SAMPLES,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_GROUPS, GRAMMAR_DOUBLE,
 } from './work/papers/stats.mjs';
 import { LEDGER, SEG_ORDER, CAT_ORDER, DIFF_ORDER } from './work/papers/ledger.mjs';
@@ -449,6 +450,27 @@ for (const f of ALL_HTML) {
     `提示问题条数合理（${WRITE_Q_COUNTS.join('/')}）`);
   ok(wr.includes(`${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max} 个提示问题`),
     `写作页显示提示问题区间 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max}`);
+}
+
+/* ---------- 10k. 阅读证据句：60 题全覆盖 ---------- */
+{
+  const html = readFileSync('special-read.html', 'utf8');
+  ok(READ_EVIDENCE_STATS.total === 60, `阅读必做 ${READ_EVIDENCE_STATS.total} 题`);
+  ok(READ_EVIDENCE_STATS.annotated === READ_EVIDENCE_STATS.total,
+    `全部 ${READ_EVIDENCE_STATS.total} 题都标了证据句（实为 ${READ_EVIDENCE_STATS.annotated}）`);
+  ok(READ_EVIDENCE.every((e) => e.quote && e.loc), '每条证据句都有 quote 与位置');
+  ok(READ_EVIDENCE.every((e) => e.passage), '每条证据句都标了所属篇章');
+  // 证据句必须上页（抽查前 10 条，避免断言过慢）
+  for (const e of READ_EVIDENCE.slice(0, 10)) {
+    ok(html.includes(e.quote.slice(0, 20)), `证据句「${e.loc}」上页`);
+  }
+  // 题型示例覆盖全部 5 种选择题型 + 2 种简答题型
+  ok(READ_EVIDENCE_SAMPLES.length >= 5, `题型示例 ${READ_EVIDENCE_SAMPLES.length} 条（≥5）`);
+  // 篇章分布合计 = 总数
+  const sumP = READ_EVIDENCE_STATS.byPassage.reduce((a, p) => a + p.count, 0);
+  ok(sumP === READ_EVIDENCE_STATS.total, `篇章分布合计 ${sumP} = ${READ_EVIDENCE_STATS.total}`);
+  // 页面声明覆盖率
+  ok(html.includes(`${READ_EVIDENCE_STATS.annotated} 道阅读题全部标了证据句`), '页面声明 60 题全覆盖');
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */

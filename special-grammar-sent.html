@@ -354,6 +354,47 @@ ul.clean li b{color:var(--text);font-weight:650}
 .seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
 .seg-row .sr-l{color:var(--text-2);font-weight:550}
 .seg-row .sr-c{margin-left:auto;color:var(--text-3);font-size:11.8px;white-space:nowrap}
+
+/* 考点族热力矩阵：行 = 族，列 = 学年，格子深浅 = 该年分值 */
+.heat-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow-1)}
+.heat{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;min-width:720px}
+.heat th,.heat td{padding:0;border:none;white-space:nowrap}
+.heat thead th{
+  position:sticky;top:0;z-index:2;background:var(--surface-2);
+  font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.03em;
+  padding:9px 8px;border-bottom:1px solid var(--border-2);text-align:center;
+}
+.heat thead th.hc-fam{text-align:left;padding-left:14px;min-width:168px}
+.heat thead th.hc-avg{text-align:right;padding-right:14px;min-width:96px}
+.heat tbody tr:hover td{background:var(--surface-2)}
+.heat .seg-row-h td{
+  background:var(--bg-3);font-size:11.5px;font-weight:700;color:var(--text-2);
+  padding:7px 14px;letter-spacing:.02em;
+}
+.heat .seg-row-h td .seg-sum{float:right;font-weight:600;color:var(--text-3);font-size:11px}
+.heat .hc-fam-cell{padding:6px 8px 6px 14px;border-bottom:1px solid var(--border)}
+.heat .fam-nm{font-size:12.9px;font-weight:600;color:var(--text);display:block;line-height:1.35}
+.heat .fam-sub{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.heat .hc-cell{padding:4px 5px;border-bottom:1px solid var(--border);text-align:center}
+.heat .cellbox{
+  display:grid;place-items:center;height:30px;border-radius:6px;
+  font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;
+  transition:.14s var(--ease);
+}
+.heat .cellbox.zero{background:transparent;color:var(--text-3);font-weight:500;font-size:11px;opacity:.55}
+.heat .cellbox[data-hl]{color:#fff}
+.heat tbody tr:hover .cellbox:not(.zero){outline:1px solid rgba(37,99,235,.4);outline-offset:-1px}
+.heat .hc-avg-cell{padding:6px 14px 6px 8px;border-bottom:1px solid var(--border);text-align:right}
+.heat .avg-bar{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+.heat .avg-bar i{display:block;height:6px;border-radius:var(--r-pill);background:var(--accent-grad)}
+.heat .avg-bar b{font-size:12.3px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+.heat tbody tr:last-child td{border-bottom:none}
+
+.heat-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:12.2px;color:var(--text-3)}
+.heat-legend .lg-scale{display:flex;align-items:center;gap:3px}
+.heat-legend .lg-scale i{display:block;width:24px;height:11px;border-radius:3px}
+.heat-legend .lg-note{display:inline-flex;align-items:center;gap:5px}
+.heat-legend .lg-zero{display:inline-block;width:24px;height:11px;border-radius:3px;border:1px dashed var(--border-2)}
 .hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
 .hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}

@@ -18,6 +18,7 @@ import {
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_ACTIONS, SENT_GROUPS, GRAMMAR_DOUBLE,
   WRITE_ITEMS, WRITE_STATS, WRITE_Q_RANGE, READ_ITEMS, READ_STATS, READ_ANS_TYPES,
+  READ_EVIDENCE, READ_EVIDENCE_STATS, READ_EVIDENCE_SAMPLES,
 } from './work/papers/stats.mjs';
 import { LEDGER, CAT_NOTE, FAM_DEFS } from './work/papers/ledger.mjs';
 
@@ -420,6 +421,47 @@ ul.clean li b{color:var(--text);font-weight:650}
 .seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
 .seg-row .sr-l{color:var(--text-2);font-weight:550}
 .seg-row .sr-c{margin-left:auto;color:var(--text-3);font-size:11.8px;white-space:nowrap}
+
+/* 考点族热力矩阵：行 = 族，列 = 学年，格子深浅 = 该年分值 */
+.heat-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow-1)}
+.heat{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;min-width:720px}
+.heat th,.heat td{padding:0;border:none;white-space:nowrap}
+.heat thead th{
+  position:sticky;top:0;z-index:2;background:var(--surface-2);
+  font-size:11px;font-weight:700;color:var(--text-3);letter-spacing:.03em;
+  padding:9px 8px;border-bottom:1px solid var(--border-2);text-align:center;
+}
+.heat thead th.hc-fam{text-align:left;padding-left:14px;min-width:168px}
+.heat thead th.hc-avg{text-align:right;padding-right:14px;min-width:96px}
+.heat tbody tr:hover td{background:var(--surface-2)}
+.heat .seg-row-h td{
+  background:var(--bg-3);font-size:11.5px;font-weight:700;color:var(--text-2);
+  padding:7px 14px;letter-spacing:.02em;
+}
+.heat .seg-row-h td .seg-sum{float:right;font-weight:600;color:var(--text-3);font-size:11px}
+.heat .hc-fam-cell{padding:6px 8px 6px 14px;border-bottom:1px solid var(--border)}
+.heat .fam-nm{font-size:12.9px;font-weight:600;color:var(--text);display:block;line-height:1.35}
+.heat .fam-sub{font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.heat .hc-cell{padding:4px 5px;border-bottom:1px solid var(--border);text-align:center}
+.heat .cellbox{
+  display:grid;place-items:center;height:30px;border-radius:6px;
+  font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;
+  transition:.14s var(--ease);
+}
+.heat .cellbox.zero{background:transparent;color:var(--text-3);font-weight:500;font-size:11px;opacity:.55}
+.heat .cellbox[data-hl]{color:#fff}
+.heat tbody tr:hover .cellbox:not(.zero){outline:1px solid rgba(37,99,235,.4);outline-offset:-1px}
+.heat .hc-avg-cell{padding:6px 14px 6px 8px;border-bottom:1px solid var(--border);text-align:right}
+.heat .avg-bar{display:flex;align-items:center;gap:7px;justify-content:flex-end}
+.heat .avg-bar i{display:block;height:6px;border-radius:var(--r-pill);background:var(--accent-grad)}
+.heat .avg-bar b{font-size:12.3px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+.heat tbody tr:last-child td{border-bottom:none}
+
+.heat-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:12.2px;color:var(--text-3)}
+.heat-legend .lg-scale{display:flex;align-items:center;gap:3px}
+.heat-legend .lg-scale i{display:block;width:24px;height:11px;border-radius:3px}
+.heat-legend .lg-note{display:inline-flex;align-items:center;gap:5px}
+.heat-legend .lg-zero{display:inline-block;width:24px;height:11px;border-radius:3px;border:1px dashed var(--border-2)}
 .hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
 .hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
@@ -780,27 +822,63 @@ ${SEG_ORDER.map((k) => {
     return distBar(DIFF_NAME[k], DIFF_SCORE[k].avg, MAIN_TOTAL, ' 分', cls);
   }).join('');
 
-  // ④ 考点族（按板块分组）
+  // ④ 考点族热力矩阵：行 = 族（按板块分组），列 = 学年，格子深浅 = 该年分值
+  // 用 per 数组（每年的分值），这是气泡云完全没用上的信息。
   const famBySeg = SEG_ORDER.map((seg) => {
     const fams = FAM_RANKED.filter((f) => f.seg.includes(seg)).sort((a, b) => b.total - a.total);
     return { seg, name: SEG_NAME[seg], fams, total: sum(fams.map((f) => f.total)) };
   }).filter((g) => g.fams.length);
 
-  const famCloud = famBySeg.map((g) => `
-<div class="card" style="margin-bottom:12px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-    <h3 style="margin:0">${esc(g.name)}</h3>
-    <span style="font-size:12.3px;color:var(--text-3)">${g.fams.length} 族 · ${SPAN_CN}年合计 ${fmt(g.total)} 分</span>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px">
-  ${g.fams.map((f) => {
-    const size = Math.round(11 + Math.sqrt(f.total) * 1.9);
-    const color = f.hit === N_PAPERS ? 'var(--accent)' : f.hit >= FREQ_RULE.often ? 'var(--ok)' : 'var(--gold)';
-    return `<span class="fam-chip" data-tip="${esc(f.name)}｜年均 ${fmt(f.avgPerYear)} 分｜${f.hit}/${N_PAPERS} 年"
-      style="font-size:${size}px;color:${color};background:${f.hit === N_PAPERS ? 'var(--accent-soft)' : f.hit >= FREQ_RULE.often ? 'var(--ok-soft)' : 'var(--gold-soft)'};padding:4px 11px;border-radius:var(--r-pill);font-weight:650;cursor:default">${esc(f.name)}</span>`;
+  // 色阶：按非零分值分 5 档，最深 = 满分格（14 分）
+  const allVals = FAM_RANKED.flatMap((f) => f.per).filter((v) => v > 0);
+  const V_MAX = Math.max(...allVals);
+  const V_MIN = Math.min(...allVals);
+  const heatLevel = (v) => {
+    if (v <= 0) return 0;
+    const t = (v - V_MIN) / (V_MAX - V_MIN || 1);      // 0..1
+    return 1 + Math.min(4, Math.floor(t * 5));          // 1..5
+  };
+  // 5 档蓝色，越深分值越高
+  const HEAT_BG = ['', 'rgba(37,99,235,.13)', 'rgba(37,99,235,.30)', 'rgba(37,99,235,.50)', 'rgba(37,99,235,.72)', 'rgba(37,99,235,.92)'];
+  const HEAT_FG = ['', 'var(--accent)', '#fff', '#fff', '#fff', '#fff'];
+
+  const famHeat = `
+<div class="heat-wrap">
+<table class="heat">
+<thead><tr>
+  <th class="hc-fam">考点族</th>
+  ${YEARS.map((y) => `<th>${y}</th>`).join('')}
+  <th class="hc-avg">年均</th>
+</tr></thead>
+<tbody>
+${famBySeg.map((g) => `
+<tr class="seg-row-h"><td colspan="${YEARS.length + 2}">${esc(g.name)}<span class="seg-sum">${g.fams.length} 族 · ${SPAN_CN}年合计 ${fmt(g.total)} 分</span></td></tr>
+${g.fams.map((f) => `<tr>
+  <td class="hc-fam-cell">
+    <span class="fam-nm">${esc(f.name)}</span>
+    <span class="fam-sub">${f.hit}/${N_PAPERS} 年</span>
+  </td>
+  ${f.per.map((v, i) => {
+    const lv = heatLevel(v);
+    return `<td class="hc-cell" title="${esc(f.name)}｜${YEARS[i]}｜${v > 0 ? fmt(v) + ' 分' : '未考'}">
+      <span class="cellbox ${v > 0 ? '' : 'zero'}" ${v > 0 ? `data-hl style="background:${HEAT_BG[lv]};color:${HEAT_FG[lv]}"` : ''}>${v > 0 ? fmt(v) : '—'}</span>
+    </td>`;
   }).join('')}
-  </div>
-</div>`).join('');
+  <td class="hc-avg-cell">
+    <span class="avg-bar"><i style="width:${Math.round((f.avgPerYear / Math.max(...FAM_RANKED.map((x) => x.avgPerYear))) * 56)}px"></i><b>${fmt(f.avgPerYear)}</b></span>
+  </td>
+</tr>`).join('')}
+`).join('')}
+</tbody>
+</table>
+</div>
+<div class="heat-legend">
+  <span class="lg-note"><span class="lg-scale">
+    ${[1, 2, 3, 4, 5].map((lv) => `<i style="background:${HEAT_BG[lv]}"></i>`).join('')}
+  </span>分值低 → 高（${fmt(V_MIN)}–${fmt(V_MAX)} 分/年）</span>
+  <span class="lg-note"><span class="lg-zero"></span>该年未考</span>
+  <span class="lg-note">右侧条形 = 年均分</span>
+</div>`;
 
   // ⑤ 逐卷明细卡
   const paperCards = PAPER_STATS.map((p) => {
@@ -905,10 +983,11 @@ ${section('③ 难度', '难度三级分布', `按分值与题量两种口径统
 </div>
 `)}
 
-${section('④ 考点', '考点族与权重', `圆点字号 = ${SPAN_CN}年合计分值；颜色 = 命中次数（蓝 ${N_PAPERS}/${N_PAPERS} / 绿 ${FREQ_RULE.often}/${N_PAPERS} / 琥珀 更少）`, `
-${famCloud}
-<div class="note" style="margin-top:4px">
+${section('④ 考点', '考点族与权重', `行 = 考点族，列 = 学年，格子深浅 = 该年分值；最右 = 年均分`, `
+${famHeat}
+<div class="note" style="margin-top:16px">
   按<b>板块</b>分组，组内按${SPAN_CN}年合计分值降序。共 ${FAM_RANKED.length} 个必做考点族${FAM_MAP.some((f) => f.onlyBonus) ? `，另有 ${FAM_MAP.filter((f) => f.onlyBonus).length} 个只在选做出现` : ''}。
+  <b>整行满格</b> = 年年考且分值稳；<b>断续的格子</b> = 轮换项，认识即可。
 </div>
 `)}
 
@@ -1715,6 +1794,52 @@ ${section('题型分布', `阅读选择 ${selTotal} 题怎么分`, '四年合计
   这类题不需要技巧，需要「回原文找」这个动作——<b>每道题划出证据句</b>，划不出来就是靠猜。
 </div>
 `, 'r-evidence')}
+
+${section('真题证据句', `${READ_EVIDENCE_STATS.annotated} 道阅读题全部标了证据句`, '每道题都能指出原文哪一句是依据——这就是「划证据句」这个动作的完整示范', `
+<div class="note info">
+  <b>这一节是本页最实用的部分。</b>下面按题型给出真题示例：题干 → 原文证据句 → 答案。
+  学生做阅读时照这个动作走一遍——<b>划不出证据句的题，就是靠猜</b>。
+</div>
+<div class="grid" style="margin-top:16px;gap:14px">
+${READ_EVIDENCE_SAMPLES.map((e) => `<div class="card" style="padding:18px 20px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <span class="tag ${e.seg === '阅读简答' ? 'write' : 'select'}">${esc(e.famName)}</span>
+    <span style="font-size:12.3px;color:var(--text-3)">${esc(PAPER_STATS.find((p) => p.id === e.p).label)} · 第 ${e.no} 题</span>
+    <span style="margin-left:auto;font-size:12.3px;color:var(--text-3)">${esc(e.loc)}</span>
+  </div>
+  <div style="font-size:13.4px;color:var(--text);margin-bottom:8px"><b>题目：</b>${esc(e.topic)}</div>
+  <div style="font-size:13.2px;color:var(--text-2);line-height:1.75;background:var(--accent-soft);padding:11px 14px;border-radius:8px;border-left:3px solid var(--accent)">
+    <b style="color:var(--accent);font-size:12.3px">证据句</b><br>“${esc(e.quote)}”
+  </div>
+  ${e.refAns ? `<div style="font-size:13px;color:var(--ok);margin-top:8px"><b>参考答案：</b>${esc(e.refAns)}</div>` : ''}
+</div>`).join('')}
+</div>
+<div class="note warn" style="margin-top:16px">
+  <b>${READ_EVIDENCE_STATS.byPassage.map((p) => `${esc(p.name)} ${p.count} 题`).join('、')}</b>——
+  证据句分布在三种篇章里，动作完全一样：<b>先定位，再划句，最后比对选项</b>。
+</div>
+`, 'r-proof')}
+
+${section('全部证据句', `${READ_EVIDENCE_STATS.total} 题一览`, '按年份与题号排列，可当核对表用', `
+<div class="tbl-wrap">
+<table style="font-size:12.8px">
+<thead><tr><th>年份</th><th class="num">题号</th><th>题型</th><th>证据句位置</th><th>原文证据句</th></tr></thead>
+<tbody>
+${READ_EVIDENCE.map((e) => `<tr>
+  <td style="color:var(--text-3)">${esc(PAPER_STATS.find((p) => p.id === e.p).label)}</td>
+  <td class="num" style="color:var(--text-3)">${e.no}</td>
+  <td><span class="tag ${e.seg === '阅读简答' ? 'write' : 'select'}">${esc(e.famName)}</span></td>
+  <td class="wrap-cell" style="color:var(--text-3)">${esc(e.loc)}</td>
+  <td class="wrap-cell" style="font-size:12.4px;color:var(--text-2)">“${esc(e.quote)}”</td>
+</tr>`).join('')}
+</tbody>
+</table>
+</div>
+<div class="note" style="margin-top:14px">
+  <b>怎么用这张表：</b>做完整卷后，逐题对照——<b>你划的证据句和表里的是不是同一句？</b>
+  不是同一句但也能推出答案，说明你找到了另一条路径；划不出任何一句，说明这题是靠猜对的，下次未必对。
+</div>
+`, 'r-all')}
 
 ${section('解题与备考', '按题型给动作，不背「阅读技巧」', '五种题型，五种动作', `
 <div class="tbl-wrap">
