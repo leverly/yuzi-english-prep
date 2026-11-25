@@ -367,3 +367,130 @@ export const BOOK_PROGRESS = {
   done: BOOK_TARGET_FAMS.filter((f) => TEXTBOOK.famToModule[f.id]).length,
   pct: Math.round((BOOK_TARGET_FAMS.filter((f) => TEXTBOOK.famToModule[f.id]).length / BOOK_TARGET_FAMS.length) * 100),
 };
+
+/* ============================ 单词专项 ============================ */
+// 音标填词 16 词：全卷唯一「范围明确、题型固定」的产出点
+export const SPELL_ITEMS = LEDGER
+  .filter((q) => q.seg === '音标填词' && !q.bonus)
+  .map((q) => ({
+    p: q.p,
+    no: q.no,
+    word: q.topic,
+    ipa: q.ipa,
+    sent: q.sent,
+    feats: q.spell || [],
+    len: q.topic.length,
+  }));
+
+// 按拼写特征聚合：一个词可能同时属于多类
+export const SPELL_FEATURES = (() => {
+  const map = new Map();
+  for (const it of SPELL_ITEMS) {
+    for (const f of it.feats) {
+      if (!map.has(f)) map.set(f, []);
+      map.get(f).push(it);
+    }
+  }
+  return [...map.entries()]
+    .map(([name, items]) => ({ name, items, count: items.length }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh'));
+})();
+
+export const SPELL_STATS = {
+  total: SPELL_ITEMS.length,
+  perPaper: SPELL_ITEMS.length / N_PAPERS,
+  avgLen: +(SPELL_ITEMS.reduce((a, i) => a + i.len, 0) / SPELL_ITEMS.length).toFixed(1),
+  maxLen: Math.max(...SPELL_ITEMS.map((i) => i.len)),
+  minLen: Math.min(...SPELL_ITEMS.map((i) => i.len)),
+  featureCount: SPELL_FEATURES.length,
+};
+
+// 要「拼写」的板块（由 mode 派生，不手写）
+export const SPELL_SEGMENTS = SEG_ORDER
+  .filter((s) => {
+    const qs = LEDGER.filter((q) => q.seg === s && !q.bonus);
+    return qs.length && qs.every((q) => q.mode === 'write');
+  })
+  .map((s) => ({ k: s, name: SEG_NAME[s], score: SEG_SCORE[s].avg, count: PAPER_STATS[0].segN[s] || 0 }));
+
+export const SPELL_TOTAL = +(MODE_SCORE.write.avg).toFixed(1);
+
+/* ============================ 语法专项 ============================ */
+// 语法族只在单选出现，但同一能力在输出题里被二次考核。
+export const GRAMMAR_FAMS = FAM_MAP
+  .filter((f) => f.seg.includes('单选') && !f.onlyBonus)
+  .map((f) => ({
+    id: f.id,
+    name: f.name,
+    per: f.per,
+    hit: f.hit,
+    total: f.total,
+    avgPerYear: f.avgPerYear,
+    level: f.hit === N_PAPERS ? 'stable' : f.hit >= Math.ceil(N_PAPERS / 2) ? 'variable' : 'sporadic',
+  }))
+  .sort((a, b) => b.hit - a.hit || b.avgPerYear - a.avgPerYear);
+
+// 汉译英 12 句：语法真正被「写」出来的地方
+export const SENT_ITEMS = LEDGER
+  .filter((q) => q.seg === '汉译英' && !q.bonus)
+  .map((q) => ({
+    p: q.p,
+    no: q.no,
+    zh: q.zh,
+    hint: q.hint,
+    acts: q.acts || [],
+    ans: q.ans,
+  }));
+
+// 语法动作频次：把 acts 拆开统计
+export const SENT_ACTIONS = (() => {
+  const map = new Map();
+  for (const it of SENT_ITEMS) {
+    for (const a of it.acts) {
+      if (!map.has(a)) map.set(a, []);
+      map.get(a).push(it);
+    }
+  }
+  return [...map.entries()]
+    .map(([name, items]) => ({ name, items, count: items.length }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh'));
+})();
+
+// 把动作归成「大类」，用于排优先级（动作名不同但训练方式相同的合并）
+const ACT_GROUP = [
+  { id: 'tense', label: '时态', test: (a) => /时态|现在进行/.test(a) },
+  { id: 'agree', label: '主谓一致', test: (a) => /主谓一致/.test(a) },
+  { id: 'colloc', label: '固定搭配', test: (a) => /^固定搭配/.test(a) },
+  { id: 'pattern', label: '固定句式', test: (a) => /固定句式|It is time|It is \+ adj/.test(a) },
+  { id: 'therebe', label: 'there be', test: (a) => /there be/.test(a) },
+  { id: 'other', label: '其他（量词/副词）', test: () => true },
+];
+export const SENT_GROUPS = ACT_GROUP.map((g) => {
+  const items = [];
+  for (const it of SENT_ITEMS) {
+    if (it.acts.some(g.test)) items.push(it);
+  }
+  return { id: g.id, label: g.label, items, count: items.length };
+}).filter((g) => g.count > 0 && g.id !== 'other');
+
+// 单选 + 汉译英 合并看：同一语法能力的两次考核
+export const GRAMMAR_DOUBLE = GRAMMAR_FAMS.map((f) => {
+  const test = {
+    'f-tense': (a) => /时态|现在进行/.test(a),
+    'f-agree': (a) => /主谓一致/.test(a),
+    'f-therebe': (a) => /there be/.test(a),
+    'f-prep': (a) => /be bad for/.test(a),
+    'f-conj': () => false,
+    'f-pron': () => false,
+    'f-whq': () => false,
+    'f-neg': () => false,
+    'f-adjadv': () => false,
+    'f-comm': () => false,
+  }[f.id] || (() => false);
+  const writeHits = SENT_ITEMS.filter((it) => it.acts.some(test));
+  return {
+    ...f,
+    writeHits: writeHits.length,
+    doubleTested: writeHits.length > 0,
+  };
+}).sort((a, b) => (b.writeHits - a.writeHits) || (b.hit - a.hit));

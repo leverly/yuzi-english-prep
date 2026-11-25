@@ -6,11 +6,15 @@ import {
   PAPER_STATS, YEARS, N_PAPERS, SEG_SCORE, CAT_SCORE, DIFF_SCORE, MODE_SCORE,
   FAM_MAP, FREQ_SUMMARY,
   BOOK_STATUS, BOOK_PROGRESS, PROP_STABILITY, PROP_SUMMARY, GRAMMAR_YEARLY,
+  SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
+  GRAMMAR_FAMS, SENT_ITEMS, SENT_GROUPS, GRAMMAR_DOUBLE,
 } from './work/papers/stats.mjs';
 import { LEDGER, SEG_ORDER, CAT_ORDER, DIFF_ORDER } from './work/papers/ledger.mjs';
 
 const sum = (a) => a.reduce((x, y) => x + y, 0);
 const fmt = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
+
+const ALL_PAGES = ['index.html', 'papers.html', 'trend.html', 'special.html', 'book.html', 'plan.html'];
 
 let fail = 0;
 const ok = (cond, msg) => {
@@ -86,7 +90,7 @@ checkIn('index.html', [
 
 /* ---------- 7. 不许出现的硬编码谎话 ---------- */
 // 样本只有 3 套，任何「五年」「4 套」都是错的
-for (const f of ['index.html', 'papers.html', 'trend.html', 'plan.html']) {
+for (const f of ALL_PAGES) {
   const html = readFileSync(f, 'utf8');
   // 套数/学年数只能等于 N_PAPERS。
   // 只拦「样本量」口径的说法（样本 N 套 / 共 N 套 / 只有 N 套），
@@ -179,7 +183,7 @@ for (const k of DIFF_ORDER) {
 
 /* ---------- 10b. 不得残留未渲染的模板占位符 ---------- */
 // 单引号字符串里的 ${...} 不会插值，会原样输出到页面。
-for (const f of ['index.html', 'papers.html', 'trend.html', 'plan.html']) {
+for (const f of ALL_PAGES) {
   const html = readFileSync(f, 'utf8');
   const left = html.match(/\$\{[A-Za-z_][A-Za-z0-9_]*\}/g) || [];
   ok(left.length === 0, `${f} 无未渲染的模板占位符（发现 ${left.length} 处${left.length ? '：' + [...new Set(left)].join(', ') : ''}）`);
@@ -216,9 +220,62 @@ for (const f of ['index.html', 'papers.html', 'trend.html', 'plan.html']) {
   }
 }
 
+/* ---------- 10e. 专项页：数字必须能追溯到台账 ---------- */
+{
+  const html = readFileSync('special.html', 'utf8');
+
+  // 音标词：16 个全部出现在页面上，且 IPA 与答案成对
+  ok(SPELL_ITEMS.length === 16, `音标词 ${SPELL_ITEMS.length} 个（四套 × 4 题）`);
+  for (const it of SPELL_ITEMS) {
+    ok(html.includes(it.word) && html.includes(it.ipa), `音标「${it.word} ${it.ipa}」出现在页面上`);
+  }
+  ok(SPELL_ITEMS.every((i) => i.ipa && i.sent && i.feats.length),
+    '每个音标词都有 IPA、句子原境、拼写特征');
+
+  // 拼写特征覆盖必须完整：每个词至少 1 类
+  ok(SPELL_FEATURES.length >= 5, `拼写特征 ${SPELL_FEATURES.length} 类（≥5）`);
+  const covered = new Set(SPELL_FEATURES.flatMap((f) => f.items.map((i) => i.word)));
+  ok(covered.size === SPELL_ITEMS.length, `全部 ${SPELL_ITEMS.length} 个词都被特征覆盖（${covered.size}）`);
+
+  // 汉译英：12 句全部上页，且每句有中文、动作、答案
+  ok(SENT_ITEMS.length === 12, `汉译英 ${SENT_ITEMS.length} 句（四套 × 3 题）`);
+  ok(SENT_ITEMS.every((i) => i.zh && i.acts.length && i.ans), '每句汉译英都有中文、语法动作、参考答案');
+  for (const it of SENT_ITEMS) ok(html.includes(it.zh), `汉译英「${it.zh}」出现在页面上`);
+
+  // 语法双重考核：汉译英里出现的族必须真的在 SENT_ITEMS 里
+  for (const g of GRAMMAR_DOUBLE.filter((x) => x.writeHits > 0)) {
+    ok(g.writeHits <= SENT_ITEMS.length, `「${g.name}」汉译英 ${g.writeHits} 句 ≤ ${SENT_ITEMS.length}`);
+  }
+  const doubleN = GRAMMAR_DOUBLE.filter((x) => x.writeHits > 0).length;
+  ok(html.includes(`${doubleN} 个族是「双重考核」`), `页面声明双重考核 ${doubleN} 个族`);
+
+  // 写死数字排查
+  ok(html.includes(`${SPELL_STATS.total} 个词`), `页面显示音标词数 ${SPELL_STATS.total}`);
+  ok(html.includes(`平均 ${SPELL_STATS.avgLen} 个字母`), `页面显示平均字母数 ${SPELL_STATS.avgLen}`);
+}
+
+/* ---------- 10f. 2024-25 卷题号必须分段重编，不得沿用连续编号 ---------- */
+{
+  // 该卷听力后重新编号：单选 1-10、完形 11-20、阅读 21-35、音标 36-39、汉译英 40-42、作文 43、选做 44-50
+  const q = LEDGER.filter((x) => x.p === 'p2425');
+  const segNums = {};
+  for (const x of q) { (segNums[x.seg] = segNums[x.seg] || []).push(x.no); }
+  const check = (seg, expect) => {
+    const got = [...new Set(segNums[seg] || [])].sort((a, b) => a - b);
+    ok(JSON.stringify(got) === JSON.stringify(expect), `p2425 ${seg} 题号为 ${expect.join(',')}（实为 ${got.join(',')}）`);
+  };
+  check('单选', [1,2,3,4,5,6,7,8,9,10]);
+  check('完形选词', [11,12,13,14]);
+  check('完形选择', [15,16,17,18,19,20]);
+  check('阅读简答', [32,33,34,35]);
+  check('音标填词', [36,37,38,39]);
+  check('汉译英', [40,41,42]);
+  check('文段表达', [43]);
+}
+
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */
 // esc() 不解析 Markdown，漏网的 ** 会原样显示成星号。
-for (const f of ['index.html', 'papers.html', 'trend.html', 'plan.html']) {
+for (const f of ALL_PAGES) {
   const html = readFileSync(f, 'utf8');
   const n = (html.match(/\*\*/g) || []).length;
   ok(n === 0, `${f} 无裸 Markdown 星号（发现 ${n} 处）`);
