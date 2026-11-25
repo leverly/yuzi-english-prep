@@ -7,8 +7,7 @@ import {
   FAM_MAP, FREQ_SUMMARY,
   PROP_STABILITY, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
-  WRITE_ITEMS, WRITE_STATS, WRITE_Q_COUNTS, WRITE_Q_RANGE, READ_STATS, READ_ANS_TYPES,
-  READ_EVIDENCE, READ_EVIDENCE_STATS, READ_EVIDENCE_SAMPLES,
+  WRITE_ITEMS, WRITE_STATS, WRITE_Q_COUNTS, WRITE_Q_RANGE, READ_STATS, READ_ANS_TYPES, READ_ITEMS,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_GROUPS, GRAMMAR_DOUBLE,
 } from './work/papers/stats.mjs';
 import { LEDGER, SEG_ORDER, CAT_ORDER, DIFF_ORDER } from './work/papers/ledger.mjs';
@@ -583,36 +582,34 @@ for (const f of ALL_HTML) {
   ok(/\.quiz-item\s+\.qi-ans\{[^}]*display:\s*none/.test(html), '答案默认隐藏，判错后才显示');
 }
 
-/* ---------- 10k. 阅读证据句：两节必须在，且必须是真实题干 + 完整句 ---------- */
-// 历史：2026-11-25 曾因两个缺陷删除本功能——
-//   ① 卡片上的「题目」是分类标签（「海报信息定位」），不是题干，学生无法自测
-//   ② 证据句用「…」拼接，作为「示范」本身就是错的
-// 两个缺陷已修：ledger 补 stemText（73 题真实题干）、evQuote 全部换成完整原文句。
-// 本断言把这个标准固定下来，防止再退化成标签或拼接句。
+/* ---------- 10k. 专项页只留可用内容，不留过程产物 ---------- */
+// 用户要求：专项页只要「解题 / 备考方法与技巧」，证据、清单等过程产物删掉。
+// 保留的「真题练手」用真实题干，学生能直接做题。
 {
-  const html = readFileSync('special-read.html', 'utf8');
+  const read = readFileSync('special-read.html', 'utf8');
+  // 不得出现「证据」类元叙述
+  ok(!read.includes('真题证据句') && !read.includes('全部证据句'), '阅读页不含「证据句」类过程产物');
+  // 练手节必须用真实题干
+  ok(read.includes('拿真题练手'), '阅读页有「拿真题练手」节');
+  const withStem = READ_ITEMS.filter((q) => q.stemText);
+  ok(withStem.length === READ_ITEMS.length,
+    `全部 ${READ_ITEMS.length} 道阅读题都有真实题干（${withStem.length}）`);
 
-  ok(html.includes('真题证据句'), '阅读页有「真题证据句」节');
-  ok(html.includes('题干'), '证据句卡片标的是「题干」不是分类标签');
+  // 题干不得混入答案区 / 大题标题 / 说明文字（提抖动过的坑）
+  const polluted = READ_ITEMS.filter((q) => q.stemText && /###|十一、|本试卷|试题答案|（共 \d+ 分）|^\w+ \d{2}\./.test(q.stemText));
+  ok(polluted.length === 0,
+    `题干不得混入答案区或说明文字（发现 ${polluted.length} 条${polluted.length ? '：' + polluted.slice(0, 3).map((q) => q.no).join(',') : ''}）`);
 
-  // 每条样本必须有 stemText（真实题干），且不能是分类标签那种短名词
-  const noStem = READ_EVIDENCE.filter((e) => !e.stemText);
-  ok(noStem.length === 0, `全部 ${READ_EVIDENCE.length} 条证据句都有真实题干（缺 ${noStem.length}）`);
+  // 题干长度上限：超过 130 字符多半把选项或下一题也带进来了
+  const tooLong = READ_ITEMS.filter((q) => q.stemText && q.stemText.length > 130);
+  ok(tooLong.length === 0, `题干超过 130 字符的：${tooLong.length} 条`);
 
-  // 题干必须像题干：含问号 / 填空线 / 祈使句，且不短于 12 字符
-  const badStem = READ_EVIDENCE.filter((e) => e.stemText && (e.stemText.length < 12));
-  ok(badStem.length === 0, `题干部过短（<12 字符）的：${badStem.length} 条`);
-
-  // ⚠ 这一条是核心：证据句不得用省略号拼接
-  const ell = READ_EVIDENCE.filter((e) => e.quote.includes('…'));
-  ok(ell.length === 0, `证据句不得用「…」拼接（实为 ${ell.length} 条${ell.length ? '：' + ell.slice(0, 3).map((e) => e.no).join(',') : ''}）`);
-
-  // 证据句必须足够长，能用来自证（短于 15 字符的多半是短语不是句子）
-  const tooShort = READ_EVIDENCE.filter((e) => e.quote.length < 15);
-  ok(tooShort.length === 0, `证据句短于 15 字符的：${tooShort.length} 条`);
-
-  // 「划证据句」这个动作指令必须还在
-  ok(html.includes('划出证据句') || html.includes('划证据句') || html.includes('找一句能推出答案'), '阅读页保留「划证据句」动作指令');
+  // 四个部分页都必须有「解题与备考」——这才是用户要的内容
+  for (const f of ['special-word.html', 'special-grammar.html', 'special-grammar-fam.html', 'special-grammar-sent.html', 'special-read.html', 'special-write.html']) {
+    const h = readFileSync(f, 'utf8');
+    ok(h.includes('解题') || h.includes('备考'), `${f} 含解题/备考内容`);
+    ok(!h.includes('真题证据') && !h.includes('逐族证据'), `${f} 不含「证据」类元叙述`);
+  }
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */

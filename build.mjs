@@ -18,7 +18,6 @@ import {
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_ACTIONS, SENT_GROUPS, GRAMMAR_DOUBLE,
   WRITE_ITEMS, WRITE_STATS, WRITE_Q_RANGE, READ_ITEMS, READ_STATS, READ_ANS_TYPES,
-  READ_EVIDENCE, READ_EVIDENCE_STATS, READ_EVIDENCE_SAMPLES,
 } from './work/papers/stats.mjs';
 import { LEDGER, CAT_NOTE, FAM_DEFS } from './work/papers/ledger.mjs';
 
@@ -1326,7 +1325,7 @@ function buildSpecial() {
 ${specialHead(
     `${N_PAPERS} 套真题 · 四部分逐题实证`,
     '专项复习',
-    `四部分各一页，每页都给 <b>真题证据 → 解题方法 → 备考动作</b>；语法再分两级。`,
+    `四部分各一页，每页都给 <b>解题方法 → 真题练手 → 备考动作</b>；语法再分两级。`,
     `<div class="cockpit-top"><span class="level-pill">四部分分值</span></div>
       <div class="metric-strip">
         <div class="ms-item"><span class="ms-n">${fmt(partScore.word)}</span><span class="ms-l">单词<small>音标 ${fmt(SEG_SCORE['音标填词'].avg)} + 听填 ${fmt(SEG_SCORE['听填'].avg)}</small></span></div>
@@ -1337,15 +1336,15 @@ ${specialHead(
   )}
 
 <div class="note info" style="margin-top:6px">
-  <b>这个顺序不是按分值排，是按「可练性」排。</b>单词最容易拿满（范围就是课本词表），
-  阅读提分最慢（依赖词汇量）。所以从单词开始，把写作放最后——它是前三项能力的合成。
+  单词最容易拿满（范围就是课本词表），阅读提分最慢（依赖词汇量）。
+  <b>建议按 单词 → 语法 → 阅读 → 写作 的顺序练</b>——写作是前三项能力的合成。
 </div>
 
 <section class="section" style="margin-top:30px">
   <div class="section-head"><div class="section-head-left">
     <span class="kicker">四个部分</span>
     <h2>每一部分一页，语法再分两级</h2>
-    <span class="sub">每页都是同一套结构：真题证据 → 解题方法 → 备考动作</span>
+    <span class="sub">每页都是同一套结构：解题方法 → 真题练手 → 备考动作</span>
   </div></div>
 
   <div class="part-grid">
@@ -1385,7 +1384,7 @@ ${specialHead(
     <div class="part-card p-read">
       <div class="part-head"><span class="part-n">③</span><span class="part-title">阅读</span><span class="part-score">${fmt(partScore.read)} 分</span></div>
       <p class="part-how"><b>一半是细节题，先练「找」不练「猜」。</b>细节定位占选择题的 ${READ_STATS.selFams[0].pct}%，
-        这类题不需要技巧，需要「回原文划证据句」这个动作。</p>
+        这类题不需要技巧，需要「回原文划对应句」这个动作。</p>
       <div class="part-links">
         <a class="part-link" href="special-read.html">
           <span>选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}</span>
@@ -1411,7 +1410,7 @@ ${specialHead(
 </section>
 
 <div class="note risk">
-  <b>写作排在最后，因为它是前三项的合成：</b>单词拼写（${fmt(SPELL_TOTAL)} 分那部分）、
+  <b>写作排在最后，因为它是前三项的合成：</b>单词（${fmt(SEG_SCORE['音标填词'].avg + SEG_SCORE['听填'].avg)} 分那部分）、
   语法形式（${fmt(SEG_SCORE['单选'].avg)} 分那部分）、阅读积累的句式。前面三项稳了，写作的 ${fmt(WRITE_STATS.score)} 分才拿得住。
 </div>
 `;
@@ -1541,7 +1540,7 @@ ${specialHead(
   其余 ${fmt(ALL_TOTAL - SPELL_TOTAL)} 分（阅读、单选、完形）只需认得出，不必会写。
 </div>
 
-${section('真题证据', `音标 ${SPELL_STATS.total} 个词：平均 ${SPELL_STATS.avgLen} 个字母`, `四年全部考词，最长 ${SPELL_STATS.maxLen} 个字母——不是难词`, `
+${section('考什么', `音标填词 ${SPELL_STATS.total} 个词`, `平均 ${SPELL_STATS.avgLen} 个字母，最长 ${SPELL_STATS.maxLen} 个——不是难词`, `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>年份</th><th class="num">题号</th><th>音标</th><th>答案</th><th class="num">字母</th><th>句子原境</th><th>拼写特征</th></tr></thead>
@@ -1599,7 +1598,7 @@ ${SPELL_FEATURES.slice(0, 6).map((f) => `<div class="card" style="padding:15px 1
 ${spellQuiz()}
 `;
   return page('special.html', `单词专项 · ${SITE.short}`,
-    `音标填词 ${SPELL_STATS.total} 词、听填 ${fmt(SEG_SCORE['听填'].avg)} 分：真题证据、解题四步、备考动作与自测。`, body);
+    `音标填词 ${SPELL_STATS.total} 词、听填 ${fmt(SEG_SCORE['听填'].avg)} 分：解题四步、备考三步与自测。`, body);
 }
 
 /* ---------- ② 语法总览 ---------- */
@@ -1636,7 +1635,7 @@ ${specialHead(
 
 <section class="section" style="margin-top:30px">
   <div class="section-head"><div class="section-head-left">
-    <span class="kicker">先看两张表</span>
+    <span class="kicker">两次考核</span>
     <h2>哪些族只考「认」，哪些要「写」</h2>
     <span class="sub">单选命中 ${N_PAPERS} 套全中的族，按年均分排序</span>
   </div></div>
@@ -1667,14 +1666,14 @@ ${specialHead(
 
 <section class="section" style="margin-top:26px">
   <div class="section-head"><div class="section-head-left">
-    <span class="kicker">往下分两级</span>
-    <h2>两种练法，各一页</h2>
-    <span class="sub">先练「写」的那一侧，因为它的证据更硬</span>
+    <span class="kicker">两种练法</span>
+    <h2>「认」和「写」分开练</h2>
+    <span class="sub">先练「写」的那一侧——会写自然也会选，反过来不成立</span>
   </div></div>
   <div class="part-grid">
     <div class="part-card p-grammar">
       <div class="part-head"><span class="part-n">2·A</span><span class="part-title">单选语法族</span><span class="part-score">${fmt(SEG_SCORE['单选'].avg)} 分</span></div>
-      <p class="part-how">${GRAMMAR_FAMS.length} 个族的逐族证据：每年考几题、考的是哪一句、${PROP_LEVEL_NAME.stable}的是哪 ${GRAMMAR_FAMS.filter((g) => g.level === 'stable').length} 个。
+      <p class="part-how">${GRAMMAR_FAMS.length} 个族各考几题、考点是什么、哪 ${GRAMMAR_FAMS.filter((g) => g.level === 'stable').length} 个年年考。
         这一页回答「单选到底考什么」，以及每族该练哪个动作。</p>
       <div class="part-links">
         <a class="part-link" href="special-grammar-fam.html">
@@ -1738,7 +1737,7 @@ ${grammarTabs('fam')}
 
 ${specialHead(
     '2·A 单选语法族',
-    `${GRAMMAR_FAMS.length} 个族的逐族证据`,
+    `${GRAMMAR_FAMS.length} 个族的考点`,
     `单选 ${fmt(SEG_SCORE['单选'].avg)} 分、每年 ${PAPER_STATS[0].segN['单选'] || 10} 题。
      下面按「年均分 × 命中年数」排，每族给出考点原文，<b>不按语法书章节排</b>——按卷面实际考法排。`,
     segAside(
@@ -1759,7 +1758,7 @@ ${specialHead(
   轮换项不要当必考背——${N_PAPERS} 套样本里它们最多出现 2 次。
 </div>
 
-${section('逐族证据', `${GRAMMAR_FAMS.length} 族 · 每年考几题`, '每张卡片的考点原文来自卷面，不是归纳', `
+${section('各族考点', `${GRAMMAR_FAMS.length} 族 · 每年考几题`, '每族列出卷面实际考过的考点', `
 <div class="grid g2">
 ${GRAMMAR_FAMS.map((g) => {
   const qs = famTopics(g.id);
@@ -1792,7 +1791,7 @@ ${section('解题与备考', '先分「形式题」和「语境题」', '两种�
       <li><b>先定考什么。</b>看选项差异：四个选项是同一个词的不同形式 → 考形式；是四个不同词 → 考语境。</li>
       <li><b>形式题查三处。</b>主语单复数、时间状语、空前助动词——这三处决定动词形式。</li>
       <li><b>语境题回句意。</b>把选项逐个代进句子读一遍，读不通的直接排除，不靠「感觉」。</li>
-      <li><b>标出证据。</b>在题干上圈出决定答案的那个词（时间词 / 主语 / 提示词），圈不出来就是猜的。</li>
+      <li><b>标出线索词。</b>在题干上圈出决定答案的那个词（时间词 / 主语 / 提示词），圈不出来就是猜的。</li>
     </ul>
   </div>
   <div class="card">
@@ -1808,7 +1807,7 @@ ${section('解题与备考', '先分「形式题」和「语境题」', '两种�
 `)}
 `;
   return page('special.html', `单选语法族 · ${SITE.short}`,
-    `${GRAMMAR_FAMS.length} 个语法族的逐族真题证据：每年考几题、考点原文、解题与备考动作。`, body);
+    `${GRAMMAR_FAMS.length} 个语法族：各族考点、形式题与语境题的解法。`, body);
 }
 
 /* ---------- 2·B 汉译英 ---------- */
@@ -1842,7 +1841,7 @@ ${specialHead(
   汉译英的主战场不是「语法规则」，是<b>短语能不能直接写出来</b>。
 </div>
 
-${section('真题证据', `${SENT_ITEMS.length} 句逐句拆解`, '中文原句 / 提示词 / 语法动作 / 参考答案', `
+${section('真题练手', `${SENT_ITEMS.length} 句：中文 → 英文`, '先自己做，再对参考答案', `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>年份</th><th class="num">题号</th><th>中文原句</th><th>提示词</th><th>语法动作</th><th>参考答案</th></tr></thead>
@@ -1899,7 +1898,7 @@ ${section('解题与备考', '解题动作：先定句型，再套词，最后�
 `)}
 `;
   return page('special.html', `汉译英专项 · ${SITE.short}`,
-    `${SENT_ITEMS.length} 句汉译英逐句拆解：提示词、语法动作、参考答案，以及固定搭配为何是主战场。`, body);
+    `${SENT_ITEMS.length} 句汉译英：解题三步、一句多改练法，以及固定搭配为何是主战场。`, body);
 }
 
 /* ---------- ③ 阅读 ---------- */
@@ -1914,7 +1913,7 @@ ${specialHead(
     '③ 阅读',
     '阅读：一半是细节题，先练「找」不练「猜」',
     `阅读 ${fmt(READ_STATS.totalScore)} 分 = 选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}。
-     细节定位占选择题的 ${READ_STATS.selFams[0].pct}%——<b>这类题不需要技巧，需要「回原文划证据句」这个动作</b>。`,
+     细节定位占选择题的 ${READ_STATS.selFams[0].pct}%——<b>这类题不需要技巧，需要「回原文划对应句」这个动作</b>。`,
     segAside(
       '阅读构成',
       fmt(READ_STATS.totalScore),
@@ -1951,31 +1950,33 @@ ${section('题型分布', `阅读选择 ${selTotal} 题怎么分`, '四年合计
 </div>
 <div class="note info" style="margin-top:16px">
   <b>细节题占 ${READ_STATS.selFams[0].pct}%，是阅读选择的一半。</b>
-  这类题不需要技巧，需要「回原文找」这个动作——<b>每道题划出证据句</b>，划不出来就是靠猜。
+  这类题不需要技巧，需要「回原文找」这个动作——<b>每道题在原文划出对应句</b>，划不出来就是靠猜。
 </div>
 `, 'r-evidence')}
 
 
-${section('真题证据句', `${READ_EVIDENCE_STATS.annotated} 道阅读题：题干 → 证据句 → 答案`, '每道题都能指出原文哪一句是依据', `
-<div class="note info">
-  <b>怎么用：</b>先读题干，自己在原文里找一句能推出答案的话，再看下面的证据句。
-  <b>找的不是同一句也没关系</b>——只要能推出答案就是对的；<b>一句都找不到，说明这题是靠猜对的</b>。
+
+
+${section('拿真题练手', `${N_PAPERS} 套卷的阅读题，按题型分组`, '每道题只给题干，答案回原文找——找不到就是没读懂', `
+<div class="grid g2">
+${READ_STATS.selFams.map((f) => {
+  const items = READ_ITEMS.filter((q) => q.fam === f.id && q.stemText).slice(0, 4);
+  return `<div class="card">
+    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">
+      <h3 style="margin:0;font-size:14.5px">${esc(f.name.replace('阅读·', ''))}</h3>
+      <span style="font-size:12px;color:var(--text-3);margin-left:auto">${f.pct}% · 每年 ${f.perPaper} 题</span>
+    </div>
+    <ol style="margin:0;padding-left:18px;font-size:12.8px;color:var(--text-2);line-height:1.85">
+      ${items.map((q) => `<li>${esc(q.stemText)}<span style="color:var(--text-3);font-size:11.5px">（${esc(q.evLoc || '')}）</span></li>`).join('')}
+    </ol>
+  </div>`;
+}).join('')}
 </div>
-<div class="grid" style="margin-top:14px;gap:12px">
-${READ_EVIDENCE_SAMPLES.map((e) => `<div class="card" style="padding:16px 18px">
-  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:9px;flex-wrap:wrap">
-    <span class="tag ${e.seg === '阅读简答' ? 'write' : 'select'}">${esc(e.famName)}</span>
-    <span style="font-size:12.2px;color:var(--text-3)">${esc(PAPER_STATS.find((p) => p.id === e.p).label)} · 第 ${e.no} 题</span>
-    <span style="margin-left:auto;font-size:12.2px;color:var(--text-3)">${esc(e.loc)}</span>
-  </div>
-  <div style="font-size:13.2px;color:var(--text);margin-bottom:7px"><b style="color:var(--text-3);font-size:12px">题干</b><br>${esc(e.stemText || e.topic)}</div>
-  <div style="font-size:12.8px;color:var(--text-2);line-height:1.7;background:var(--accent-soft);padding:9px 12px;border-radius:7px;border-left:3px solid var(--accent)">
-    <b style="color:var(--accent);font-size:11.8px">原文证据句</b><br>“${esc(e.quote)}”
-  </div>
-  ${e.refAns ? `<div style="font-size:12.8px;color:var(--ok);margin-top:7px"><b>答案：</b>${esc(e.refAns)}</div>` : ''}
-</div>`).join('')}
+<div class="note" style="margin-top:14px">
+  <b>怎么用：</b>每题括号里标了答案在原文哪个位置，<b>不许先看</b>。自己回原文找一句能推出答案的话，
+  写下来，再对照参考答案。<b>写不出来，就是这题靠猜。</b>
 </div>
-`, 'r-proof')}
+`, 'r-drill')}
 
 ${section('解题与备考', '按题型给动作，不背「阅读技巧」', '五种题型，五种动作', `
 <div class="tbl-wrap">
@@ -2008,8 +2009,8 @@ ${READ_STATS.selFams.map((f) => {
       <li><b>查是否抄多了。</b>原文一整句里只要那个短语，就只写那个短语。</li>
     </ul>
     <div class="note" style="margin-top:12px;font-size:12.6px">
-      <b>参考答案自己也不统一：</b>2022-23 第 44 题给的是 <code style="font-family:var(--mono)">Tiger sharks.</code>（短语），
-      2023-24 给的是完整句。所以<b>别硬凑完整句</b>——宁可短而准，不要长而错。
+      <b>答短语还是完整句？</b>官方答案两种都有：<code style="font-family:var(--mono)">Tiger sharks.</code> 是短语，
+      也有整套给完整句的。<b>别硬凑完整句</b>——宁可短而准，不要长而错。
     </div>
   </div>
   <div class="card">
@@ -2054,7 +2055,7 @@ ${specialHead(
     )
   )}
 
-${section('真题证据', `${WRITE_STATS.total} 套的话题与提纲`, '提示问题 = 现成提纲', `
+${section('题目怎么读', `${WRITE_STATS.total} 套：话题与提纲`, '提示问题 = 现成提纲', `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>年份</th><th>话题</th><th>提示问题（= 提纲）</th><th>提示词</th><th>范文</th></tr></thead>
@@ -2091,8 +2092,8 @@ ${withEssay.map((w) => `
   </div>
 </div>`).join('')}
 <div class="note" style="margin-top:6px">
-  <b>两套卷原卷未给范文</b>（${WRITE_ITEMS.filter((w) => !w.essay).map((w) => esc(PAPER_STATS.find((p) => p.id === w.p).label)).join('、')}），
-  所以只能分析题目结构，不能分析范文。这一条不补。
+  <b>另外两套（${WRITE_ITEMS.filter((w) => !w.essay).map((w) => esc(PAPER_STATS.find((p) => p.id === w.p).label)).join('、')}）只给了题目</b>，
+  可以拿它们的提示问题当提纲，自己写一遍再对照上面两篇的结构。
 </div>
 `, 'w-essay')}
 
@@ -2117,7 +2118,7 @@ ${section('解题与备考', '四步写完，最后一步决定分数', '内容�
   </div>
 </div>
 <div class="note risk" style="margin-top:16px">
-  <b>写作是前三项的合成：</b>单词拼写（${fmt(SPELL_TOTAL)} 分那部分）、语法形式（${fmt(SEG_SCORE['单选'].avg)} 分那部分）、
+  <b>写作是前三项的合成：</b>单词（${fmt(SEG_SCORE['音标填词'].avg + SEG_SCORE['听填'].avg)} 分那部分）、语法形式（${fmt(SEG_SCORE['单选'].avg)} 分那部分）、
   阅读积累的句式。所以它排在最后——前面三项稳了，写作的 ${fmt(WRITE_STATS.score)} 分才拿得住。
 </div>
 `)}
