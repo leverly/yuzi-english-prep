@@ -7,6 +7,7 @@ import {
   FAM_MAP, FREQ_SUMMARY,
   PROP_STABILITY, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
+  WRITE_ITEMS, WRITE_STATS, READ_STATS, READ_ANS_TYPES,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_GROUPS, GRAMMAR_DOUBLE,
 } from './work/papers/stats.mjs';
 import { LEDGER, SEG_ORDER, CAT_ORDER, DIFF_ORDER } from './work/papers/ledger.mjs';
@@ -260,7 +261,7 @@ for (const f of ALL_PAGES) {
 /* ---------- 10g. 导航标签必须全站一致 ---------- */
 {
   // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
-  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项', '冲刺计划', '演示'];
+  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项复习', '冲刺计划', '演示'];
   for (const f of ALL_PAGES) {
     const html = readFileSync(f, 'utf8');
     const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
@@ -317,6 +318,42 @@ for (const f of ALL_PAGES) {
   ok(html.includes('requestFullscreen'), 'slides.html 支持全屏');
   ok(html.includes('ov-grid'), 'slides.html 有总览模式');
   ok(/\[\?&\]p=\(\\d\+\)/.test(html) || html.includes('p=(\d+)'), 'slides.html 支持 ?p=N 跳页');
+}
+
+/* ---------- 10j. 专项复习页：四部分齐全且可追溯 ---------- */
+{
+  const html = readFileSync('special.html', 'utf8');
+
+  // 四部分标题必须都在
+  for (const part of ['① 单词', '② 语法', '③ 阅读', '④ 写作']) {
+    ok(html.includes(part), `专项复习页含「${part}」`);
+  }
+  // 每部分都要有「解题方法」与「备考」字样（用户要求：介绍解题和备考方法）
+  const solveN = (html.match(/解题方法/g) || []).length;
+  const prepN = (html.match(/备考/g) || []).length;
+  ok(solveN >= 4, `专项复习页「解题方法」出现 ${solveN} 次（≥4，四部分各一）`);
+  ok(prepN >= 3, `专项复习页「备考」出现 ${prepN} 次（≥3）`);
+
+  // 例子：音标 16 词、汉译英 12 句、写作 4 题都要上页
+  ok(SPELL_ITEMS.every((i) => html.includes(i.word)), '音标 16 词全部上页');
+  ok(SENT_ITEMS.every((i) => html.includes(i.zh)), '汉译英 12 句全部上页');
+  ok(WRITE_ITEMS.every((w) => html.includes(w.scene)), '写作 4 题场景全部上页');
+  // 有范文的必须展示，没范文的必须标「原卷未给」
+  const withEssay = WRITE_ITEMS.filter((w) => w.essay);
+  ok(withEssay.length === WRITE_STATS.withEssay, `有范文 ${withEssay.length} 套与派生一致`);
+  for (const w of withEssay) ok(html.includes(w.essay.slice(0, 40)), `范文「${w.scene}」已展示`);
+  ok(html.includes('原卷未给'), '无范文的卷子标注「原卷未给」');
+
+  // 阅读数据
+  ok(html.includes(`${READ_STATS.selFams[0].pct}%`), `阅读细节题占比 ${READ_STATS.selFams[0].pct}% 上页`);
+  ok(html.includes(`${READ_ANS_TYPES.retrievePerPaper} 题`), `简答检索题 ${READ_ANS_TYPES.retrievePerPaper} 题/年上页`);
+
+  // 不做练习题：不得出现题干式「练习」「做题」入口
+  ok(!/练习题|开始练习|做一题/.test(html), '专项复习页不含练习题入口');
+
+  // 章节 id 唯一
+  const ids = (html.match(/id="[a-z0-9-]+"/g) || []);
+  ok(new Set(ids).size === ids.length, `章节 id 唯一（${ids.length} 个）`);
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */

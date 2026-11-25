@@ -494,3 +494,65 @@ export const GRAMMAR_DOUBLE = GRAMMAR_FAMS.map((f) => {
     doubleTested: writeHits.length > 0,
   };
 }).sort((a, b) => (b.writeHits - a.writeHits) || (b.hit - a.hit));
+
+/* ============================ 写作专项 ============================ */
+export const WRITE_ITEMS = LEDGER
+  .filter((q) => q.seg === '文段表达' && !q.bonus)
+  .map((q) => ({
+    p: q.p,
+    no: q.no,
+    topic: q.topic,
+    scene: q.scene,
+    titleHint: q.titleHint,
+    questions: q.questions,
+    promptWords: q.promptWords,
+    essay: q.essay,
+    score: q.score,
+    wordMin: 40,
+  }));
+
+export const WRITE_STATS = {
+  total: WRITE_ITEMS.length,
+  score: WRITE_ITEMS[0]?.score ?? 10,
+  wordMin: 40,
+  withEssay: WRITE_ITEMS.filter((w) => w.essay).length,
+  // 四套的话题类型（人工归并，用于看「常考哪类场景」）
+  scenes: WRITE_ITEMS.map((w) => w.scene),
+};
+
+// 提示问题条数：四套都给了 2-3 个提示问题，等于天然提纲
+export const WRITE_Q_COUNTS = WRITE_ITEMS.map((w) => (w.questions || '').split('/').length);
+
+/* ============================ 阅读专项 ============================ */
+export const READ_ITEMS = LEDGER.filter((q) => (q.seg === '阅读选择' || q.seg === '阅读简答') && !q.bonus);
+
+export const READ_STATS = (() => {
+  const sel = READ_ITEMS.filter((q) => q.seg === '阅读选择');
+  const ans = READ_ITEMS.filter((q) => q.seg === '阅读简答');
+  const byFam = {};
+  for (const q of sel) byFam[q.fam] = (byFam[q.fam] || 0) + 1;
+  return {
+    selCount: sel.length / N_PAPERS,
+    ansCount: ans.length / N_PAPERS,
+    selScore: SEG_SCORE['阅读选择'].avg,
+    ansScore: SEG_SCORE['阅读简答'].avg,
+    totalScore: SEG_SCORE['阅读选择'].avg + SEG_SCORE['阅读简答'].avg,
+    selFams: Object.entries(byFam)
+      .map(([k, v]) => ({ id: k, name: FAM_NAME[k], count: v, perPaper: +(v / N_PAPERS).toFixed(1), pct: Math.round((v / sel.length) * 100) }))
+      .sort((a, b) => b.count - a.count),
+  };
+})();
+
+// 阅读简答：前三题检索、末题概括——由数据派生
+export const READ_ANS_TYPES = (() => {
+  const ans = LEDGER.filter((q) => q.seg === '阅读简答' && !q.bonus);
+  const retrieve = ans.filter((q) => q.fam === 'f-read-answer');
+  const open = ans.filter((q) => q.fam === 'f-read-open');
+  return {
+    retrieve: retrieve.length, open: open.length,
+    retrievePerPaper: +(retrieve.length / N_PAPERS).toFixed(1),
+    openPerPaper: +(open.length / N_PAPERS).toFixed(1),
+    retrieveScore: retrieve.length / N_PAPERS * 2,
+    openScore: open.length / N_PAPERS * 2,
+  };
+})();

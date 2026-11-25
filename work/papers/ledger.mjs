@@ -266,7 +266,7 @@ export const LEDGER = [
   { p: 'p2122', no: 53, seg: '汉译英', fam: 'f-sent', topic: 'too much meat 主谓', cat: '应用', diff: 'mid', mode: 'write', score: 2 , zh: '吃太多肉对儿童不好。', hint: 'too much meat', acts: ['主谓一致', 'too much + 不可数', 'be bad for'], ans: 'Eating too much meat is bad for children.' },
   { p: 'p2122', no: 54, seg: '汉译英', fam: 'f-sent', topic: '现在进行 wait for', cat: '应用', diff: 'mid', mode: 'write', score: 2 , zh: '她正在等公共汽车。', hint: 'wait for', acts: ['现在进行时', '固定搭配 wait for'], ans: 'She is waiting for a bus.' },
 
-  { p: 'p2122', no: 55, seg: '文段表达', fam: 'f-write', topic: '介绍一位家庭成员（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 },
+  { p: 'p2122', no: 55, seg: '文段表达', fam: 'f-write', topic: '介绍一位家庭成员（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 , scene: '介绍一位家庭成员', titleHint: 'My ______', questions: 'How old is he/she? / What is his/her job? / What does he/she like?', promptWords: 'teacher, manager, do sports, travel', essay: null },
 
   { p: 'p2122', no: 56, seg: '阅读简答', fam: 'f-read-answer', topic: 'Haley 在门口等的原因', cat: '应用', diff: 'mid', mode: 'write', score: 5, bonus: true },
   { p: 'p2122', no: 57, seg: '阅读简答', fam: 'f-read-open', topic: '最喜欢哪个人物及理由（开放）', cat: '综合', diff: 'hard', mode: 'write', score: 5, bonus: true },
@@ -335,7 +335,7 @@ export const LEDGER = [
   { p: 'p2223', no: 53, seg: '汉译英', fam: 'f-sent', topic: 'often + 三单 watch', cat: '应用', diff: 'mid', mode: 'write', score: 2 , zh: 'Jack 经常和他爸爸一起看足球比赛。', hint: 'watch', acts: ['主谓一致（三单）', '频率副词 often'], ans: 'Jack often watches football matches with his dad.' },
   { p: 'p2223', no: 54, seg: '汉译英', fam: 'f-sent', topic: 'there be 句型', cat: '应用', diff: 'mid', mode: 'write', score: 2 , zh: '图书馆里有许多新书。', hint: 'there be', acts: ['there be 句型'], ans: 'There are many new books in the library.' },
 
-  { p: 'p2223', no: 55, seg: '文段表达', fam: 'f-write', topic: '家庭欢乐时刻发言稿（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 },
+  { p: 'p2223', no: 55, seg: '文段表达', fam: 'f-write', topic: '家庭欢乐时刻发言稿（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 , scene: '家庭欢乐时刻发言稿', titleHint: 'My Family Fun Time', questions: 'When is your family fun time? / What do you and your family usually do? / What do you think of your family fun time?', promptWords: 'weekend, talk, exercise, movie, warm, love', essay: null },
 
   { p: 'p2223', no: 56, seg: '阅读简答', fam: 'f-read-answer', topic: 'Grace 的问题是什么', cat: '应用', diff: 'mid', mode: 'write', score: 5, bonus: true },
   { p: 'p2223', no: 57, seg: '阅读简答', fam: 'f-read-open', topic: '问题如何解决（概括）', cat: '综合', diff: 'hard', mode: 'write', score: 5, bonus: true },
@@ -404,7 +404,7 @@ export const LEDGER = [
   { p: 'p2324', no: 53, seg: '汉译英', fam: 'f-sent', topic: "It's time to do 句型", cat: '应用', diff: 'mid', mode: 'write', score: 2 , zh: '到了大扫除的时间了。', hint: 'do some cleaning', acts: ['固定句式 It is time to do'], ans: "It's time to do some cleaning." },
   { p: 'p2324', no: 54, seg: '汉译英', fam: 'f-sent', topic: 'get ready for 现在进行', cat: '应用', diff: 'mid', mode: 'write', score: 2 , zh: '我们正在为春节做准备。', hint: 'get ready for', acts: ['现在进行时', '固定搭配 get ready for'], ans: 'We are getting ready for the Spring Festival.' },
 
-  { p: 'p2324', no: 55, seg: '文段表达', fam: 'f-write', topic: '感谢某人并说明做法与理由（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 },
+  { p: 'p2324', no: 55, seg: '文段表达', fam: 'f-write', topic: '感谢某人并说明做法与理由（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 , scene: '感谢某人并说明做法与理由', titleHint: '', questions: 'Who do you want to thank? / What do you want to do for him/her? / Why do you want to do so?', promptWords: 'present, book, like reading, show', essay: 'I want to buy some fish and books for my mother. I am getting fatter and fatter, while my mom is getting thinner and thinner. She should eat more fish and other delicious food. And she likes reading books. So I want to give her favourite books to thank her. I think it is good for her body and spirits.' },
 
   { p: 'p2324', no: 56, seg: '阅读简答', fam: 'f-read-answer', topic: '列出四项有意义的活动', cat: '应用', diff: 'mid', mode: 'write', score: 5, bonus: true },
   { p: 'p2324', no: 57, seg: '阅读简答', fam: 'f-read-open', topic: '无聊是好是坏 + 至少两条理由', cat: '综合', diff: 'hard', mode: 'write', score: 5, bonus: true },
@@ -473,7 +473,7 @@ export const LEDGER = [
   { p: 'p2425', no: 41, seg: '汉译英', fam: 'f-sent', topic: 'it is + adj + to do', cat: '应用', diff: 'mid', mode: 'write', score: 2 , zh: '在学习中，思考很重要。', hint: 'important, in learning', acts: ['固定句式 It is + adj + to do'], ans: 'It is important to think in learning.' },
   { p: 'p2425', no: 42, seg: '汉译英', fam: 'f-sent', topic: 'try their best 主谓', cat: '应用', diff: 'mid', mode: 'write', score: 2 , zh: '老师们总是尽力帮助我们。', hint: 'try their best', acts: ['主谓一致（复数 + 原形）', '频率副词 always'], ans: 'Teachers always try their best to help us.' },
 
-  { p: 'p2425', no: 43, seg: '文段表达', fam: 'f-write', topic: '介绍喜欢的传统节日（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 },
+  { p: 'p2425', no: 43, seg: '文段表达', fam: 'f-write', topic: '介绍喜欢的传统节日（≥40 词）', cat: '综合', diff: 'hard', mode: 'write', score: 10 , scene: '介绍喜欢的传统节日', titleHint: '', questions: 'What is your favorite traditional Chinese festival? / How do you usually celebrate it?', promptWords: 'take place, enjoy, have a big meal, family reunion', essay: 'Spring Festival is my favorite festival. It usually happens in January or February. My family celebrate it by doing many interesting and meaningful activities. We often clean the house and buy a lot of food before the festival. On Spring Festival Eve, we get together and have a big reunion dinner. Jiaozi is a must, and we also prepare many other delicious dishes. Everyone wears new clothes and kids always get lucky money from the elders as a symbol of good wishes for good luck, health and prosperity in the new year. I like Spring Festival, because it makes me feel warm and loved.' },
 
   { p: 'p2425', no: 44, seg: '阅读选择', fam: 'f-word-form', topic: '(sun) → sunny', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true },
   { p: 'p2425', no: 45, seg: '阅读选择', fam: 'f-word-form', topic: '(rain) → will rain', cat: '应用', diff: 'mid', mode: 'write', score: 1, bonus: true },

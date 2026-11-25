@@ -17,6 +17,7 @@ import {
   PROP_STABILITY, PROP_LEVEL_NAME, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_ACTIONS, SENT_GROUPS, GRAMMAR_DOUBLE,
+  WRITE_ITEMS, WRITE_STATS, READ_ITEMS, READ_STATS, READ_ANS_TYPES,
 } from './work/papers/stats.mjs';
 import { LEDGER, CAT_NOTE, FAM_DEFS } from './work/papers/ledger.mjs';
 
@@ -392,7 +393,7 @@ const NAV = [
   ['index.html', '总览'],
   ['papers.html', '逐年真题'],
   ['trend.html', '趋势与考点'],
-  ['special.html', '专项'],
+  ['special.html', '专项复习'],
   ['plan.html', '冲刺计划'],
   ['slides.html', '演示', 'nav-slides'],
 ];
@@ -1168,80 +1169,35 @@ ${section('待确认', '需要先确认的一件事', '这条不确认，上面�
 }
 
 /* ============================ 输出 ============================ */
-/* ============================ 专项（单词 + 语法） ============================ */
+/* ============================ 专项复习（单词 / 语法 / 阅读 / 写作） ============================ */
 function buildSpecial() {
-  // ---------- 单词 ----------
-  const spellRows = SPELL_ITEMS.map((it) => `<tr>
-    <td class="num" style="color:var(--text-3)">${esc(PAPER_STATS.find((p) => p.id === it.p).label)}</td>
-    <td class="num" style="color:var(--text-3)">${it.no}</td>
-    <td><b style="font-family:var(--mono);font-size:13.4px">${esc(it.ipa)}</b></td>
-    <td><b style="color:var(--accent)">${esc(it.word)}</b></td>
-    <td class="num">${it.len}</td>
-    <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">${esc(it.sent)}</td>
-    <td style="white-space:normal">${it.feats.map((f) => `<span class="tag cat" style="margin-right:4px">${esc(f)}</span>`).join('')}</td>
-  </tr>`).join('');
-
-  const featCards = SPELL_FEATURES.map((f) => `
-    <div class="card" style="padding:15px 17px">
-      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
-        <b style="font-size:14px">${esc(f.name)}</b>
-        <span style="font-size:12px;color:var(--text-3);margin-left:auto">${f.count} 词</span>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px">
-        ${f.items.map((i) => `<span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">${esc(i.word)}</span>`).join('')}
-      </div>
-    </div>`).join('');
-
-  // ---------- 语法 ----------
-  const gRows = GRAMMAR_DOUBLE.map((g) => {
-    const lv = g.level === 'stable' ? 'easy' : g.level === 'variable' ? 'mid' : 'rare';
-    const lvName = PROP_LEVEL_NAME[g.level];
-    return `<tr>
-      <td><b>${esc(g.name)}</b></td>
-      <td class="num cell-hi">${fmt(g.avgPerYear)}</td>
-      ${g.per.map((v) => `<td class="num" style="color:${v > 0 ? 'var(--text)' : 'var(--text-3)'}">${v > 0 ? fmt(v) : '—'}</td>`).join('')}
-      <td><span class="yr ${g.hit === N_PAPERS ? 'hit' : ''}">${g.hit}/${N_PAPERS}</span></td>
-      <td class="num" style="font-weight:${g.writeHits ? 700 : 400};color:${g.writeHits ? 'var(--rose)' : 'var(--text-3)'}">${g.writeHits || '—'}</td>
-      <td><span class="tag ${lv}">${lvName}</span></td>
-    </tr>`;
-  }).join('');
-
-  const sentRows = SENT_ITEMS.map((it) => `<tr>
-    <td style="color:var(--text-3);font-size:12.4px">${esc(PAPER_STATS.find((p) => p.id === it.p).label)}</td>
-    <td class="num" style="color:var(--text-3)">${it.no}</td>
-    <td class="wrap-cell"><b>${esc(it.zh)}</b></td>
-    <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">${esc(it.hint)}</td>
-    <td style="white-space:normal">${it.acts.map((a) => `<span class="tag write" style="margin-right:4px;margin-bottom:3px">${esc(a)}</span>`).join('')}</td>
-    <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">${esc(it.ans)}</td>
-  </tr>`).join('');
-
-  const groupBars = SENT_GROUPS.map((g) =>
-    distBar(g.label, g.count, Math.max(...SENT_GROUPS.map((x) => x.count)), ' 句', 'rose')).join('');
-
-  const doubleTested = GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0);
-
   const body = `
 <section class="hero" style="padding-bottom:10px">
   <div class="hero-split wide">
     <div>
-      <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套真题 · 逐题实证</div>
-      <h1 style="font-size:clamp(26px,3.2vw,36px)">专项：单词与语法</h1>
+      <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套真题 · 四部分逐题实证</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">专项复习</h1>
       <p class="lede">
-        输出型 <b>${fmt(SPELL_TOTAL)} 分</b>里，拼写和语法是绕不开的两件事。
-        这一页不讲通用方法，只列 ${N_PAPERS} 套卷<b>实际考过的词</b>和<b>实际考过的语法点</b>。
+        单词、语法、阅读、写作——四部分的解题动作不一样，所以练法也不一样。
+        这一页不讲通用技巧，每一部分都给出<b>真题证据 → 解题方法 → 备考动作</b>。
       </p>
     </div>
     <aside class="cockpit">
-      <div class="cockpit-top"><span class="level-pill">专项数据</span></div>
-      <div class="metric-row"><span class="mv accent">${SPELL_STATS.total}</span><span class="ml"><b>音标词</b>平均 ${SPELL_STATS.avgLen} 字母</span></div>
-      <div class="metric-row"><span class="mv accent">${SPELL_STATS.featureCount}</span><span class="ml"><b>拼写特征类</b>按易错点归并</span></div>
-      <div class="metric-row"><span class="mv rose">${SENT_ITEMS.length}</span><span class="ml"><b>汉译英句</b>每句标语法动作</span></div>
-      <div class="metric-row" style="border-bottom:none"><span class="mv ok">${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).length}</span><span class="ml"><b>双重考核族</b>单选 + 汉译英都考</span></div>
+      <div class="cockpit-top"><span class="level-pill">四部分分值</span></div>
+      <div class="metric-row"><span class="mv accent">${fmt(SEG_SCORE['音标填词'].avg + SEG_SCORE['听填'].avg)}</span><span class="ml"><b>单词</b>音标 ${fmt(SEG_SCORE['音标填词'].avg)} + 听填 ${fmt(SEG_SCORE['听填'].avg)}</span></div>
+      <div class="metric-row"><span class="mv accent">${fmt(SEG_SCORE['单选'].avg)}</span><span class="ml"><b>语法</b>单选 ${GRAMMAR_FAMS.length} 族</span></div>
+      <div class="metric-row"><span class="mv rose">${fmt(READ_STATS.totalScore)}</span><span class="ml"><b>阅读</b>选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}</span></div>
+      <div class="metric-row" style="border-bottom:none"><span class="mv gold">${fmt(WRITE_STATS.score)}</span><span class="ml"><b>写作</b>文段表达，≥${WRITE_STATS.wordMin} 词</span></div>
     </aside>
   </div>
 </section>
 
-${section('单词', '要拼写的只有这些板块', '其余 62 分只需认读，不必会写', `
+<div class="note info" style="margin-top:6px">
+  <b>这一页的顺序不是按分值排，是按「可练性」排。</b>单词最容易拿满（范围就是课本词表），
+  阅读提分最慢（依赖词汇量）。所以从单词开始，把写作放最后——它是前三项能力的合成。
+</div>
+
+${section('① 单词', '解题方法：先分清「会写」还是「认识」', '全卷 90 分里只有 36 分要动笔', `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>板块</th><th class="num">分值</th><th class="num">题量</th><th>要求</th></tr></thead>
@@ -1256,77 +1212,73 @@ ${SPELL_SEGMENTS.map((s) => `<tr>
 <tfoot><tr><td>合计</td><td class="num">${fmt(SPELL_TOTAL)}</td><td class="num">—</td><td></td></tr></tfoot>
 </table>
 </div>
-<div class="note info" style="margin-top:14px">
-  <b>先分清「会写」和「认识」。</b>全卷 ${MAIN_TOTAL} 分里，只有上面这 <b>${fmt(SPELL_TOTAL)} 分</b>要动笔写出文字，
-  其余 <b>${fmt(MAIN_TOTAL - SPELL_TOTAL)} 分</b>只需认得出。
-  背单词背错方向，是把力气花在了不考的地方。
-  <br><br>
-  <b>注意这一刀与站内「选择型 54 / 输出型 36」是同一组数字，但含义不同：</b>
-  那一刀切的是「要不要涂卡」，这一刀切的是「要不要拼写」。
-  阅读简答的 8 分属于输出型，但它要求写句子，不只是拼单词——所以它同时出现在两张表里。
+<div class="note warn" style="margin-top:14px">
+  <b>背单词背错方向，是把力气花在了不考的地方。</b>
+  其余 ${fmt(MAIN_TOTAL - SPELL_TOTAL)} 分（阅读、单选、完形）只需认得出，不必会写。
 </div>
-`, 'words')}
+`)}
 
-${section('音标填词', `${SPELL_STATS.total} 个词，平均 ${SPELL_STATS.avgLen} 个字母`, `四年全部考词，最长 ${SPELL_STATS.maxLen} 个字母——不是难词`, `
+${section('① 单词 · 真题证据', `音标 ${SPELL_STATS.total} 个词：平均 ${SPELL_STATS.avgLen} 个字母`, `四年全部考词，最长 ${SPELL_STATS.maxLen} 个字母——不是难词`, `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>年份</th><th class="num">题号</th><th>音标</th><th>答案</th><th class="num">字母</th><th>句子原境</th><th>拼写特征</th></tr></thead>
-<tbody>${spellRows}</tbody>
+<tbody>
+${SPELL_ITEMS.map((it) => `<tr>
+  <td class="num" style="color:var(--text-3)">${esc(PAPER_STATS.find((p) => p.id === it.p).label)}</td>
+  <td class="num" style="color:var(--text-3)">${it.no}</td>
+  <td><b style="font-family:var(--mono);font-size:13.4px">${esc(it.ipa)}</b></td>
+  <td><b style="color:var(--accent)">${esc(it.word)}</b></td>
+  <td class="num">${it.len}</td>
+  <td class="wrap-cell" style="color:var(--text-3);font-size:12.6px">${esc(it.sent)}</td>
+  <td style="white-space:normal">${it.feats.map((f) => `<span class="tag cat" style="margin-right:4px">${esc(f)}</span>`).join('')}</td>
+</tr>`).join('')}
+</tbody>
 </table>
 </div>
 <div class="note warn" style="margin-top:14px">
-  <b>这些不是难词，是最基础的词。</b>平均 ${SPELL_STATS.avgLen} 个字母，最短 ${SPELL_STATS.minLen} 个（cut / map / big）。
-  所以音标题的失分<b>不是「不认识」，是「拼不对」</b>——练法应该是定向拼写，不是背难词。
+  <b>这些不是难词，是最基础的词。</b>最短 ${SPELL_STATS.minLen} 个字母（cut / map / big）。
+  所以音标题的失分<b>不是「不认识」，是「拼不对」</b>。
 </div>
-`, 'spell')}
+`, 'w-evidence')}
 
-${section('拼写特征', `按易错点归成 ${SPELL_STATS.featureCount} 类`, '一个词可能同时属于多类，所以合计会大于 16', `
-<div class="grid g3">${featCards}</div>
-<div class="note" style="margin-top:16px">
-  <b>怎么用这张图：</b>把「词数最多」的几类先练透。
-  ${SPELL_FEATURES.slice(0, 3).map((f) => `<b>${esc(f.name)}</b>（${f.count} 词）`).join('、')}
-  是出现最多的三类——练这三类，覆盖了一半以上的音标题。
+${section('① 单词 · 解题与备考', `按易错点归成 ${SPELL_STATS.featureCount} 类`, '解题动作：看音标 → 定音节 → 拼字母 → 查形式', `
+<div class="grid g2">
+  <div class="card">
+    <h3 style="margin-bottom:10px">解题四步</h3>
+    <ul class="clean">
+      <li><b>看音标定元音。</b>先确定重读元音是哪个字母组合（${SPELL_FEATURES.slice(0, 3).map((f) => esc(f.name)).join(' / ')} 是最常见的三类）。</li>
+      <li><b>数音节。</b>${SPELL_STATS.avgLen} 个字母平均 1–2 个音节，音节数对不上就是拼错了。</li>
+      <li><b>查辅音丛。</b>spring 的 spr、driver 的 dr、smell 的 sm——漏一个字母就零分。</li>
+      <li><b>查形式。</b>空前有 a / an 还是复数？句子的时态要不要加 -s / -ed？<b>这一步最容易丢分。</b></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">备考三步</h3>
+    <ul class="clean">
+      <li><b>不背整本词表。</b>按上面 ${SPELL_STATS.featureCount} 类特征分批练，先练词数最多的三类。</li>
+      <li><b>听写而不是默看。</b>看着单词背是「认读」，听写才是「拼写」——考的是后者。</li>
+      <li><b>错词进本子，隔日回抽。</b>当天对的题不算掌握，隔一天还能写对才算。</li>
+    </ul>
+  </div>
+</div>
+<div class="grid g3" style="margin-top:14px">
+${SPELL_FEATURES.slice(0, 6).map((f) => `<div class="card" style="padding:15px 17px">
+  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+    <b style="font-size:14px">${esc(f.name)}</b>
+    <span style="font-size:12px;color:var(--text-3);margin-left:auto">${f.count} 词</span>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:5px">
+    ${f.items.map((i) => `<span style="font-family:var(--mono);font-size:12.4px;background:var(--accent-soft);color:var(--accent);padding:2px 7px;border-radius:5px">${esc(i.word)}</span>`).join('')}
+  </div>
+</div>`).join('')}
 </div>
 `)}
-`;
-  // 续（语法部分在下面拼接）
-  return page('special.html', `专项：单词与语法 · ${SITE.short}`,
-    `${N_PAPERS} 套真题的音标 16 词与单选 40 题语法点实证。`, body + buildSpecialGrammar());
-}
 
-function buildSpecialGrammar() {
-  const gRows = GRAMMAR_DOUBLE.map((g) => {
-    const lv = g.level === 'stable' ? 'easy' : g.level === 'variable' ? 'mid' : 'rare';
-    const lvName = PROP_LEVEL_NAME[g.level];
-    return `<tr>
-      <td><b>${esc(g.name)}</b></td>
-      <td class="num cell-hi">${fmt(g.avgPerYear)}</td>
-      ${g.per.map((v) => `<td class="num" style="color:${v > 0 ? 'var(--text)' : 'var(--text-3)'}">${v > 0 ? fmt(v) : '—'}</td>`).join('')}
-      <td><span class="yr ${g.hit === N_PAPERS ? 'hit' : ''}">${g.hit}/${N_PAPERS}</span></td>
-      <td class="num" style="font-weight:${g.writeHits ? 700 : 400};color:${g.writeHits ? 'var(--rose)' : 'var(--text-3)'}">${g.writeHits || '—'}</td>
-      <td><span class="tag ${lv}">${lvName}</span></td>
-    </tr>`;
-  }).join('');
-
-  const sentRows = SENT_ITEMS.map((it) => `<tr>
-    <td style="color:var(--text-3);font-size:12.4px">${esc(PAPER_STATS.find((p) => p.id === it.p).label)}</td>
-    <td class="num" style="color:var(--text-3)">${it.no}</td>
-    <td class="wrap-cell"><b>${esc(it.zh)}</b></td>
-    <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">${esc(it.hint)}</td>
-    <td style="white-space:normal">${it.acts.map((a) => `<span class="tag write" style="margin-right:4px;margin-bottom:3px">${esc(a)}</span>`).join('')}</td>
-    <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">${esc(it.ans)}</td>
-  </tr>`).join('');
-
-  const groupBars = SENT_GROUPS.map((g) =>
-    distBar(g.label, g.count, Math.max(...SENT_GROUPS.map((x) => x.count)), ' 句', 'rose')).join('');
-
-  const doubleTested = GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0);
-
-  return `
-${section('语法', '语法在卷面上的两次考核', '单选考「认不认得出」，汉译英考「写不写得对」', `
+${section('② 语法', '解题方法：单选考「认」，汉译英考「写」', '同一能力，两次考核，两种练法', `
 <div class="note risk">
-  <b>语法族只出现在单项填空里，产出分为 0。</b>但这不等于语法只在单选考 ${fmt(SEG_SCORE['单选'].avg)} 分——
-  它换了名字出现在汉译英和文段表达里。<b>同一能力，两种考法，要用两种练法。</b>
+  <b>${GRAMMAR_FAMS.length} 个语法族全部只出现在单项填空里，产出分为 0。</b>
+  但这不等于语法只在单选考 ${fmt(SEG_SCORE['单选'].avg)} 分——它换了名字出现在汉译英和文段表达里。
+  <b>会选不等于会写，这是两个动作。</b>
 </div>
 <div class="tbl-wrap" style="margin-top:16px">
 <table>
@@ -1335,69 +1287,226 @@ ${section('语法', '语法在卷面上的两次考核', '单选考「认不认�
   ${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
   <th>单选命中</th><th class="num">汉译英出现</th><th>判定</th>
 </tr></thead>
-<tbody>${gRows}</tbody>
+<tbody>
+${GRAMMAR_DOUBLE.map((g) => `<tr>
+  <td><b>${esc(g.name)}</b></td>
+  <td class="num cell-hi">${fmt(g.avgPerYear)}</td>
+  ${g.per.map((v) => `<td class="num" style="color:${v > 0 ? 'var(--text)' : 'var(--text-3)'}">${v > 0 ? fmt(v) : '—'}</td>`).join('')}
+  <td><span class="yr ${g.hit === N_PAPERS ? 'hit' : ''}">${g.hit}/${N_PAPERS}</span></td>
+  <td class="num" style="font-weight:${g.writeHits ? 700 : 400};color:${g.writeHits ? 'var(--rose)' : 'var(--text-3)'}">${g.writeHits || '—'}</td>
+  <td><span class="tag ${g.level === 'stable' ? 'easy' : g.level === 'variable' ? 'mid' : 'rare'}">${PROP_LEVEL_NAME[g.level]}</span></td>
+</tr>`).join('')}
+</tbody>
 </table>
 </div>
 <div class="note info" style="margin-top:14px">
-  <b>${doubleTested.length} 个族是「双重考核」</b>：${doubleTested.map((g) => `${esc(g.name)}（单选 ${g.hit}/${N_PAPERS} + 汉译英 ${g.writeHits} 句）`).join('、')}。
-  这几族既要会选，又要会写，优先级高于只在单选出现的族。
+  <b>${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).length} 个族是「双重考核」</b>：${GRAMMAR_DOUBLE.filter((g) => g.writeHits > 0).map((g) => `${esc(g.name)}（单选 ${g.hit}/${N_PAPERS} + 汉译英 ${g.writeHits} 句）`).join('、')}。
+  这几族既要会选又要会写，<b>优先级高于只在单选出现的族</b>。
 </div>
-`, 'grammar')}
+`, 'g-evidence')}
 
-${section('汉译英', `${SENT_ITEMS.length} 句：语法真正被「写」出来的地方`, '每句都标了实际要求的语法动作', `
+${section('② 语法 · 真题证据', `${SENT_ITEMS.length} 句汉译英：语法真正被「写」出来的地方`, '每句都标了实际要求的语法动作', `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>年份</th><th class="num">题号</th><th>中文原句</th><th>提示词</th><th>语法动作</th><th>参考答案</th></tr></thead>
-<tbody>${sentRows}</tbody>
+<tbody>
+${SENT_ITEMS.map((it) => `<tr>
+  <td style="color:var(--text-3);font-size:12.4px">${esc(PAPER_STATS.find((p) => p.id === it.p).label)}</td>
+  <td class="num" style="color:var(--text-3)">${it.no}</td>
+  <td class="wrap-cell"><b>${esc(it.zh)}</b></td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.4px;color:var(--text-3)">${esc(it.hint)}</td>
+  <td style="white-space:normal">${it.acts.map((a) => `<span class="tag write" style="margin-right:4px;margin-bottom:3px">${esc(a)}</span>`).join('')}</td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--ok)">${esc(it.ans)}</td>
+</tr>`).join('')}
+</tbody>
 </table>
 </div>
-`, 'sent')}
+<div class="note warn" style="margin-top:14px">
+  <b>固定搭配 ${SENT_GROUPS.find((g) => g.id === 'colloc')?.count || 0} 句，比任何单一语法规则都多。</b>
+  汉译英的主战场不是「语法规则」，是<b>短语能不能直接写出来</b>。
+</div>
+`, 'g-sent')}
 
-${section('动作频次', '哪几类语法动作最常考', `按出现句数排序，共 ${SENT_ITEMS.length} 句`, `
+${section('② 语法 · 解题与备考', '解题动作：先定句型，再套词，最后查一致性', '不刷语法题册，只做「一句多改」', `
 <div class="grid g2">
-  <div class="card">${groupBars}</div>
   <div class="card">
-    <h3 style="margin-bottom:10px">怎么读这张图</h3>
+    <h3 style="margin-bottom:10px">汉译英解题三步</h3>
     <ul class="clean">
-    ${SENT_GROUPS.map((g) => `<li><b>${esc(g.label)}</b>：${g.count} 句，${g.items.map((i) => `「${esc(i.zh.replace(/。$/, ''))}」`).join('、')}</li>`).join('')}
+      <li><b>看提示词定句型。</b>提示词就是骨架：给 <code style="font-family:var(--mono);font-size:12.4px">be good at</code> 就用 be good at，给 <code style="font-family:var(--mono);font-size:12.4px">there be</code> 就用 there be——不要自己换说法。</li>
+      <li><b>套词后查主谓一致。</b>主语是单数还是复数？${GRAMMAR_DOUBLE.find((g) => g.id === 'f-agree')?.writeHits || 3} 句汉译英都在考这个。</li>
+      <li><b>最后查时态与标点。</b>句末有没有句号？中文的「正在」= 现在进行时，别写成一般现在时。</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">备考：一句多改</h3>
+    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
+      拿一个基础句，改成四种形式——<b>三单 / 过去 / 否定 / 疑问</b>。<br><br>
+      <code style="font-family:var(--mono);font-size:12.4px;background:var(--bg-3);padding:2px 6px;border-radius:4px">She is waiting for the bus.</code><br>
+      → <code style="font-family:var(--mono);font-size:12.4px">He waits for the bus.</code>（三单）<br>
+      → <code style="font-family:var(--mono);font-size:12.4px">She waited for the bus.</code>（过去）<br>
+      → <code style="font-family:var(--mono);font-size:12.4px">She isn't waiting for the bus.</code>（否定）<br>
+      → <code style="font-family:var(--mono);font-size:12.4px">Is she waiting for the bus?</code>（疑问）
+    </p>
+    <p style="font-size:12.8px;color:var(--text-3);margin-top:10px;line-height:1.7">
+      <b>为什么有效：</b>一次操练覆盖时态、主谓一致、否定句、疑问句四族——
+      正好是单选占比最高的四族，而且是在「写」的场景下练。
+    </p>
+  </div>
+</div>
+`)}
+
+${section('③ 阅读', '解题方法：一半是细节题，先练「找」不练「猜」', `阅读 ${fmt(READ_STATS.totalScore)} 分 = 选择 ${fmt(READ_STATS.selScore)} + 简答 ${fmt(READ_STATS.ansScore)}`, `
+<div class="grid g2">
+  <div class="card">
+    <h3 style="margin-bottom:12px">阅读选择题型分布（四年 ${READ_STATS.selFams.reduce((a, f) => a + f.count, 0)} 题）</h3>
+    ${READ_STATS.selFams.map((f) => distBar(f.name, f.count, READ_STATS.selFams[0].count, ' 题')).join('')}
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:12px">阅读简答：${READ_STATS.ansCount} 题 ${fmt(READ_STATS.ansScore)} 分</h3>
+    <div style="font-size:13.4px;color:var(--text-2);line-height:1.9">
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span><b>前三题：检索</b>（问什么答什么）</span><span style="font-weight:700;color:var(--accent)">${READ_ANS_TYPES.retrievePerPaper} 题 / ${fmt(READ_ANS_TYPES.retrieveScore)} 分</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0">
+        <span><b>末题：概括或开放</b>（全文/看法）</span><span style="font-weight:700;color:var(--rose)">${READ_ANS_TYPES.openPerPaper} 题 / ${fmt(READ_ANS_TYPES.openScore)} 分</span>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px;font-size:12.8px">
+      <b>末题四年分别是</b>：蚂蚁教我们什么 / 末段作者想说什么 / 全文主要讲什么 / 是否想尝试观鸟及理由。
+      <b>永远考「概括」，不考「找」。</b>
+    </div>
+  </div>
+</div>
+<div class="note info" style="margin-top:16px">
+  <b>细节题占 ${READ_STATS.selFams[0].pct}%，是阅读选择的一半。</b>
+  这类题不需要技巧，需要「回原文找」这个动作——<b>每道题划出证据句</b>，划不出来就是靠猜。
+</div>
+`, 'r-evidence')}
+
+${section('③ 阅读 · 解题与备考', '按题型给动作，不背「阅读技巧」', '四种题型，四种动作', `
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>题型</th><th class="num">占比</th><th>解题动作</th><th>常见错因</th></tr></thead>
+<tbody>
+<tr>
+  <td><b>细节定位</b></td><td class="num">${READ_STATS.selFams[0].pct}%</td>
+  <td class="wrap-cell">回原文划出对应句，在题号旁标段落号</td>
+  <td class="wrap-cell">凭印象选；同义替换没认出来</td>
+</tr>
+<tr>
+  <td><b>主旨与标题</b></td><td class="num">${READ_STATS.selFams.find((f) => f.name.includes('主旨'))?.pct || 16}%</td>
+  <td class="wrap-cell">看首段末句 + 各段首句 + 末段；先用排除法去掉「太窄」和「太宽」</td>
+  <td class="wrap-cell">选了只讲某一段的选项</td>
+</tr>
+<tr>
+  <td><b>推断</b></td><td class="num">${READ_STATS.selFams.find((f) => f.name.includes('推断'))?.pct || 14}%</td>
+  <td class="wrap-cell">推断的答案一定能在原文找到支撑，找不到支撑的选项直接排除</td>
+  <td class="wrap-cell">选了「看似合理但文中没说」的</td>
+</tr>
+<tr>
+  <td><b>词义猜测</b></td><td class="num">${READ_STATS.selFams.find((f) => f.name.includes('词义'))?.pct || 7}%</td>
+  <td class="wrap-cell">看划线词前后一句：同义复现 / 反义对比 / 举例说明</td>
+  <td class="wrap-cell">凭「背过的意思」直选，不看上下文</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="grid g2" style="margin-top:16px">
+  <div class="card">
+    <h3 style="margin-bottom:10px">简答三查</h3>
+    <ul class="clean">
+      <li><b>查问什么。</b>问 Why 不要答 What，问 When 不要答 Where。</li>
+      <li><b>查人称时态。</b>问句是 he，答案不能照抄原文的 I；问句过去时，答案跟着过去时。</li>
+      <li><b>查是否抄多了。</b>原文一整句里只要那个短语，就只写那个短语。</li>
+    </ul>
+    <div class="note" style="margin-top:12px;font-size:12.6px">
+      <b>参考答案自己也不统一：</b>2022-23 第 44 题给的是 <code style="font-family:var(--mono)">Tiger sharks.</code>（短语），
+      2023-24 给的是完整句。所以<b>别硬凑完整句</b>——宁可短而准，不要长而错。
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">末题两句话模板</h3>
+    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
+      <b>概括型</b>（全文讲什么）：<br>
+      <code style="font-family:var(--mono);font-size:12.4px">The passage is about ______.</code><br><br>
+      <b>开放型</b>（你想不想试）：<br>
+      <code style="font-family:var(--mono);font-size:12.4px">Yes. Because ______.</code><br><br>
+      <b>关键：</b>表态明确 + 理由具体。参考答案给的就是 <code style="font-family:var(--mono);font-size:12.4px">Yes. Because it is interesting.</code>——两句就是满分。
+    </p>
+  </div>
+</div>
+`, 'r-how')}
+
+${section('④ 写作', '解题方法：提示问题就是提纲，照抄题目结构', `文段表达 ${fmt(WRITE_STATS.score)} 分，≥${WRITE_STATS.wordMin} 词`, `
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>年份</th><th>话题</th><th>提示问题（= 提纲）</th><th>提示词</th><th>范文</th></tr></thead>
+<tbody>
+${WRITE_ITEMS.map((w) => `<tr>
+  <td style="color:var(--text-3);font-size:12.4px">${esc(PAPER_STATS.find((p) => p.id === w.p).label)}</td>
+  <td class="wrap-cell"><b>${esc(w.scene)}</b></td>
+  <td class="wrap-cell" style="font-size:12.6px;color:var(--text-2)">${esc(w.questions)}</td>
+  <td class="wrap-cell" style="font-family:var(--mono);font-size:12.2px;color:var(--text-3)">${esc(w.promptWords)}</td>
+  <td>${w.essay ? '<span class="tag easy">有</span>' : '<span class="tag rare">原卷未给</span>'}</td>
+</tr>`).join('')}
+</tbody>
+</table>
+</div>
+<div class="note warn" style="margin-top:14px">
+  <b>四套题都给了 2–3 个提示问题，这就是现成的提纲。</b>
+  每个问题写 1–2 句，40 词轻松够——不需要另想结构。
+</div>
+`, 'w-prompt')}
+
+${section('④ 写作 · 真题范文拆解', '范文不长，但每句都在回应题目', '两套卷给了范文，逐句看它怎么答', `
+${WRITE_ITEMS.filter((w) => w.essay).map((w) => `
+<div class="card" style="margin-bottom:14px">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <h3 style="margin:0">${esc(w.scene)}</h3>
+    <span class="tag ch">${esc(PAPER_STATS.find((p) => p.id === w.p).label)}</span>
+    <span style="font-size:12.3px;color:var(--text-3)">${w.essay.split(/\s+/).length} 词</span>
+  </div>
+  <p style="font-size:13.4px;color:var(--text-2);line-height:1.85;background:var(--surface-2);padding:14px 16px;border-radius:10px;border-left:3px solid var(--ok)">
+    ${esc(w.essay)}
+  </p>
+  <div style="margin-top:10px;font-size:12.6px;color:var(--text-3);line-height:1.7">
+    <b>结构拆解：</b>${esc(w.questions)}
+  </div>
+</div>`).join('')}
+<div class="note" style="margin-top:6px">
+  <b>两套卷原卷未给范文</b>（${WRITE_ITEMS.filter((w) => !w.essay).map((w) => esc(PAPER_STATS.find((p) => p.id === w.p).label)).join('、')}），
+  所以只能分析题目结构，不能分析范文。这一条不补。
+</div>
+`, 'w-essay')}
+
+${section('④ 写作 · 解题与备考', '四步写完，最后一步决定分数', '内容分靠提纲，语言分靠检查', `
+<div class="grid g2">
+  <div class="card">
+    <h3 style="margin-bottom:10px">解题四步</h3>
+    <ul class="clean">
+      <li><b>读提示问题，抄成提纲。</b>${WRITE_STATS.total} 套题都有 2–3 个提示问题，一个问题是正文一段。</li>
+      <li><b>每段写 1–2 句。</b>第一句回应问题，第二句给细节（原因/例子/感受）。</li>
+      <li><b>套提示词。</b>题目给的提示词是「可以用的词」，不是必须全用——挑 2–3 个用得顺的。</li>
+      <li><b>检查三件事。</b>动词形式（三单/过去）、名词单复数、句末标点。<b>这一步最容易丢分。</b></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">备考三步</h3>
+    <ul class="clean">
+      <li><b>不背范文，背「结构」。</b>范文的话题每年换，但「问题→回答」的结构不变。</li>
+      <li><b>限时 10 分钟写 40 词。</b>写作在卷面最后，时间通常被前面挤掉——必须练到 10 分钟内完成。</li>
+      <li><b>写完必自查。</b>按上面「检查三件事」逐条过，养成习惯后每次能捡回 1–2 分。</li>
     </ul>
   </div>
 </div>
-<div class="note warn" style="margin-top:16px">
-  <b>固定搭配 ${SENT_GROUPS.find((g) => g.id === 'colloc')?.count || 0} 句，比任何单一语法规则都多。</b>
-  这说明汉译英的主战场不是「语法规则」，是<b>短语能不能直接写出来</b>。
-  这些搭配背了就能用，不需要推理——是全卷性价比最高的投入之一。
-</div>
-`, 'acts')}
-
-${section('练法', '两个动作，覆盖上面全部内容', '不刷题册，只做这两件事', `
-<div class="grid g2">
-  <div class="card">
-    <h3 style="margin-bottom:10px">① 定向拼写（单词）</h3>
-    <p style="font-size:13.3px;color:var(--text-2);line-height:1.75">
-      按上面 ${SPELL_STATS.featureCount} 类特征分批练，不背整本词表。<br>
-      <b>验收</b>：随机听写 20 个课本词（含辅音丛、双写、元音组合各若干），正确 ≥19。
-    </p>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">② 一句多改（语法）</h3>
-    <p style="font-size:13.3px;color:var(--text-2);line-height:1.75">
-      拿一个基础句，改成三单 / 过去 / 否定 / 疑问四种形式。<br>
-      <b>为什么有效</b>：一次操练同时覆盖时态、主谓一致、否定句、疑问句——
-      正好是单选 40 题里占比最高的四族，而且是在「写」的场景下练。
-    </p>
-  </div>
-</div>
-<div class="note" style="margin-top:14px">
-  <b>示例：</b><code style="font-family:var(--mono);font-size:12.6px;background:var(--bg-3);padding:2px 6px;border-radius:4px">She is waiting for the bus.</code><br>
-  → 三单：<code style="font-family:var(--mono);font-size:12.6px">He waits for the bus.</code>　
-  → 过去：<code style="font-family:var(--mono);font-size:12.6px">She waited for the bus.</code><br>
-  → 否定：<code style="font-family:var(--mono);font-size:12.6px">She isn't waiting for the bus.</code>　
-  → 疑问：<code style="font-family:var(--mono);font-size:12.6px">Is she waiting for the bus?</code><br>
-  <b>每天 5 句 × 4 改 = 20 个变形。</b>
+<div class="note risk" style="margin-top:16px">
+  <b>写作是前三项的合成：</b>单词拼写（${fmt(SPELL_TOTAL)} 分那部分）、语法形式（${fmt(SEG_SCORE['单选'].avg)} 分那部分）、
+  阅读积累的句式。所以它排在最后——前面三项稳了，写作的 10 分才拿得住。
 </div>
 `)}
 `;
+  return page('special.html', `专项复习 · ${SITE.short}`,
+    `单词、语法、阅读、写作四部分的解题方法与备考动作，全部基于 ${N_PAPERS} 套真题。`, body);
 }
 
 const pages = {
