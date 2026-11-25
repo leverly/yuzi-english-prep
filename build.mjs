@@ -142,6 +142,21 @@ a{color:inherit}
 .hero{padding:54px 0 30px;position:relative;background:var(--hero-glow)}
 .hero-split{display:grid;grid-template-columns:1.12fr .98fr;gap:38px;align-items:start}
 .hero-split.wide{grid-template-columns:1.45fr .9fr;gap:44px}
+/* 上下结构：标题与导语在上、指标卡在下。导语不限宽，一句话读完不换行 */
+.hero-stack{display:flex;flex-direction:column;gap:22px}
+.hero-stack .lede{max-width:none}
+.hero-stack .cockpit{max-width:100%;width:100%}
+/* 横排指标条：hero 改成上下结构后，原来竖排的 metric-row 会拉很高 */
+.metric-strip{display:flex;flex-wrap:wrap;gap:0}
+.metric-strip .ms-item{
+  display:flex;align-items:baseline;gap:9px;padding:10px 20px;
+  border-right:1px solid var(--border);flex:1 1 auto;min-width:0;
+}
+.metric-strip .ms-item:last-child{border-right:none}
+.metric-strip .ms-n{font-size:23px;font-weight:780;letter-spacing:-.03em;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
+.metric-strip .ms-n.ok{color:var(--ok)}
+.metric-strip .ms-l{font-size:12.6px;color:var(--text-2);font-weight:600;line-height:1.35;white-space:nowrap}
+.metric-strip .ms-l small{display:block;font-size:11.4px;color:var(--text-3);font-weight:500}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;
   color:var(--accent);border:1px solid rgba(37,99,235,.24);background:var(--surface);
@@ -416,7 +431,9 @@ ul.clean li b{color:var(--text);font-weight:650}
 .part-link small{font-size:11.8px;color:var(--text-3);font-weight:500}
 
 /* 紧凑的分值构成：不占一屏，不把 hero 撑高 */
-.seg-list{display:flex;flex-direction:column;gap:1px;margin-top:12px}
+.seg-inline{display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.seg-inline .hero-metric{margin-bottom:0;flex:0 0 auto;min-width:150px}
+.seg-list{display:flex;flex-direction:column;gap:1px;flex:1 1 260px;min-width:0}
 .seg-row{display:flex;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.8px}
 .seg-row:last-child{border-bottom:none}
 .seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
@@ -1016,25 +1033,25 @@ ${g.fams.map((f) => `<tr>
 
   const body = `
 <section class="hero" style="padding-bottom:10px">
-  <div class="hero-split wide">
+  <div class="hero-stack">
     <div>
       <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套卷 · ${LEDGER.length} 题逐题台账</div>
       <h1 style="font-size:clamp(26px,3.2vw,36px)">逐年真题</h1>
       <p class="lede">
-        ${N_PAPERS} 套西城期末卷（${YEARS.join(' / ')}）逐题拆解 <b>${LEDGER.length} 道</b>，
-        按 <b>板块 → 能力 → 难度 → 考点</b> 四个维度统计。
-        必做 ${MAIN_TOTAL} 分 / ${PAPER_STATS[0].mainCount} 小题，选做 ${BONUS_TOTAL} 分。
+        ${N_PAPERS} 套西城期末卷逐题拆解 <b>${LEDGER.length} 道</b>，按 <b>板块 → 能力 → 难度 → 考点</b> 四维统计。
       </p>
     </div>
     <aside class="cockpit">
       <div class="cockpit-top"><span class="level-pill">卷面结构 · ${N_PAPERS} 套一致</span></div>
-      ${SEG_ORDER.slice(0, 5).map((k) => `<div class="metric-row">
-        <span class="mv accent">${fmt(SEG_SCORE[k].avg)}</span>
-        <span class="ml"><b>${SEG_NAME[k]}</b>年均 ${PAPER_STATS[0].segN[k]} 小题</span>
-      </div>`).join('')}
-      <div class="metric-row" style="border-bottom:none">
-        <span class="mv ok">${BONUS_TOTAL}</span>
-        <span class="ml"><b>选做</b>计入总分，卷面封顶 ${MAIN_TOTAL}</span>
+      <div class="metric-strip">
+        ${SEG_ORDER.slice(0, 5).map((k) => `<div class="ms-item">
+          <span class="ms-n">${fmt(SEG_SCORE[k].avg)}</span>
+          <span class="ms-l">${SEG_NAME[k]}<small>${PAPER_STATS[0].segN[k]} 小题</small></span>
+        </div>`).join('')}
+        <div class="ms-item">
+          <span class="ms-n ok">${BONUS_TOTAL}</span>
+          <span class="ms-l">选做<small>封顶 ${MAIN_TOTAL}</small></span>
+        </div>
       </div>
     </aside>
   </div>
@@ -1160,7 +1177,7 @@ function buildTrend() {
 
   const body = `
 <section class="hero" style="padding-bottom:10px">
-  <div class="hero-split wide">
+  <div class="hero-stack">
     <div>
       <div class="hero-badge"><span class="dot-live"></span>跨年对比 · ${N_PAPERS} 套样本</div>
       <h1 style="font-size:clamp(26px,3.2vw,36px)">趋势与考点</h1>
@@ -1171,9 +1188,11 @@ function buildTrend() {
     </div>
     <aside class="cockpit">
       <div class="cockpit-top"><span class="level-pill">命题稳定性 · ${N_PAPERS} 套</span></div>
-      <div class="metric-row"><span class="mv ok">${PROP_SUMMARY.stable.length}</span><span class="ml"><b>年年考</b>${N_PAPERS}/${N_PAPERS} 学年都出现</span></div>
-      <div class="metric-row"><span class="mv accent">${PROP_SUMMARY.variable.length}</span><span class="ml"><b>多数年考</b>要会，但不押</span></div>
-      <div class="metric-row" style="border-bottom:none"><span class="mv gold">${PROP_SUMMARY.sporadic.length}</span><span class="ml"><b>个别年考</b>认识即可</span></div>
+      <div class="metric-strip">
+        <div class="ms-item"><span class="ms-n ok">${PROP_SUMMARY.stable.length}</span><span class="ms-l">年年考<small>${N_PAPERS}/${N_PAPERS} 学年</small></span></div>
+        <div class="ms-item"><span class="ms-n">${PROP_SUMMARY.variable.length}</span><span class="ms-l">多数年考<small>要会，但不押</small></span></div>
+        <div class="ms-item"><span class="ms-n" style="color:var(--gold)">${PROP_SUMMARY.sporadic.length}</span><span class="ms-l">个别年考<small>认识即可</small></span></div>
+      </div>
     </aside>
   </div>
 </section>
@@ -1271,7 +1290,7 @@ const SPECIAL_CRUMB = (part, sub) => {
 
 const specialHead = (kicker, title, lede, aside) => `
 <section class="hero" style="padding-bottom:8px">
-  <div class="hero-split wide">
+  <div class="hero-stack">
     <div>
       <div class="hero-badge"><span class="dot-live"></span>${kicker}</div>
       <h1 style="font-size:clamp(25px,3vw,34px)">${title}</h1>
@@ -1284,11 +1303,13 @@ const specialHead = (kicker, title, lede, aside) => `
 // 右栏的紧凑指标：一个大数 + 若干构成行，不把 hero 撑成一屏
 const segAside = (pill, bigN, bigLabel, rows, foot) => `
   <div class="cockpit-top"><span class="level-pill">${pill}</span></div>
-  <div class="hero-metric"><span class="hm-n">${bigN}</span><span class="hm-l">${bigLabel}</span></div>
-  <div class="seg-list">
-    ${rows.map(([n, label, count]) => `<div class="seg-row">
-      <span class="sr-n">${n}</span><span class="sr-l">${label}</span><span class="sr-c">${count}</span>
-    </div>`).join('')}
+  <div class="seg-inline">
+    <div class="hero-metric"><span class="hm-n">${bigN}</span><span class="hm-l">${bigLabel}</span></div>
+    <div class="seg-list">
+      ${rows.map(([n, label, count]) => `<div class="seg-row">
+        <span class="sr-n">${n}</span><span class="sr-l">${label}</span><span class="sr-c">${count}</span>
+      </div>`).join('')}
+    </div>
   </div>
   ${foot ? `<div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--border);font-size:12.2px;color:var(--text-3);line-height:1.6">${foot}</div>` : ''}`;
 
@@ -1934,6 +1955,27 @@ ${section('题型分布', `阅读选择 ${selTotal} 题怎么分`, '四年合计
 </div>
 `, 'r-evidence')}
 
+
+${section('真题证据句', `${READ_EVIDENCE_STATS.annotated} 道阅读题：题干 → 证据句 → 答案`, '每道题都能指出原文哪一句是依据', `
+<div class="note info">
+  <b>怎么用：</b>先读题干，自己在原文里找一句能推出答案的话，再看下面的证据句。
+  <b>找的不是同一句也没关系</b>——只要能推出答案就是对的；<b>一句都找不到，说明这题是靠猜对的</b>。
+</div>
+<div class="grid" style="margin-top:14px;gap:12px">
+${READ_EVIDENCE_SAMPLES.map((e) => `<div class="card" style="padding:16px 18px">
+  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:9px;flex-wrap:wrap">
+    <span class="tag ${e.seg === '阅读简答' ? 'write' : 'select'}">${esc(e.famName)}</span>
+    <span style="font-size:12.2px;color:var(--text-3)">${esc(PAPER_STATS.find((p) => p.id === e.p).label)} · 第 ${e.no} 题</span>
+    <span style="margin-left:auto;font-size:12.2px;color:var(--text-3)">${esc(e.loc)}</span>
+  </div>
+  <div style="font-size:13.2px;color:var(--text);margin-bottom:7px"><b style="color:var(--text-3);font-size:12px">题干</b><br>${esc(e.stemText || e.topic)}</div>
+  <div style="font-size:12.8px;color:var(--text-2);line-height:1.7;background:var(--accent-soft);padding:9px 12px;border-radius:7px;border-left:3px solid var(--accent)">
+    <b style="color:var(--accent);font-size:11.8px">原文证据句</b><br>“${esc(e.quote)}”
+  </div>
+  ${e.refAns ? `<div style="font-size:12.8px;color:var(--ok);margin-top:7px"><b>答案：</b>${esc(e.refAns)}</div>` : ''}
+</div>`).join('')}
+</div>
+`, 'r-proof')}
 
 ${section('解题与备考', '按题型给动作，不背「阅读技巧」', '五种题型，五种动作', `
 <div class="tbl-wrap">

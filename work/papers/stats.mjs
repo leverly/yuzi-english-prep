@@ -611,6 +611,7 @@ export const READ_EVIDENCE = READ_ITEMS.map((q) => ({
   fam: q.fam,
   famName: FAM_NAME[q.fam],
   topic: q.topic,
+  stemText: q.stemText || null,
   loc: q.evLoc,
   quote: q.evQuote,
   passage: q.passage,

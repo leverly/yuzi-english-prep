@@ -74,6 +74,21 @@ a{color:inherit}
 .hero{padding:54px 0 30px;position:relative;background:var(--hero-glow)}
 .hero-split{display:grid;grid-template-columns:1.12fr .98fr;gap:38px;align-items:start}
 .hero-split.wide{grid-template-columns:1.45fr .9fr;gap:44px}
+/* 上下结构：标题与导语在上、指标卡在下。导语不限宽，一句话读完不换行 */
+.hero-stack{display:flex;flex-direction:column;gap:22px}
+.hero-stack .lede{max-width:none}
+.hero-stack .cockpit{max-width:100%;width:100%}
+/* 横排指标条：hero 改成上下结构后，原来竖排的 metric-row 会拉很高 */
+.metric-strip{display:flex;flex-wrap:wrap;gap:0}
+.metric-strip .ms-item{
+  display:flex;align-items:baseline;gap:9px;padding:10px 20px;
+  border-right:1px solid var(--border);flex:1 1 auto;min-width:0;
+}
+.metric-strip .ms-item:last-child{border-right:none}
+.metric-strip .ms-n{font-size:23px;font-weight:780;letter-spacing:-.03em;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
+.metric-strip .ms-n.ok{color:var(--ok)}
+.metric-strip .ms-l{font-size:12.6px;color:var(--text-2);font-weight:600;line-height:1.35;white-space:nowrap}
+.metric-strip .ms-l small{display:block;font-size:11.4px;color:var(--text-3);font-weight:500}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;
   color:var(--accent);border:1px solid rgba(37,99,235,.24);background:var(--surface);
@@ -348,7 +363,9 @@ ul.clean li b{color:var(--text);font-weight:650}
 .part-link small{font-size:11.8px;color:var(--text-3);font-weight:500}
 
 /* 紧凑的分值构成：不占一屏，不把 hero 撑高 */
-.seg-list{display:flex;flex-direction:column;gap:1px;margin-top:12px}
+.seg-inline{display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.seg-inline .hero-metric{margin-bottom:0;flex:0 0 auto;min-width:150px}
+.seg-list{display:flex;flex-direction:column;gap:1px;flex:1 1 260px;min-width:0}
 .seg-row{display:flex;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.8px}
 .seg-row:last-child{border-bottom:none}
 .seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
@@ -500,7 +517,7 @@ footer b{color:var(--text-2)}
 
 
 <section class="hero" style="padding-bottom:8px">
-  <div class="hero-split wide">
+  <div class="hero-stack">
     <div>
       <div class="hero-badge"><span class="dot-live"></span>① 单词 · 音标与听填</div>
       <h1 style="font-size:clamp(25px,3vw,34px)">单词：先分清「会写」还是「认识」</h1>
@@ -509,18 +526,20 @@ footer b{color:var(--text-2)}
     </div>
     <aside class="cockpit">
   <div class="cockpit-top"><span class="level-pill">要拼写的板块</span></div>
-  <div class="hero-metric"><span class="hm-n">44.5</span><span class="hm-l">分必须写出文字<br>其余 45.5 分只需认得出</span></div>
-  <div class="seg-list">
-    <div class="seg-row">
-      <span class="sr-n">8</span><span class="sr-l">听力·填词</span><span class="sr-c">4 题</span>
-    </div><div class="seg-row">
-      <span class="sr-n">15.5</span><span class="sr-l">阅读·简答</span><span class="sr-c">4 题</span>
-    </div><div class="seg-row">
-      <span class="sr-n">4</span><span class="sr-l">音标填词</span><span class="sr-c">4 题</span>
-    </div><div class="seg-row">
-      <span class="sr-n">6</span><span class="sr-l">汉译英</span><span class="sr-c">3 题</span>
-    </div><div class="seg-row">
-      <span class="sr-n">10</span><span class="sr-l">文段表达</span><span class="sr-c">1 题</span>
+  <div class="seg-inline">
+    <div class="hero-metric"><span class="hm-n">44.5</span><span class="hm-l">分必须写出文字<br>其余 45.5 分只需认得出</span></div>
+    <div class="seg-list">
+      <div class="seg-row">
+        <span class="sr-n">8</span><span class="sr-l">听力·填词</span><span class="sr-c">4 题</span>
+      </div><div class="seg-row">
+        <span class="sr-n">15.5</span><span class="sr-l">阅读·简答</span><span class="sr-c">4 题</span>
+      </div><div class="seg-row">
+        <span class="sr-n">4</span><span class="sr-l">音标填词</span><span class="sr-c">4 题</span>
+      </div><div class="seg-row">
+        <span class="sr-n">6</span><span class="sr-l">汉译英</span><span class="sr-c">3 题</span>
+      </div><div class="seg-row">
+        <span class="sr-n">10</span><span class="sr-l">文段表达</span><span class="sr-c">1 题</span>
+      </div>
     </div>
   </div>
   <div style="margin-top:10px;padding-top:9px;border-top:1px solid var(--border);font-size:12.2px;color:var(--text-3);line-height:1.6">音标题 16 词，全是基础词</div></aside>

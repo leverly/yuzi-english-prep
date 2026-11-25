@@ -555,22 +555,36 @@ for (const f of ALL_HTML) {
   ok(/\.quiz-item\s+\.qi-ans\{[^}]*display:\s*none/.test(html), '答案默认隐藏，判错后才显示');
 }
 
-/* ---------- 10k. 阅读证据句两节已删除：数据留在台账，页面不得复活 ---------- */
-// 2026-11-25 判定价值不足：卡片上的「题目」是分类标签不是题干，
-// 学生无法验证自己会不会做；10 条证据句还是用「…」拼接的，作为「示范」本身就是错的。
-// 数据（evLoc / evQuote / passage）保留在 ledger.mjs，页面不再渲染。
+/* ---------- 10k. 阅读证据句：两节必须在，且必须是真实题干 + 完整句 ---------- */
+// 历史：2026-11-25 曾因两个缺陷删除本功能——
+//   ① 卡片上的「题目」是分类标签（「海报信息定位」），不是题干，学生无法自测
+//   ② 证据句用「…」拼接，作为「示范」本身就是错的
+// 两个缺陷已修：ledger 补 stemText（73 题真实题干）、evQuote 全部换成完整原文句。
+// 本断言把这个标准固定下来，防止再退化成标签或拼接句。
 {
   const html = readFileSync('special-read.html', 'utf8');
-  ok(!html.includes('真题证据句'), 'special-read.html 不含已删除的「真题证据句」节');
-  ok(!html.includes('全部证据句'), 'special-read.html 不含已删除的「全部证据句」节');
-  ok(!html.includes('r-proof') && !html.includes('r-all'), '两节的锚点已移除');
 
-  // 台账数据必须仍在（删的是页面，不是数据）
-  ok(READ_EVIDENCE.length >= 60, `台账仍保留 ${READ_EVIDENCE.length} 条证据句数据（含选做）`);
-  ok(READ_EVIDENCE.every((e) => e.quote && e.loc), '台账证据句仍有 quote 与位置');
+  ok(html.includes('真题证据句'), '阅读页有「真题证据句」节');
+  ok(html.includes('题干'), '证据句卡片标的是「题干」不是分类标签');
 
-  // 「划证据句」这个动作指令必须还在（它才是可执行的部分）
-  ok(html.includes('划出证据句') || html.includes('划证据句'), '阅读页仍保留「划证据句」动作指令');
+  // 每条样本必须有 stemText（真实题干），且不能是分类标签那种短名词
+  const noStem = READ_EVIDENCE.filter((e) => !e.stemText);
+  ok(noStem.length === 0, `全部 ${READ_EVIDENCE.length} 条证据句都有真实题干（缺 ${noStem.length}）`);
+
+  // 题干必须像题干：含问号 / 填空线 / 祈使句，且不短于 12 字符
+  const badStem = READ_EVIDENCE.filter((e) => e.stemText && (e.stemText.length < 12));
+  ok(badStem.length === 0, `题干部过短（<12 字符）的：${badStem.length} 条`);
+
+  // ⚠ 这一条是核心：证据句不得用省略号拼接
+  const ell = READ_EVIDENCE.filter((e) => e.quote.includes('…'));
+  ok(ell.length === 0, `证据句不得用「…」拼接（实为 ${ell.length} 条${ell.length ? '：' + ell.slice(0, 3).map((e) => e.no).join(',') : ''}）`);
+
+  // 证据句必须足够长，能用来自证（短于 15 字符的多半是短语不是句子）
+  const tooShort = READ_EVIDENCE.filter((e) => e.quote.length < 15);
+  ok(tooShort.length === 0, `证据句短于 15 字符的：${tooShort.length} 条`);
+
+  // 「划证据句」这个动作指令必须还在
+  ok(html.includes('划出证据句') || html.includes('划证据句') || html.includes('找一句能推出答案'), '阅读页保留「划证据句」动作指令');
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */

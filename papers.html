@@ -74,6 +74,21 @@ a{color:inherit}
 .hero{padding:54px 0 30px;position:relative;background:var(--hero-glow)}
 .hero-split{display:grid;grid-template-columns:1.12fr .98fr;gap:38px;align-items:start}
 .hero-split.wide{grid-template-columns:1.45fr .9fr;gap:44px}
+/* 上下结构：标题与导语在上、指标卡在下。导语不限宽，一句话读完不换行 */
+.hero-stack{display:flex;flex-direction:column;gap:22px}
+.hero-stack .lede{max-width:none}
+.hero-stack .cockpit{max-width:100%;width:100%}
+/* 横排指标条：hero 改成上下结构后，原来竖排的 metric-row 会拉很高 */
+.metric-strip{display:flex;flex-wrap:wrap;gap:0}
+.metric-strip .ms-item{
+  display:flex;align-items:baseline;gap:9px;padding:10px 20px;
+  border-right:1px solid var(--border);flex:1 1 auto;min-width:0;
+}
+.metric-strip .ms-item:last-child{border-right:none}
+.metric-strip .ms-n{font-size:23px;font-weight:780;letter-spacing:-.03em;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
+.metric-strip .ms-n.ok{color:var(--ok)}
+.metric-strip .ms-l{font-size:12.6px;color:var(--text-2);font-weight:600;line-height:1.35;white-space:nowrap}
+.metric-strip .ms-l small{display:block;font-size:11.4px;color:var(--text-3);font-weight:500}
 .hero-badge{
   display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:600;
   color:var(--accent);border:1px solid rgba(37,99,235,.24);background:var(--surface);
@@ -348,7 +363,9 @@ ul.clean li b{color:var(--text);font-weight:650}
 .part-link small{font-size:11.8px;color:var(--text-3);font-weight:500}
 
 /* 紧凑的分值构成：不占一屏，不把 hero 撑高 */
-.seg-list{display:flex;flex-direction:column;gap:1px;margin-top:12px}
+.seg-inline{display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.seg-inline .hero-metric{margin-bottom:0;flex:0 0 auto;min-width:150px}
+.seg-list{display:flex;flex-direction:column;gap:1px;flex:1 1 260px;min-width:0}
 .seg-row{display:flex;align-items:baseline;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12.8px}
 .seg-row:last-child{border-bottom:none}
 .seg-row .sr-n{font-size:15px;font-weight:750;font-variant-numeric:tabular-nums;min-width:26px;color:var(--accent)}
@@ -493,37 +510,37 @@ footer b{color:var(--text-2)}
 <main class="wrap">
 
 <section class="hero" style="padding-bottom:10px">
-  <div class="hero-split wide">
+  <div class="hero-stack">
     <div>
       <div class="hero-badge"><span class="dot-live"></span>4 套卷 · 233 题逐题台账</div>
       <h1 style="font-size:clamp(26px,3.2vw,36px)">逐年真题</h1>
       <p class="lede">
-        4 套西城期末卷（2021-22 / 2022-23 / 2023-24 / 2024-25）逐题拆解 <b>233 道</b>，
-        按 <b>板块 → 能力 → 难度 → 考点</b> 四个维度统计。
-        必做 90 分 / 55 小题，选做 10 分。
+        4 套西城期末卷逐题拆解 <b>233 道</b>，按 <b>板块 → 能力 → 难度 → 考点</b> 四维统计。
       </p>
     </div>
     <aside class="cockpit">
       <div class="cockpit-top"><span class="level-pill">卷面结构 · 4 套一致</span></div>
-      <div class="metric-row">
-        <span class="mv accent">12</span>
-        <span class="ml"><b>听力·选择</b>年均 8 小题</span>
-      </div><div class="metric-row">
-        <span class="mv accent">8</span>
-        <span class="ml"><b>听力·填词</b>年均 4 小题</span>
-      </div><div class="metric-row">
-        <span class="mv accent">10</span>
-        <span class="ml"><b>单项填空</b>年均 10 小题</span>
-      </div><div class="metric-row">
-        <span class="mv accent">4</span>
-        <span class="ml"><b>完形·选词</b>年均 4 小题</span>
-      </div><div class="metric-row">
-        <span class="mv accent">6</span>
-        <span class="ml"><b>完形·选择</b>年均 6 小题</span>
-      </div>
-      <div class="metric-row" style="border-bottom:none">
-        <span class="mv ok">10</span>
-        <span class="ml"><b>选做</b>计入总分，卷面封顶 90</span>
+      <div class="metric-strip">
+        <div class="ms-item">
+          <span class="ms-n">12</span>
+          <span class="ms-l">听力·选择<small>8 小题</small></span>
+        </div><div class="ms-item">
+          <span class="ms-n">8</span>
+          <span class="ms-l">听力·填词<small>4 小题</small></span>
+        </div><div class="ms-item">
+          <span class="ms-n">10</span>
+          <span class="ms-l">单项填空<small>10 小题</small></span>
+        </div><div class="ms-item">
+          <span class="ms-n">4</span>
+          <span class="ms-l">完形·选词<small>4 小题</small></span>
+        </div><div class="ms-item">
+          <span class="ms-n">6</span>
+          <span class="ms-l">完形·选择<small>6 小题</small></span>
+        </div>
+        <div class="ms-item">
+          <span class="ms-n ok">10</span>
+          <span class="ms-l">选做<small>封顶 90</small></span>
+        </div>
       </div>
     </aside>
   </div>
