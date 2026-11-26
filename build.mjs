@@ -384,6 +384,7 @@ ul.clean li b{color:var(--text);font-weight:650}
   display:flex;gap:6px;flex-wrap:wrap;margin-bottom:26px;padding:5px;
   background:var(--surface);border:1px solid var(--border);border-radius:13px;box-shadow:var(--shadow-1);
 }
+.subtabs a.back{color:var(--text-3);font-weight:550;margin-right:4px}
 .subtabs a{
   display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:9px;
   text-decoration:none;color:var(--text-2);font-size:13.6px;font-weight:600;
@@ -535,12 +536,17 @@ footer b{color:var(--text-2)}
 `;
 
 /* ============================ 公共片段 ============================ */
+// 七项导航，与数学站对齐。
+// 英语没有多考区，不需要数学站那个「考区选择器」当 index，所以 index 直接是考情总览。
+// 「专项复习」不占导航——它是方法参考，从备考诊断页进入（见 PRACTICE → 专项）。
 const NAV = [
-  ['index.html', '总览'],
-  ['papers.html', '逐年考情'],
-  ['trend.html', '整体考情'],
-  ['special.html', '专项复习'],
-  ['slides.html', '演示', 'nav-slides'],
+  ['index.html', '考情总览'],
+  ['papers.html', '逐年拆解'],
+  ['trend.html', '整体解读'],
+  ['plan.html', '备考计划'],
+  ['practice.html', '备考诊断'],
+  ['history.html', '学情数据'],
+  ['slides.html', '考情精简版', 'nav-slides'],
 ];
 
 // 专项复习的分层结构：一级 = 四个部分，二级只在语法下面。
@@ -559,6 +565,7 @@ const GRAMMAR_SUBS = [
 // 专项子页的二级切换条（只在四个部分页上出现）
 function specialTabs(activePart) {
   return `<div class="subtabs">
+  <a href="practice.html" class="back">← 备考诊断</a>
   <a href="special.html" class="${activePart ? '' : 'on'}">专项总览</a>
   ${SPECIAL_PARTS.map((p) => `<a href="${p.file}" class="${p.id === activePart ? 'on' : ''}"><span class="sn">${p.n}</span>${p.label}</a>`).join('')}
 </div>`;
@@ -640,8 +647,8 @@ function buildHome() {
         听写、简答、音标、汉译英、作文。这${SPAN_CN}年的卷子结构一动没动，所以分数差距几乎全在<b>输出端的形式准确性</b>上。
       </p>
       <div class="hero-cta">
-        <a class="btn primary" href="trend.html">看整体考情</a>
-        <a class="btn" href="special.html">看专项复习</a>
+        <a class="btn primary" href="practice.html">开始诊断</a>
+        <a class="btn" href="trend.html">先看考情</a>
       </div>
       <div class="hero-trust">
         <span><b>✓</b>${N_PAPERS} 套卷逐题标注</span>
@@ -687,10 +694,10 @@ function buildHome() {
           <span class="mi-main"><b>整体考情</b><small>四年聚合 · 结构 / 作答 / 考点族 / A 篇 / 选做</small></span>
           <span class="mi-go">查看 →</span>
         </a>
-        <a class="mission-item" href="special.html">
+        <a class="mission-item" href="practice.html">
           <span class="mi-ico rose">📝</span>
-          <span class="mi-main"><b>专项复习</b><small>单词 / 语法 / 阅读 / 写作 四页</small></span>
-          <span class="mi-go">查看 →</span>
+          <span class="mi-main"><b>备考诊断</b><small>练一轮 · 看弱在哪 · 去对应专项</small></span>
+          <span class="mi-go">开始 →</span>
         </a>
       </div>
     </aside>
@@ -1109,7 +1116,8 @@ ${section('⑧ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 �
 // 数字仍全部从 stats.mjs 派生，不写常量。
 
 const SPECIAL_CRUMB = (part, sub) => {
-  const items = [{ href: 'special.html', label: '专项复习' }];
+  // 专项是「备考诊断」的下级：诊断发现弱项 → 来这里看方法
+  const items = [{ href: 'practice.html', label: '备考诊断' }, { href: 'special.html', label: '专项复习' }];
   if (part) items.push({ href: part.file, label: part.title });
   if (sub) items.push({ label: sub.label });
   return crumb(items);
@@ -1150,6 +1158,7 @@ function buildSpecial() {
   };
 
   const body = `
+${SPECIAL_CRUMB(null)}
 ${specialHead(
     `${N_PAPERS} 套真题 · 四部分逐题实证`,
     '专项复习',
@@ -1855,6 +1864,71 @@ ${section('解题与备考', '四步写完，最后一步决定分数', '内容�
     `文段表达 ${fmt(WRITE_STATS.score)} 分：${WRITE_STATS.total} 套真题的提纲怎么读，以及四步写法与自查清单。`, body);
 }
 
+
+/* ============================ 占位页（分步建设中） ============================ */
+// 导航先立起来，内容按步骤填。占位页明确写「这一步还没做」，不放无意义内容。
+function placeholderPage(active, h1, lede, todo) {
+  const body = `
+<section class="hero" style="padding-bottom:10px">
+  <div class="hero-stack">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>分步建设中</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">${esc(h1)}</h1>
+      <p class="lede">${lede}</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><div class="section-head-left">
+    <span class="kicker">待建内容</span>
+    <h2>这一页要放什么</h2>
+    <span class="sub">按规划逐项填，填完一项勾一项</span>
+  </div></div>
+  <ul class="clean">
+    ${todo.map((t) => `<li>${t}</li>`).join('')}
+  </ul>
+  <div class="note warn" style="margin-top:18px">
+    <b>当前状态：占位。</b>导航已经指向这里，但内容还没做。
+    先立导航是为了让整体形态可见，不代表这些功能已完成。
+  </div>
+</section>`;
+  return page(active, `${h1} · ${SITE.short}`, `${h1}（建设中）`, body);
+}
+
+function buildPlan() {
+  return placeholderPage('plan.html', '备考计划',
+    '按「先练什么、后练什么」排出顺序。顺序由四套真题的分值分布决定，不凭感觉。',
+    [
+      '<b>三类分法</b>：选择型 55.5 分 / 输出型 44.5 分，两类的练法不同',
+      '<b>优先级排序</b>：按「分值 × 提分确定性」排，不是按难度排',
+      '<b>阶段与停止条件</b>：每阶段带 Go / No-Go，不达标不加内容',
+      '<b>可打印自检清单</b>：按板块检查，不按题号',
+    ]);
+}
+
+function buildPractice() {
+  return placeholderPage('practice.html', '备考诊断',
+    '练一轮，看弱在哪，再决定下一轮练什么。这是整条备考链的入口。',
+    [
+      '<b>题库</b>：233 道真题结构化（选择型可自动判分）',
+      '<b>输出题自评</b>：音标 / 听填 / 简答 / 作文不能机器判分，让学生自评「拼错 / 形式错 / 没思路」',
+      '<b>本轮诊断</b>：按四部分（单词 12 / 语法 10 / 阅读 40 / 写作 10）报掌握度',
+      '<b>去专项</b>：哪个部分弱，直接跳对应的专项页看方法',
+    ]);
+}
+
+function buildHistory() {
+  return placeholderPage('history.html', '学情数据',
+    '每一轮的结果都记下来，看的是「同一类错误还会不会再犯」。',
+    [
+      '<b>逐轮记录</b>：时间 / 得分 / 用时 / 四部分各自的得分',
+      '<b>四部分掌握度</b>：累计各部分的正确率',
+      '<b>错因分布</b>：拼错 / 形式错 / 没思路各几次',
+      '<b>复现率</b>：同一考点族第二次做是否还错——这是唯一有意义的进步指标',
+    ]);
+}
+
 const pages = {
   'index.html': buildHome(),
   'papers.html': buildPapers(),
@@ -1866,6 +1940,9 @@ const pages = {
   'special-grammar-sent.html': buildSpecialGrammarSent(),
   'special-read.html': buildSpecialRead(),
   'special-write.html': buildSpecialWrite(),
+  'plan.html': buildPlan(),
+  'practice.html': buildPractice(),
+  'history.html': buildHistory(),
 };
 
 for (const [name, html] of Object.entries(pages)) {

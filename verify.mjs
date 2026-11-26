@@ -306,7 +306,7 @@ for (const f of ALL_HTML) {
 /* ---------- 10g. 导航标签必须全站一致 ---------- */
 {
   // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
-  const NAV_LABELS = ['总览', '逐年考情', '整体考情', '专项复习', '演示'];
+  const NAV_LABELS = ['考情总览', '逐年拆解', '整体解读', '备考计划', '备考诊断', '学情数据', '考情精简版'];
   for (const f of ALL_HTML) {
     const html = readFileSync(f, 'utf8');
     const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
@@ -322,19 +322,18 @@ for (const f of ALL_HTML) {
   ok(!idx.includes('这一版明确做不到'), '首页不含已删除的「样本边界」节');
 }
 
-/* ---------- 10g-2. 冲刺计划整页已删除：不得复活、不得留死链 ---------- */
-// 用户判定该页没有实际价值（阶段/达标线是我自己的工作流程与假设值，不是学生能用的东西）。
+/* ---------- 10g-2. 备考计划：必须是「按分值排的练法」，不得回到「冲刺计划」 ---------- */
+// 历史：旧的「冲刺计划」页被用户判定无价值（阶段/达标线是建站流程与假设值，不是学生能用的）。
+// 2026-11-26 按数学站框架重建 plan.html，定位改为「先练什么、后练什么」。
+// 守卫：这一页必须在，但不得退回旧形态（自述阶段、假设达标线）。
 {
-  const exists = (() => { try { readFileSync('plan.html'); return true; } catch { return false; } })();
-  ok(!exists, 'plan.html 已删除且不再生成');
-
+  const html = readFileSync('plan.html', 'utf8');
+  ok(html.length > 5000, `plan.html 有实际内容（${Math.round(html.length / 1024)} KB）`);
+  ok(html.includes('备考计划'), 'plan.html 标题为「备考计划」');
+  ok(!html.includes('冲刺计划'), 'plan.html 不叫「冲刺计划」（旧形态）');
   for (const f of ALL_HTML) {
-    const html = readFileSync(f, 'utf8');
-    // 不能有指向 plan.html 的链接，否则是死链
-    ok(!html.includes('href="plan.html"'), `${f} 无指向已删除页面的死链`);
-    ok(!html.includes('冲刺计划'), `${f} 无「冲刺计划」字样`);
+    ok(!readFileSync(f, 'utf8').includes('冲刺计划'), `${f} 无「冲刺计划」字样`);
   }
-  // 导航项数必须与 ALL_PAGES 一致（防止只删页面忘了删导航）
   const navN = (readFileSync('index.html', 'utf8').match(/class="hdr-nav"/) ? 1 : 0);
   ok(navN === 1, '首页导航容器仍在');
 }
@@ -742,6 +741,36 @@ for (const f of ALL_HTML) {
     const shown = (row.match(/<td class="num">(\d+)<\/td>/) || [])[1];
     ok(shown && +shown === n, `「${w.scene}」页面显示 ${shown} 个问题（应为 ${n}）`);
   }
+}
+
+/* ---------- 10r. 七项导航与页面归属 ---------- */
+// 按数学站框架重建（2026-11-26）：7 项导航，专项不占导航、降为「备考诊断」的下级。
+{
+  const idx = readFileSync('index.html', 'utf8');
+
+  // 七项导航必须齐全且顺序正确
+  const NAV_ORDER = ['考情总览', '逐年拆解', '整体解读', '备考计划', '备考诊断', '学情数据', '考情精简版'];
+  const navBlock = (idx.match(/<nav class="hdr-nav">([\s\S]*?)<\/nav>/) || [])[1] || '';
+  const labels = [...navBlock.matchAll(/>([^<>]{2,8})<\/a>/g)].map((m) => m[1]);
+  ok(JSON.stringify(labels) === JSON.stringify(NAV_ORDER), `导航 7 项且顺序正确：${labels.join(' / ')}`);
+
+  // 专项不在导航里
+  ok(!navBlock.includes('专项'), '专项复习不占导航项');
+
+  // 三个新页必须存在且非空（占位也要有内容说明）
+  for (const f of ['plan.html', 'practice.html', 'history.html']) {
+    const h = readFileSync(f, 'utf8');
+    ok(h.length > 5000, `${f} 有实际内容（${Math.round(h.length / 1024)} KB）`);
+  }
+
+  // 首页主入口是诊断
+  ok(/class="btn primary" href="practice\.html"/.test(idx), '首页主按钮指向备考诊断');
+
+  // 专项页必须能回到诊断
+  const sp = readFileSync('special.html', 'utf8');
+  ok(sp.includes('href="practice.html"'), '专项总览可返回备考诊断');
+  const sw = readFileSync('special-word.html', 'utf8');
+  ok(sw.includes('href="practice.html"') && sw.includes('备考诊断'), '专项子页可返回备考诊断');
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */
