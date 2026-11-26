@@ -765,7 +765,7 @@ ${section('核心判断', '三个判断，决定复习顺序', '每条都能追�
       <span class="sell-tag">证据</span>
       <p>基础 ${fmt(BASE_AVG)} 分 + 中档 ${fmt(MID_AVG)} 分 = <b>${fmt(BASE_MID)} 分（${BASE_MID_PCT}%）</b>；较难 ${fmt(HARD_AVG)} 分（${DIFF_SCORE.hard.pct}%）。</p>
       <p>难度指数${SPAN_CN}年在 ${DIFF_INDEX_MIN}–${DIFF_INDEX_MAX} 之间（1=全基础，3=全较难），几乎没有波动。所以<b>不必押难题，要把中档题的准确率做满</b>。</p>
-      <a class="sell-link" href="papers.html#diff">看难度分布 →</a>
+      <a class="sell-link" href="trend.html#diff">看难度分布 →</a>
     </div>
   </div>
 </div>
@@ -872,8 +872,8 @@ ${section('分值权重', `分值最高的 ${TOP_FAM_COUNT} 个考点族`, '按�
 <div class="note" style="margin-top:16px">
   前 ${TOP_FAM_COUNT} 族合计年均 <b>${fmt(sum(topFams.map((f) => f.avgPerYear)))} 分</b>，
   占全卷 ${ALL_TOTAL} 分的 <b>${Math.round((sum(topFams.map((f) => f.avgPerYear)) / ALL_TOTAL) * 100)}%</b>。
-  ${FAM_RANKED.length} 族的完整逐年明细见 <a href="trend.html#fam" style="color:var(--accent);font-weight:650">趋势与考点</a>，
-  族 × 学年的分值热力图见 <a href="papers.html#fam-heat" style="color:var(--accent);font-weight:650">逐年真题</a>。
+  ${FAM_RANKED.length} 族的完整逐年明细与热力图都在
+  <a href="papers.html#fam-heat" style="color:var(--accent);font-weight:650">逐年真题 · 考点族与权重</a>。
 </div>
 `)}
 `;
@@ -1037,7 +1037,8 @@ ${g.fams.map((f) => `<tr>
       <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套卷 · ${LEDGER.length} 题逐题台账</div>
       <h1 style="font-size:clamp(26px,3.2vw,36px)">逐年真题</h1>
       <p class="lede">
-        ${N_PAPERS} 套西城期末卷逐题拆解 <b>${LEDGER.length} 道</b>，按 <b>板块 → 能力 → 难度 → 考点</b> 四维统计。
+        ${N_PAPERS} 套西城期末卷逐题拆解 <b>${LEDGER.length} 道</b>，按 <b>板块 → 考点 → 逐年</b> 三层展开。
+        跨年的能力与难度分布见 <a href="trend.html" style="color:var(--accent);font-weight:600">趋势与考点</a>。
       </p>
     </div>
     <aside class="cockpit">
@@ -1058,36 +1059,7 @@ ${g.fams.map((f) => `<tr>
 
 ${section('① 板块', '各板块分值', `条长 = ${N_PAPERS} 年平均分值；${SEG_FIXED.length} 个板块的逐年分值完全一致`, segTable)}
 
-${section('② 能力', '各能力分值', '四层能力，对应四种不同的补救动作', `
-<div class="grid g2">
-  <div class="card">${catBars}</div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">四层能力与补救动作</h3>
-    <ul class="clean">
-    ${CAT_ORDER.map((k) => `<li><b>${CAT_NAME[k]}</b>：${esc(CAT_NOTE[k])}</li>`).join('')}
-    </ul>
-  </div>
-</div>
-`)}
-
-${section('③ 难度', '难度三级分布', `按分值与题量两种口径统计`, `
-<div class="grid g2">
-  <div class="card">
-    <h3 style="margin-bottom:10px">按分值（年均）</h3>
-    ${diffBars}
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">按题量（年均）</h3>
-    ${DIFF_ORDER.map((k) => distBar(DIFF_NAME[k], +(DIFF_SCORE[k].perN.reduce((a, b) => a + b, 0) / N_PAPERS).toFixed(1), PAPER_STATS[0].mainCount, ' 题', k === 'easy' ? 'ok' : k === 'hard' ? 'rose' : '')).join('')}
-    <div class="note" style="margin-top:12px">
-      较难档 ${fmt(HARD_AVG)} 分 / 年均 ${(DIFF_SCORE.hard.perN.reduce((a, b) => a + b, 0) / N_PAPERS).toFixed(1)} 题，
-      集中在 <b>文段表达</b> 与 <b>阅读最后一道主旨/开放题</b>。
-    </div>
-  </div>
-</div>
-`)}
-
-${section('④ 考点', '考点族与权重', `行 = 考点族，列 = 学年，格子深浅 = 该年分值；最右 = 年均分`, `
+${section('② 考点', '考点族与权重', `行 = 考点族，列 = 学年，格子深浅 = 该年分值；最右 = 年均分`, `
 ${famHeat}
 <div class="note" style="margin-top:16px">
   按<b>板块</b>分组，组内按${SPAN_CN}年合计分值降序。共 ${FAM_RANKED.length} 个必做考点族${FAM_MAP.some((f) => f.onlyBonus) ? `，另有 ${FAM_MAP.filter((f) => f.onlyBonus).length} 个只在选做出现` : ''}。
@@ -1095,7 +1067,7 @@ ${famHeat}
 </div>
 `, 'fam-heat')}
 
-${section('⑤ 逐年', '每套卷的明细', '同一批数据的逐年视图', paperCards)}
+${section('③ 逐年', '每套卷的明细', '同一批数据的逐年视图', paperCards)}
 `;
 
   return page('papers.html', `逐年真题 · ${SITE.short}`, `${N_PAPERS} 套西城期末英语卷逐题拆解。`, body);
@@ -1109,6 +1081,13 @@ function buildTrend() {
     <td><span class="tag ${s.same ? 'easy' : 'hard'}">${s.same ? `${SPAN_CN}年一致` : '有变化'}</span></td>
     <td style="color:var(--text-3);font-size:12.5px;white-space:normal">${s.note ? esc(s.note) : ''}</td>
   </tr>`).join('');
+
+  // 能力 / 难度：四年年均汇总（从 papers 页迁来，属整体统计）
+  const catBars = CAT_ORDER.map((k) => distBar(CAT_NAME[k], CAT_SCORE[k].avg, ALL_TOTAL, ' 分')).join('');
+  const diffBars = DIFF_ORDER.map((k) => {
+    const cls = k === 'easy' ? 'ok' : k === 'mid' ? '' : 'rose';
+    return distBar(DIFF_NAME[k], DIFF_SCORE[k].avg, ALL_TOTAL, ' 分', cls);
+  }).join('');
 
   // 作答方式：选择 vs 输出
   const modeCards = MODE_BREAKDOWN.map((b) => {
@@ -1181,8 +1160,8 @@ function buildTrend() {
       <div class="hero-badge"><span class="dot-live"></span>跨年对比 · ${N_PAPERS} 套样本</div>
       <h1 style="font-size:clamp(26px,3.2vw,36px)">趋势与考点</h1>
       <p class="lede">
-        ${N_PAPERS} 套卷跨年对比：<b>什么没变</b>（结构、板块分值）、<b>什么在变</b>（能力与难度分布）、
-        以及 <b>${FAM_RANKED.length} 个考点族</b>的分值权重与逐年命中。
+        ${N_PAPERS} 套卷跨年对比：<b>什么没变</b>（结构、作答方式）、<b>什么在变</b>（能力、难度、A 篇考法、选做构成）。
+        考点族的逐年分值见 <a href="papers.html" style="color:var(--accent);font-weight:600">逐年真题</a>。
       </p>
     </div>
     <aside class="cockpit">
@@ -1233,29 +1212,69 @@ ${section('② 作答方式', '选择型与输出型', `同一份卷子，${SELE
 </div>
 `, 'mode')}
 
-${section('⑥ 阅读A篇', `A 篇${SPAN_CN}年换了不同考法`, '载体在变，考法也在变', `
+${section('③ 能力', '各能力分值', '四层能力，对应四种不同的补救动作', `
+<div class="grid g2">
+  <div class="card">${catBars}</div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">四层能力与补救动作</h3>
+    <ul class="clean">
+    ${CAT_ORDER.map((k) => `<li><b>${CAT_NAME[k]}</b>：${esc(CAT_NOTE[k])}</li>`).join('')}
+    </ul>
+  </div>
+</div>
+`, 'ability')}
+
+${section('④ 难度', '难度三级分布', `按分值与题量两种口径统计`, `
+<div class="grid g2">
+  <div class="card">
+    <h3 style="margin-bottom:10px">按分值（年均）</h3>
+    ${diffBars}
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">按题量（年均）</h3>
+    ${DIFF_ORDER.map((k) => distBar(DIFF_NAME[k], +(DIFF_SCORE[k].perN.reduce((a, b) => a + b, 0) / N_PAPERS).toFixed(1), PAPER_STATS[0].mainCount, ' 题', k === 'easy' ? 'ok' : k === 'hard' ? 'rose' : '')).join('')}
+    <div class="note" style="margin-top:12px">
+      较难档 ${fmt(HARD_AVG)} 分 / 年均 ${(DIFF_SCORE.hard.perN.reduce((a, b) => a + b, 0) / N_PAPERS).toFixed(1)} 题，
+      集中在 <b>文段表达</b> 与 <b>阅读最后一道主旨/开放题</b>。
+    </div>
+  </div>
+</div>
+`, 'diff')}
+
+${section('⑤ 阅读A篇', `A 篇${SPAN_CN}年换了不同考法`, '载体在变，考法也在变', `
 <div class="tbl-wrap">
 <table>
-<thead><tr><th>年份</th><th>载体</th><th>任务</th><th class="num">题量</th></tr></thead>
+<thead><tr><th>年份</th><th>题型</th><th>载体（取自答案位置）</th><th class="num">题量</th></tr></thead>
 <tbody>
-<tr><td><b>2021-22</b></td><td class="wrap-cell">三张动物海报（长颈鹿 / 豹 / 壁虎）</td><td class="wrap-cell">从表格里找事实：谁喜欢什么、哪种动物睡树上</td><td class="num">3</td></tr>
-<tr><td><b>2024-25</b></td><td class="wrap-cell">四项学校活动介绍（文化 / 科学 / 音乐 / 运动）</td><td class="wrap-cell">按人物需求匹配活动，含 1 个多余选项</td><td class="num">3</td></tr>
-<tr><td><b>2025-26</b></td><td class="wrap-cell">三个冬令营介绍（雪上运动 / 自然 / 雪艺术）</td><td class="wrap-cell">按人物需求匹配营地，A/B/C 三选一</td><td class="num">3</td></tr>
+${PAPER_STATS.map((p) => {
+  // A 篇 = 该卷阅读选择的前 3 题；题型与载体都从台账派生，不写死
+  const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
+  const fams = [...new Set(aq.map((q) => FAM_NAME[q.fam]))];
+  const carrier = [...new Set(aq.map((q) => (q.evLoc || '').replace(/^A 篇\s*/, '')))].filter(Boolean).join(' / ');
+  return `<tr>
+    <td><b>${esc(p.label)}</b></td>
+    <td class="wrap-cell">${fams.map((f) => esc(f.replace('阅读·', ''))).join('、')}</td>
+    <td class="wrap-cell" style="color:var(--text-2)">${esc(carrier)}</td>
+    <td class="num">${aq.length}</td>
+  </tr>`;
+}).join('')}
 </tbody>
 </table>
 </div>
 <div class="note warn" style="margin-top:14px">
-  <b>这是本站最需要小心的一处归族。</b>2021-22 的 A 篇是「读表格找事实」（细节定位），
-  2024-25 与 2025-26 才是「需求匹配」。我把前者的 3 题标为细节定位、后两套标为信息匹配，
-  因此「阅读·信息匹配」显示 <b>2/${N_PAPERS}</b> 而不是 ${N_PAPERS}/${N_PAPERS}。
+  <b>A 篇的考法前两年和后两年不一样。</b>前两套（${PAPER_STATS.filter((p) => {
+    const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
+    return aq.length && aq.every((q) => q.fam === 'f-read-detail');
+  }).map((p) => p.label).join('、')}）是「读表格找事实」——归到细节定位；
+  后两套才是「按需求匹配」——归到信息匹配。
   <br><br>
-  <b>但如果按「题位」归族（A 篇 = 匹配题），它就是 ${N_PAPERS}/${N_PAPERS}。</b>
-  两种口径都说得通——我选了按「实际考法」，因为做题动作不同（找事实 vs 做匹配）。
-  补入更多年份后若多数年份都是匹配题，这一族应改回 ${N_PAPERS}/${N_PAPERS} 口径。
+  所以「阅读·信息匹配」只有 <b>${FAM_RANKED.find((f) => f.id === 'f-read-match')?.hit || 2}/${N_PAPERS}</b> 年出现。
+  <b>如果按题位归族（A 篇 = 匹配题），它就是 ${N_PAPERS}/${N_PAPERS}</b>——
+  两种口径都说得通，这里按「做题动作」分（找事实 vs 做匹配）。
 </div>
 `, 'readA')}
 
-${section('⑦ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 分，但题型与小题数在变', `
+${section('⑥ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 分，但题型与小题数在变', `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>年份</th><th class="num">小题数</th><th class="num">分值</th><th>构成</th></tr></thead>
@@ -1270,7 +1289,7 @@ ${section('⑦ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 �
 `, 'bonus')}
 `;
 
-  return page('trend.html', `趋势与考点 · ${SITE.short}`, `${N_PAPERS} 套卷跨年对比：结构、作答方式、能力、难度、考点族。`, body);
+  return page('trend.html', `趋势与考点 · ${SITE.short}`, `${N_PAPERS} 套卷跨年对比：结构、作答方式、能力、难度、A 篇考法、选做构成。`, body);
 }
 
 

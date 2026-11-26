@@ -641,6 +641,63 @@ for (const f of ALL_HTML) {
   }
 }
 
+/* ---------- 10n. 页面分工：逐年 vs 跨年不得混装 ---------- */
+// 用户要求（2026-11-26）：papers 里的「能力」「难度」是四年年均汇总，
+// 属整体统计，应放 trend。两页职责：papers = 逐套明细，trend = 跨年对比。
+{
+  const papers = readFileSync('papers.html', 'utf8');
+  const trend = readFileSync('trend.html', 'utf8');
+
+  // papers 只放逐年内容
+  ok(!papers.includes('各能力分值'), 'papers 不含「各能力分值」（属跨年汇总）');
+  ok(!papers.includes('难度三级分布'), 'papers 不含「难度三级分布」（属跨年汇总）');
+  ok(papers.includes('各板块分值'), 'papers 有「各板块分值」');
+  ok(papers.includes('考点族与权重'), 'papers 有「考点族与权重」');
+  ok(papers.includes('每套卷的明细'), 'papers 有「每套卷的明细」');
+
+  // trend 接收了这两节
+  ok(trend.includes('各能力分值'), 'trend 有「各能力分值」');
+  ok(trend.includes('难度三级分布'), 'trend 有「难度三级分布」');
+
+  // 两页节数：papers 3 节，trend 6 节
+  const countSec = (h) => (h.match(/class="kicker"/g) || []).length;
+  ok(countSec(papers) === 3, `papers 节数 ${countSec(papers)}（应为 3）`);
+  ok(countSec(trend) === 6, `trend 节数 ${countSec(trend)}（应为 6）`);
+
+  // 编号必须连续（此前 trend 有 ①②⑥⑦ 跳号）
+  for (const [f, h] of [['papers', papers], ['trend', trend]]) {
+    const nums = [...h.matchAll(/class="kicker">([①②③④⑤⑥⑦⑧])/g)].map((m) => m[1]);
+    const CN = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
+    const expect = CN.slice(0, nums.length);
+    ok(JSON.stringify(nums) === JSON.stringify(expect),
+      `${f} 节编号连续 ${nums.join('')}（应为 ${expect.join('')}）`);
+  }
+}
+
+/* ---------- 10o. 内部锚点链接不得断（搬节后必查） ---------- */
+// 2026-11-26 从 papers 搬「能力 / 难度」到 trend 后，两处 href 指向了已不存在的锚点，
+// 点了只会跳到页面顶部。此前没有任何断言管这件事。
+{
+  const pages = {};
+  for (const f of ALL_HTML) pages[f] = new Set([...readFileSync(f, 'utf8').matchAll(/id="([a-z0-9-]+)"/g)].map((m) => m[1]));
+  // 必须扫产物 HTML，不能扫 build.mjs 源码——源码写的链接经过模板可能变形，
+  // 且反向测试改产物时源码不变，会漏判。
+  const links = [];
+  for (const f of ALL_HTML) {
+    for (const m of readFileSync(f, 'utf8').matchAll(/href="([a-z0-9-]+\.html)#([a-z0-9-]+)"/g)) links.push([m[1], m[2]]);
+  }
+  const seen = new Set();
+  const broken = [];
+  for (const [f, a] of links) {
+    if (seen.has(f + '#' + a)) continue;
+    seen.add(f + '#' + a);
+    if (!pages[f]) continue;                    // 跨站链接不管
+    if (!pages[f].has(a)) broken.push(f + '#' + a);
+  }
+  ok(broken.length === 0, `内部锚点无断链（发现 ${broken.length}${broken.length ? '：' + broken.slice(0, 4).join(', ') : ''}）`);
+  ok(links.length >= 4, `页面间有 ${links.length} 处锚点链接`);
+}
+
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */
 // esc() 不解析 Markdown，漏网的 ** 会原样显示成星号。
 for (const f of ALL_HTML) {
