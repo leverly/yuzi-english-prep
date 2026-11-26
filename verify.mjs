@@ -150,15 +150,15 @@ const alwaysN = FREQ_SUMMARY.always.length;
 const famN = FAM_MAP.filter((f) => !f.onlyBonus).length;
 ok(alwaysN <= famN, `always 族数 ${alwaysN} ≤ 必做族数 ${famN}`);
 // 族表口径（2026-11-26）：样本少时「年年考」标签区分度低，
-// papers 的族表改用「命中 n/4 年」+ 分值深浅表达，不使用「必考」标签。
+// trend 的族表（热力矩阵）用「命中 n/4 年」+ 分值深浅表达，不使用「必考」标签。
 {
-  const html = readFileSync('papers.html', 'utf8');
+  const html = readFileSync('trend.html', 'utf8');
   const ratio = alwaysN / famN;
   if (ratio > 0.6) {
     ok(html.includes('/4 年') || html.includes('/4年'),
-      `always 占比 ${Math.round(ratio * 100)}%，papers 族表用「命中 n/4 年」表达而非「必考」标签`);
+      `always 占比 ${Math.round(ratio * 100)}%，trend 族表用「命中 n/4 年」表达而非「必考」标签`);
   }
-  ok(!html.includes('必考点'), 'papers 族表不写「必考点」断言');
+  ok(!html.includes('必考点'), 'trend 族表不写「必考点」断言');
 }
 
 /* ---------- 10. 页面间数字一致 ---------- */
@@ -306,7 +306,7 @@ for (const f of ALL_HTML) {
 /* ---------- 10g. 导航标签必须全站一致 ---------- */
 {
   // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
-  const NAV_LABELS = ['总览', '逐年考情', '整体趋势', '专项复习', '演示'];
+  const NAV_LABELS = ['总览', '逐年考情', '整体考情', '专项复习', '演示'];
   for (const f of ALL_HTML) {
     const html = readFileSync(f, 'utf8');
     const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
@@ -383,8 +383,9 @@ for (const f of ALL_HTML) {
 
 /* ---------- 10i-2. 考点族热力矩阵：格子数与图例阈值必须自洽 ---------- */
 // 图例写错不会报错，但会让读者误判分档——这类错误只能靠断言拦。
+// 2026-11-26 矩阵从 papers 搬到 trend（口径归为「整体」）。
 {
-  const html = readFileSync('papers.html', 'utf8');
+  const html = readFileSync('trend.html', 'utf8');
 
   // 矩阵必须存在，且不再是气泡云
   ok(html.includes('class="heat"'), '考点族用热力矩阵呈现');
@@ -529,32 +530,18 @@ for (const f of ALL_HTML) {
   }
 }
 
-/* ---------- 10j-2. 单词页自测：可作答、可判分、答案可核对 ---------- */
-// 自测是本站唯一的「动手」入口。断言必须保证它真能判分，
-// 而不只是页面上有几行 HTML。
+/* ---------- 10j-2. 单词页：只留方法与备考，不做练习 ---------- */
+// 2026-11-26 用户要求删掉自测整节（与「专项页只要方法，不要练习题」一致）。
+// 断言改为正向守卫：方法是必须的，练习是不允许的。
 {
   const html = readFileSync('special-word.html', 'utf8');
-
-  // 每道题都要有：音标、输入框、正确答案、语境
-  const itemN = (html.match(/class="quiz-item"/g) || []).length;
-  ok(itemN === SPELL_ITEMS.length, `自测 ${itemN} 题 = 音标词 ${SPELL_ITEMS.length} 个`);
-  for (const it of SPELL_ITEMS) {
-    ok(html.includes(`data-ans="${it.word.toLowerCase()}"`), `「${it.word}」是自测题且答案已埋入`);
+  ok(html.includes('解题四步'), '单词页有「解题四步」');
+  ok(html.includes('备考三步'), '单词页有「备考三步」');
+  ok(html.includes('拼写特征') || html.includes('按易错点'), '单词页有拼写特征分类');
+  // 不得残留练习/自测
+  for (const kw of ['自测', 'quiz-item', 'q-check', 'q-score', 'qi-ans']) {
+    ok(!html.includes(kw), `单词页不含练习相关标记「${kw}」`);
   }
-
-  // 判分脚本的关键能力必须在页面上
-  ok(html.includes('q-check'), '有「对答案」按钮');
-  ok(html.includes('q-reveal'), '有「只看答案」按钮');
-  ok(html.includes('q-reset'), '有「重做」按钮');
-  ok(html.includes('q-score'), '有得分显示');
-  // 判分必须做归一化（大小写不敏感、去非字母）
-  ok(/replace\(\/\[\^a-z\]\/g,\s*''\)/.test(html), '判分做了归一化（大小写不敏感）');
-  // 错题必须能显示正确答案
-  ok(html.includes('qi-ans'), '错题可显示正确答案');
-
-  // 自测不能把答案直接写在可见文本里（否则等于送分）
-  // 答案只在 data-ans 与 .qi-ans（默认隐藏）里
-  ok(/\.quiz-item\s+\.qi-ans\{[^}]*display:\s*none/.test(html), '答案默认隐藏，判错后才显示');
 }
 
 /* ---------- 10k. 专项页只留可用内容，不留过程产物 ---------- */
@@ -616,32 +603,46 @@ for (const f of ALL_HTML) {
   }
 }
 
-/* ---------- 10n. 页面分工：逐年拆解 vs 整体趋势 ---------- */
-// 划分口径（2026-11-26 用户要求重做）：
-//   papers = 逐套卷看考情（有逐年列 / 每套明细）
-//   trend  = 四年聚合看趋势（只有年均值，没有逐年列）
-//   index  = 结论入口，不重复展开（详细数据在下层两页）
-// 判据按「内容性质」而非「节数」，搬节时不必改断言。
+/* ---------- 10n. 页面分工：逐年考情 vs 整体考情 ---------- */
+// 划分口径（2026-11-26 用户要求重做，按「数据口径」而非「内容主题」切）：
+//   papers = 逐年：一套卷一张卡，只讲该卷自己（板块分值/能力/难度/选做/难度指数）
+//   trend  = 整体：四年聚合，所有节都以年均或「四年对比」为口径
+//   index  = 结论入口，不重复展开
+//
+// 关键判据：**papers 不出现跨年并列表**（那是整体口径）；trend 的每节都必须有跨年维度。
 {
   const papers = readFileSync('papers.html', 'utf8');
   const trend = readFileSync('trend.html', 'utf8');
   const index = readFileSync('index.html', 'utf8');
 
-  // ---------- papers：只有逐年内容 ----------
-  for (const sec of ['各板块分值', '考点族与权重', 'A 篇', '选做部分', '每套卷的明细']) {
-    ok(papers.includes(sec), `papers 含逐年内容「${sec}」`);
+  // ---------- papers：只装逐套卷内容 ----------
+  for (const y of YEARS) {
+    ok(papers.includes(y), `papers 含逐年卷「${y}」的明细卡`);
   }
-  for (const sec of ['各能力分值', '难度三级分布']) {
-    ok(!papers.includes(sec), `papers 不含聚合内容「${sec}」`);
-  }
+  ok(papers.includes('难度指数'), 'papers 含每套卷的难度指数');
+  ok(papers.includes('板块分值'), 'papers 含每套卷的板块分值');
 
-  // ---------- trend：只有聚合内容 ----------
-  for (const sec of ['各能力分值', '难度三级分布', '选择型与输出型']) {
-    ok(trend.includes(sec), `trend 含聚合内容「${sec}」`);
+  // papers 不得含跨年聚合节（这些已全部搬到 trend）
+  for (const sec of ['各板块分值', '考点族与权重', 'A 篇', '选做部分']) {
+    ok(!papers.includes(sec), `papers 不含跨年聚合节「${sec}」（已在 trend）`);
   }
-  for (const sec of ['A 篇', '选做部分', '每套卷的明细']) {
-    ok(!trend.includes(sec), `trend 不含逐年内容「${sec}」`);
+  // papers 不得出现热力矩阵（族 × 学年是整体口径）
+  ok(!papers.includes('class="heat"'), 'papers 不含考点族热力矩阵（已在 trend）');
+
+  // ---------- trend：只装四年聚合内容 ----------
+  for (const sec of ['各能力分值', '难度三级分布', '选择型与输出型',
+    '各板块分值', '考点族与权重', 'A 篇', '选做部分']) {
+    ok(trend.includes(sec), `trend 含聚合节「${sec}」`);
   }
+  // trend 不得含逐套明细卡（那是逐年口径）
+  ok(!trend.includes('每套卷的明细'), 'trend 不含逐套明细（在 papers）');
+  ok(!/难度指数 <b/.test(trend), 'trend 不含逐套难度指数（在 papers）');
+
+  // ---------- 两页互指，且导语写明口径 ----------
+  ok(papers.includes('href="trend.html"'), 'papers 导语指向 trend');
+  ok(trend.includes('href="papers.html"'), 'trend 导语指向 papers');
+  ok(/一套卷一张卡|逐套/.test(papers), 'papers 导语写明「逐套」口径');
+  ok(/四年合起来|四年聚合/.test(trend), 'trend 导语写明「四年聚合」口径');
 
   // ---------- index：不重复展开 ----------
   for (const sec of ['分值分区', '选做不是optional', '分值最高的']) {
@@ -650,12 +651,18 @@ for (const f of ALL_HTML) {
   ok(index.includes('三个判断'), 'index 只保留「三个判断」作为结论入口');
 
   // ---------- 编号连续性 ----------
+  // papers 现在是「一套卷一张卡」，不再有 ①②③ 编号节——允许 0 节。
+  // trend 必须编号连续。
   for (const [f, h] of [['papers', papers], ['trend', trend]]) {
     const nums = [...h.matchAll(/class="kicker">([①②③④⑤⑥⑦⑧])/g)].map((m) => m[1]);
     const CN = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
     const expect = CN.slice(0, nums.length);
-    ok(nums.length > 0 && JSON.stringify(nums) === JSON.stringify(expect),
-      `${f} 节编号连续 ${nums.join('')}（应为 ${expect.join('')}）`);
+    if (f === 'papers') {
+      ok(nums.length === 0, `papers 无编号节（逐套卡片不需要编号，实为 ${nums.length} 节）`);
+    } else {
+      ok(nums.length > 0 && JSON.stringify(nums) === JSON.stringify(expect),
+        `${f} 节编号连续 ${nums.join('')}（应为 ${expect.join('')}）`);
+    }
   }
 }
 
@@ -691,7 +698,7 @@ for (const f of ALL_HTML) {
 // 改导航名时容易漏掉 <title> 与 <h1>，2026-11-26 改「逐年真题→逐年考情」时漏过。
 {
   // 演示页豁免：它的 h1 是封面标题（「丢分的不是不会」），不是页面名
-  const map = [['papers.html', '逐年考情'], ['trend.html', '整体趋势'], ['special.html', '专项复习']];
+  const map = [['papers.html', '逐年考情'], ['trend.html', '整体考情'], ['special.html', '专项复习']];
   for (const [f, label] of map) {
     const h = readFileSync(f, 'utf8');
     const title = (h.match(/<title>(.*?)<\/title>/) || [])[1] || '';

@@ -484,37 +484,6 @@ ul.clean li b{color:var(--text);font-weight:650}
 .heat-scroll-hint b{color:var(--accent);font-weight:650}
 @media(max-width:820px){.heat-scroll-hint{display:flex}}
 
-/* 页内自测：给音标填单词，即时判分 */
-.quiz{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;box-shadow:var(--shadow-1)}
-.quiz-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.quiz-head h3{margin:0;font-size:15.5px}
-.quiz-score{margin-left:auto;font-size:13px;font-weight:700;color:var(--text-2);font-variant-numeric:tabular-nums}
-.quiz-score b{color:var(--accent);font-size:16px}
-.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:9px}
-.quiz-item{display:grid;grid-template-columns:auto 96px 1fr;align-items:center;gap:9px;padding:9px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);transition:.15s var(--ease)}
-.quiz-item .qi-ipa{font-family:var(--mono);font-size:13px;font-weight:650;color:var(--text);white-space:nowrap}
-.quiz-item .qi-hint{font-size:11.5px;color:var(--text-3);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word;grid-column:3}
-.quiz-item input{
-  width:96px;padding:5px 8px;border:1px solid var(--border-2);border-radius:6px;
-  font-family:var(--mono);font-size:13px;background:var(--bg-2);color:var(--text);
-}
-.quiz-item input:focus{outline:2px solid var(--accent-soft-2);border-color:var(--accent)}
-.quiz-item.ok{border-color:rgba(16,185,129,.5);background:var(--ok-soft)}
-.quiz-item.ok input{border-color:var(--ok);color:var(--ok);font-weight:700}
-.quiz-item.bad{border-color:rgba(225,29,72,.45);background:var(--rose-soft)}
-.quiz-item.bad input{border-color:var(--rose);color:var(--rose)}
-.quiz-item .qi-ans{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--rose);display:none}
-.quiz-item.bad .qi-ans{display:inline}
-.quiz-actions{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap;align-items:center}
-.quiz-btn{
-  padding:8px 16px;border-radius:9px;border:1px solid var(--border-2);background:var(--surface);
-  font-size:13.2px;font-weight:650;color:var(--text);cursor:pointer;transition:.15s var(--ease);
-}
-.quiz-btn:hover{background:var(--bg-3)}
-.quiz-btn.primary{background:var(--accent-grad);color:#fff;border-color:transparent;box-shadow:var(--shadow-accent)}
-.quiz-btn.ghost{color:var(--text-3);background:transparent;border-color:transparent}
-.quiz-btn.ghost:hover{color:var(--text);background:var(--bg-3)}
-.quiz-tip{font-size:12.2px;color:var(--text-3)}
 .hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
 .hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
@@ -568,7 +537,7 @@ footer b{color:var(--text-2)}
 const NAV = [
   ['index.html', '总览'],
   ['papers.html', '逐年考情'],
-  ['trend.html', '整体趋势'],
+  ['trend.html', '整体考情'],
   ['special.html', '专项复习'],
   ['slides.html', '演示', 'nav-slides'],
 ];
@@ -670,7 +639,7 @@ function buildHome() {
         听写、简答、音标、汉译英、作文。这${SPAN_CN}年的卷子结构一动没动，所以分数差距几乎全在<b>输出端的形式准确性</b>上。
       </p>
       <div class="hero-cta">
-        <a class="btn primary" href="trend.html">先看${SPAN_CN}年趋势</a>
+        <a class="btn primary" href="trend.html">看整体考情</a>
         <a class="btn" href="special.html">看专项复习</a>
       </div>
       <div class="hero-trust">
@@ -709,12 +678,12 @@ function buildHome() {
       <div class="mission-list">
         <a class="mission-item" href="papers.html">
           <span class="mi-ico blue">📄</span>
-          <span class="mi-main"><b>逐年考情</b><small>${N_PAPERS} 套卷逐题台账</small></span>
+          <span class="mi-main"><b>逐年考情</b><small>一套卷一张卡 · 该卷分值 / 能力 / 难度</small></span>
           <span class="mi-go">查看 →</span>
         </a>
         <a class="mission-item" href="trend.html">
           <span class="mi-ico purple">📈</span>
-          <span class="mi-main"><b>整体趋势</b><small>结构 / 作答方式 / 能力 / 难度</small></span>
+          <span class="mi-main"><b>整体考情</b><small>四年聚合 · 结构 / 作答 / 考点族 / A 篇 / 选做</small></span>
           <span class="mi-go">查看 →</span>
         </a>
         <a class="mission-item" href="special.html">
@@ -775,48 +744,116 @@ ${section('核心判断', '三个判断，决定复习顺序', '每条都是四�
   return page('index.html', SITE.name, `西城区初一(上)英语期末 ${N_PAPERS} 套真题考情分析：全卷 ${ALL_TOTAL} 分里 ${fmt(WRITE_AVG)} 分要写出文字。`, body);
 }
 
-/* ============================ 逐年真题 ============================ */
+/* ============================ 逐年考情（一套卷一张卡） ============================ */
 function buildPapers() {
-  // ① 板块分值表（逐年 + 均值）
-  const segTable = `
-<div class="tbl-wrap">
-<table>
-<thead><tr>
-  <th>板块</th>
-  ${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
-  <th class="num">年均</th><th class="num">占卷面</th><th>作答</th>
-</tr></thead>
-<tbody>
-${SEG_ORDER.map((k) => {
-  const s = SEG_SCORE[k];
-  const isWrite = WRITE_SEGS.includes(k);
-  return `<tr>
-  <td><b>${esc(s.name)}</b></td>
-  ${s.per.map((v) => `<td class="num">${fmt(v)}</td>`).join('')}
-  <td class="num cell-hi">${fmt(s.avg)}</td>
-  <td class="num">${s.pct}%</td>
-  <td><span class="tag ${isWrite ? 'write' : 'select'}">${isWrite ? '输出' : '选择'}</span></td>
-</tr>`;
-}).join('')}
-</tbody>
-<tfoot><tr>
-  <td>必做合计</td>
-  ${PAPER_STATS.map((p) => `<td class="num">${p.mainTotal}</td>`).join('')}
-  <td class="num">${MAIN_TOTAL}</td><td class="num">100%</td><td></td>
-</tr></tfoot>
-</table>
+  // 本页只放「逐年」口径：每一套卷自己长什么样。
+  // 四年聚合的内容（板块年均、考点族热力、A 篇对比、选做差异）全部在 trend.html。
+  const paperCards = PAPER_STATS.map((p) => {
+    const qs = LEDGER.filter((q) => q.p === p.id);
+    const bonus = qs.filter((q) => q.bonus);
+    const segRows = SEG_ORDER.filter((k) => p.seg[k]).map((k) => {
+      const isWrite = WRITE_SEGS.includes(k);
+      return `<tr>
+        <td>${esc(SEG_NAME[k])}</td>
+        <td class="num">${fmt(p.seg[k])}</td>
+        <td class="num">${p.segN[k]}</td>
+        <td><span class="tag ${isWrite ? 'write' : 'select'}">${isWrite ? '输出' : '选择'}</span></td>
+      </tr>`;
+    }).join('');
+
+    return `
+<div class="card" style="margin-bottom:14px">
+  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+    <h3 style="margin:0;font-size:19px">${esc(p.year)}</h3>
+    <span class="tag ${p.hasAnswer ? 'easy' : 'rare'}">${p.hasAnswer ? '有答案' : '无答案'}</span>
+    <span style="font-size:12.4px;color:var(--text-3)">${esc(p.answerSource)}</span>
+    <span style="margin-left:auto;font-size:12.4px;color:var(--text-3)">难度指数 <b style="color:var(--accent)">${p.diffIndex}</b></span>
+  </div>
+  <div class="grid g2" style="gap:18px">
+    <div>
+      <div style="font-size:12.2px;font-weight:700;color:var(--text-3);letter-spacing:.04em;margin-bottom:8px">板块分值</div>
+      <div class="tbl-wrap"><table style="font-size:12.8px">
+      <thead><tr><th>板块</th><th class="num">分值</th><th class="num">题量</th><th>作答</th></tr></thead>
+      <tbody>${segRows}</tbody>
+      <tfoot><tr><td>必做</td><td class="num">${p.mainTotal}</td><td class="num">${p.mainCount}</td><td></td></tr></tfoot>
+      </table></div>
+    </div>
+    <div>
+      <div style="font-size:12.2px;font-weight:700;color:var(--text-3);letter-spacing:.04em;margin-bottom:8px">能力与难度</div>
+      ${CAT_ORDER.map((k) => distBar(CAT_NAME[k], p.allCat[k] || 0, ALL_TOTAL, ' 分')).join('')}
+      <div style="height:10px"></div>
+      ${DIFF_ORDER.map((k) => distBar(DIFF_NAME[k], p.allDiff[k] || 0, ALL_TOTAL, ' 分', k === 'easy' ? 'ok' : k === 'hard' ? 'rose' : '')).join('')}
+    </div>
+  </div>
+  <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:12.6px;color:var(--text-3);line-height:1.7">
+    <b style="color:var(--text-2)">选做 ${p.bonusTotal} 分</b>（${bonus.length} 小题）：${esc(p.bonusLayout)}。
+    ${p.note ? esc(p.note) + '。' : ''}
+  </div>
 </div>`;
+  }).join('');
 
-  // ② 能力分值
+  const body = `
+<section class="hero" style="padding-bottom:10px">
+  <div class="hero-stack">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套卷 · ${LEDGER.length} 题逐题台账</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">逐年考情</h1>
+      <p class="lede">
+        <b>一套卷一张卡</b>：该卷的板块分值、能力与难度分布、选做构成、难度指数。
+        四年合起来的趋势见 <a href="trend.html" style="color:var(--accent);font-weight:600">整体考情</a>。
+      </p>
+    </div>
+    <aside class="cockpit">
+      <div class="cockpit-top"><span class="level-pill">四套卷 · 难度指数</span></div>
+      <div class="metric-strip">
+        ${PAPER_STATS.map((p) => `<div class="ms-item">
+          <span class="ms-n">${p.diffIndex}</span>
+          <span class="ms-l">${esc(p.label)}<small>${p.hasAnswer ? '有答案' : '无答案'} · 必做 ${p.mainCount} 题</small></span>
+        </div>`).join('')}
+      </div>
+    </aside>
+  </div>
+</section>
+
+${paperCards}
+`;
+
+  return page('papers.html', `逐年考情 · ${SITE.short}`, `${N_PAPERS} 套西城期末英语卷逐套拆解：板块分值、能力与难度、选做构成、难度指数。`, body);
+}
+
+/* ============================ 整体考情（四年聚合） ============================ */
+function buildTrend() {
+  const structRows = STRUCTURE.map((s) => `<tr>
+    <td><b>${esc(s.k)}</b></td>
+    <td>${esc(s.v)}</td>
+    <td><span class="tag ${s.same ? 'easy' : 'hard'}">${s.same ? `${SPAN_CN}年一致` : '有变化'}</span></td>
+    <td style="color:var(--text-3);font-size:12.5px;white-space:normal">${s.note ? esc(s.note) : ''}</td>
+  </tr>`).join('');
+
+  // 能力 / 难度：四年年均汇总（从 papers 页迁来，属整体统计）
   const catBars = CAT_ORDER.map((k) => distBar(CAT_NAME[k], CAT_SCORE[k].avg, ALL_TOTAL, ' 分')).join('');
-
-  // ③ 难度分布
   const diffBars = DIFF_ORDER.map((k) => {
     const cls = k === 'easy' ? 'ok' : k === 'mid' ? '' : 'rose';
     return distBar(DIFF_NAME[k], DIFF_SCORE[k].avg, ALL_TOTAL, ' 分', cls);
   }).join('');
 
-  // ④ 考点族热力矩阵：行 = 族（按板块分组），列 = 学年，格子深浅 = 该年分值
+  // 作答方式：选择 vs 输出
+  const modeCards = MODE_BREAKDOWN.map((b) => {
+    const cls = b.mode === 'write' ? 'rose' : 'accent';
+    return `<div class="card">
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">
+        <span style="font-size:34px;font-weight:800;letter-spacing:-.035em;color:var(--${cls});font-variant-numeric:tabular-nums">${fmt(b.total)}</span>
+        <span style="font-size:13px;color:var(--text-3)">分 · ${b.pct}%</span>
+      </div>
+      <h3 style="margin-bottom:10px">${esc(b.name)}</h3>
+      ${b.segs.map((s) => `<div style="display:flex;justify-content:space-between;font-size:13.2px;padding:5px 0;border-bottom:1px solid var(--border)">
+        <span style="color:var(--text-2)">${esc(s.name)}</span>
+        <span style="font-weight:650;font-variant-numeric:tabular-nums">${fmt(s.score)}</span>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+
+  // 考点族热力矩阵：行 = 族（按板块分组），列 = 学年，格子深浅 = 该年分值
   // 用 per 数组（每年的分值），这是气泡云完全没用上的信息。
   const famBySeg = SEG_ORDER.map((seg) => {
     const fams = FAM_RANKED.filter((f) => f.seg.includes(seg)).sort((a, b) => b.total - a.total);
@@ -826,7 +863,6 @@ ${SEG_ORDER.map((k) => {
   // 色阶：按分位数分 5 档，不按线性映射——分值集中在 1–6，线性会把低分格挤成一团
   const allVals = FAM_RANKED.flatMap((f) => f.per).filter((v) => v > 0).sort((a, b) => a - b);
   const V_MAX = allVals[allVals.length - 1];
-  const V_MIN = allVals[0];
   const q = (p) => allVals[Math.min(allVals.length - 1, Math.floor(allVals.length * p))];
   const THRESH = [q(0.2), q(0.4), q(0.6), q(0.8)];   // 4 个分界 → 5 档
   const heatLevel = (v) => {
@@ -878,7 +914,50 @@ ${g.fams.map((f) => `<tr>
   <span class="lg-note">右侧条形 = 年均分（满分 ${fmt(V_MAX)} 分/年）</span>
 </div>`;
 
-  // ⑤ 逐卷明细卡
+  // 板块分值：4 年并列 + 年均（整体视图：看每年一样不一样）
+  const segTable = `
+<div class="tbl-wrap">
+<table>
+<thead><tr>
+  <th>板块</th>
+  ${YEARS.map((y) => `<th class="num">${y}</th>`).join('')}
+  <th class="num">年均</th><th class="num">占卷面</th><th>作答</th>
+</tr></thead>
+<tbody>
+${SEG_ORDER.map((k) => {
+  const s = SEG_SCORE[k];
+  const isWrite = WRITE_SEGS.includes(k);
+  return `<tr>
+  <td><b>${esc(s.name)}</b></td>
+  ${s.per.map((v) => `<td class="num">${fmt(v)}</td>`).join('')}
+  <td class="num cell-hi">${fmt(s.avg)}</td>
+  <td class="num">${s.pct}%</td>
+  <td><span class="tag ${isWrite ? 'write' : 'select'}">${isWrite ? '输出' : '选择'}</span></td>
+</tr>`;
+}).join('')}
+</tbody>
+<tfoot><tr>
+  <td>必做合计</td>
+  ${PAPER_STATS.map((p) => `<td class="num">${p.mainTotal}</td>`).join('')}
+  <td class="num">${MAIN_TOTAL}</td><td class="num">100%</td><td></td>
+</tr></tfoot>
+</table>
+</div>`;
+
+  // A 篇四年考法对比
+  const aRows = PAPER_STATS.map((p) => {
+    const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
+    const fams = [...new Set(aq.map((q) => FAM_NAME[q.fam]))];
+    const carrier = [...new Set(aq.map((q) => (q.evLoc || '').replace(/^A 篇\s*/, '')))].filter(Boolean).join(' / ');
+    return `<tr>
+      <td><b>${esc(p.label)}</b></td>
+      <td class="wrap-cell">${fams.map((f) => esc(f.replace('阅读·', ''))).join('、')}</td>
+      <td class="wrap-cell" style="color:var(--text-2)">${esc(carrier)}</td>
+      <td class="num">${aq.length}</td>
+    </tr>`;
+  }).join('');
+
+  // 选做四年对比
   const bonusRows = PAPER_STATS.map((p) => {
     const bonus = LEDGER.filter((q) => q.p === p.id && q.bonus);
     return `<tr>
@@ -889,221 +968,16 @@ ${g.fams.map((f) => `<tr>
     </tr>`;
   }).join('');
 
-  const paperCards = PAPER_STATS.map((p) => {
-    const qs = LEDGER.filter((q) => q.p === p.id);
-    const main = qs.filter((q) => !q.bonus);
-    const bonus = qs.filter((q) => q.bonus);
-    const segRows = SEG_ORDER.filter((k) => p.seg[k]).map((k) => {
-      const isWrite = WRITE_SEGS.includes(k);
-      return `<tr>
-        <td>${esc(SEG_NAME[k])}</td>
-        <td class="num">${fmt(p.seg[k])}</td>
-        <td class="num">${p.segN[k]}</td>
-        <td><span class="tag ${isWrite ? 'write' : 'select'}">${isWrite ? '输出' : '选择'}</span></td>
-      </tr>`;
-    }).join('');
-
-    return `
-<div class="card" style="margin-bottom:14px">
-  <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px">
-    <h3 style="margin:0;font-size:19px">${esc(p.year)}</h3>
-    <span class="tag ${p.hasAnswer ? 'easy' : 'rare'}">${p.hasAnswer ? '有答案' : '无答案'}</span>
-    <span style="font-size:12.4px;color:var(--text-3)">${esc(p.answerSource)}</span>
-    <span style="margin-left:auto;font-size:12.4px;color:var(--text-3)">难度指数 <b style="color:var(--accent)">${p.diffIndex}</b></span>
-  </div>
-  <div class="grid g2" style="gap:18px">
-    <div>
-      <div style="font-size:12.2px;font-weight:700;color:var(--text-3);letter-spacing:.04em;margin-bottom:8px">板块分值</div>
-      <div class="tbl-wrap"><table style="font-size:12.8px">
-      <thead><tr><th>板块</th><th class="num">分值</th><th class="num">题量</th><th>作答</th></tr></thead>
-      <tbody>${segRows}</tbody>
-      <tfoot><tr><td>必做</td><td class="num">${p.mainTotal}</td><td class="num">${p.mainCount}</td><td></td></tr></tfoot>
-      </table></div>
-    </div>
-    <div>
-      <div style="font-size:12.2px;font-weight:700;color:var(--text-3);letter-spacing:.04em;margin-bottom:8px">能力与难度</div>
-      ${CAT_ORDER.map((k) => distBar(CAT_NAME[k], p.allCat[k] || 0, ALL_TOTAL, ' 分')).join('')}
-      <div style="height:10px"></div>
-      ${DIFF_ORDER.map((k) => distBar(DIFF_NAME[k], p.allDiff[k] || 0, ALL_TOTAL, ' 分', k === 'easy' ? 'ok' : k === 'hard' ? 'rose' : '')).join('')}
-    </div>
-  </div>
-  <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:12.6px;color:var(--text-3);line-height:1.7">
-    <b style="color:var(--text-2)">选做 ${p.bonusTotal} 分</b>（${bonus.length} 小题）：${esc(p.bonusLayout)}。
-    ${p.note ? esc(p.note) + '。' : ''}
-  </div>
-</div>`;
-  }).join('');
-
-  const body = `
-<section class="hero" style="padding-bottom:10px">
-  <div class="hero-stack">
-    <div>
-      <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套卷 · ${LEDGER.length} 题逐题台账</div>
-      <h1 style="font-size:clamp(26px,3.2vw,36px)">逐年考情</h1>
-      <p class="lede">
-        <b>逐套卷看考情</b>：每套卷考了什么、各板块多少分、A 篇怎么考、选做是什么形态。
-        ${N_PAPERS} 套卷逐题拆解 <b>${LEDGER.length} 道</b>。
-        四年聚合后的整体趋势见 <a href="trend.html" style="color:var(--accent);font-weight:600">整体考情趋势</a>。
-      </p>
-    </div>
-    <aside class="cockpit">
-      <div class="cockpit-top"><span class="level-pill">卷面结构 · ${N_PAPERS} 套一致</span></div>
-      <div class="metric-strip">
-        ${SEG_ORDER.slice(0, 5).map((k) => `<div class="ms-item">
-          <span class="ms-n">${fmt(SEG_SCORE[k].avg)}</span>
-          <span class="ms-l">${SEG_NAME[k]}<small>${PAPER_STATS[0].segN[k]} 小题</small></span>
-        </div>`).join('')}
-        <div class="ms-item">
-          <span class="ms-n ok">${BONUS_TOTAL}</span>
-          <span class="ms-l">选做<small>封顶 ${MAIN_TOTAL}</small></span>
-        </div>
-      </div>
-    </aside>
-  </div>
-</section>
-
-${section('① 板块', '各板块分值', `条长 = ${N_PAPERS} 年平均分值；${SEG_FIXED.length} 个板块的逐年分值完全一致`, segTable)}
-
-${section('② 考点', '考点族与权重', `行 = 考点族，列 = 学年，格子深浅 = 该年分值；最右 = 年均分`, `
-${famHeat}
-<div class="note" style="margin-top:16px">
-  按<b>板块</b>分组，组内按${SPAN_CN}年合计分值降序。共 ${FAM_RANKED.length} 个必做考点族${FAM_MAP.some((f) => f.onlyBonus) ? `，另有 ${FAM_MAP.filter((f) => f.onlyBonus).length} 个只在选做出现` : ''}。
-  <b>整行满格</b> = 年年考且分值稳；<b>断续的格子</b> = 轮换项，认识即可。
-</div>
-`, 'fam-heat')}
-
-${section('③ 阅读A篇', `A 篇${SPAN_CN}年换了不同考法`, '载体在变，考法也在变', `
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>年份</th><th>题型</th><th>载体（取自答案位置）</th><th class="num">题量</th></tr></thead>
-<tbody>
-${PAPER_STATS.map((p) => {
-  // A 篇 = 该卷阅读选择的前 3 题；题型与载体都从台账派生，不写死
-  const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
-  const fams = [...new Set(aq.map((q) => FAM_NAME[q.fam]))];
-  const carrier = [...new Set(aq.map((q) => (q.evLoc || '').replace(/^A 篇\s*/, '')))].filter(Boolean).join(' / ');
-  return `<tr>
-    <td><b>${esc(p.label)}</b></td>
-    <td class="wrap-cell">${fams.map((f) => esc(f.replace('阅读·', ''))).join('、')}</td>
-    <td class="wrap-cell" style="color:var(--text-2)">${esc(carrier)}</td>
-    <td class="num">${aq.length}</td>
-  </tr>`;
-}).join('')}
-</tbody>
-</table>
-</div>
-<div class="note warn" style="margin-top:14px">
-  <b>A 篇的考法前两年和后两年不一样。</b>前两套（${PAPER_STATS.filter((p) => {
-    const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
-    return aq.length && aq.every((q) => q.fam === 'f-read-detail');
-  }).map((p) => p.label).join('、')}）是「读表格找事实」——归到细节定位；
-  后两套才是「按需求匹配」——归到信息匹配。
-  <br><br>
-  所以「阅读·信息匹配」只有 <b>${FAM_RANKED.find((f) => f.id === 'f-read-match')?.hit || 2}/${N_PAPERS}</b> 年出现。
-  <b>如果按题位归族（A 篇 = 匹配题），它就是 ${N_PAPERS}/${N_PAPERS}</b>——
-  两种口径都说得通，这里按「做题动作」分（找事实 vs 做匹配）。
-</div>
-`, 'readA')}
-
-${section('④ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 分，但题型与小题数在变', `
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>年份</th><th class="num">小题数</th><th class="num">分值</th><th>构成</th></tr></thead>
-<tbody>${bonusRows}</tbody>
-</table>
-</div>
-<div class="note" style="margin-top:14px">
-  <b>选做不是「附加题」，是必须做的 10 分阅读。</b>它计入总分（卷面封顶 ${MAIN_TOTAL}），
-  且 ${N_PAPERS} 套卷里 100% 是阅读题。<b>前三套的选做甚至比必做简答分值高</b>——
-  每题 5 分 vs 每题 2 分。把它当可跳过的部分，等于白丢 10 分。
-</div>
-`, 'bonus')}
-
-${section('⑤ 逐年', '每套卷的明细', '同一批数据的逐年视图', paperCards)}
-`;
-
-  return page('papers.html', `逐年考情 · ${SITE.short}`, `${N_PAPERS} 套西城期末英语卷逐套拆解：板块分值、考点族、A 篇、选做、每套明细。`, body);
-}
-
-/* ============================ 趋势与考点 ============================ */
-function buildTrend() {
-  const structRows = STRUCTURE.map((s) => `<tr>
-    <td><b>${esc(s.k)}</b></td>
-    <td>${esc(s.v)}</td>
-    <td><span class="tag ${s.same ? 'easy' : 'hard'}">${s.same ? `${SPAN_CN}年一致` : '有变化'}</span></td>
-    <td style="color:var(--text-3);font-size:12.5px;white-space:normal">${s.note ? esc(s.note) : ''}</td>
-  </tr>`).join('');
-
-  // 能力 / 难度：四年年均汇总（从 papers 页迁来，属整体统计）
-  const catBars = CAT_ORDER.map((k) => distBar(CAT_NAME[k], CAT_SCORE[k].avg, ALL_TOTAL, ' 分')).join('');
-  const diffBars = DIFF_ORDER.map((k) => {
-    const cls = k === 'easy' ? 'ok' : k === 'mid' ? '' : 'rose';
-    return distBar(DIFF_NAME[k], DIFF_SCORE[k].avg, ALL_TOTAL, ' 分', cls);
-  }).join('');
-
-  // 作答方式：选择 vs 输出
-  const modeCards = MODE_BREAKDOWN.map((b) => {
-    const cls = b.mode === 'write' ? 'rose' : 'accent';
-    return `<div class="card">
-      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:12px">
-        <span style="font-size:34px;font-weight:800;letter-spacing:-.035em;color:var(--${cls});font-variant-numeric:tabular-nums">${fmt(b.total)}</span>
-        <span style="font-size:13px;color:var(--text-3)">分 · ${b.pct}%</span>
-      </div>
-      <h3 style="margin-bottom:10px">${esc(b.name)}</h3>
-      ${b.segs.map((s) => `<div style="display:flex;justify-content:space-between;font-size:13.2px;padding:5px 0;border-bottom:1px solid var(--border)">
-        <span style="color:var(--text-2)">${esc(s.name)}</span>
-        <span style="font-weight:650;font-variant-numeric:tabular-nums">${fmt(s.score)}</span>
-      </div>`).join('')}
-    </div>`;
-  }).join('');
-
-  // 能力趋势
-  const catTrend = CAT_ORDER.map((k) => {
-    const c = CAT_SCORE[k];
-    return `<tr>
-      <td><b>${CAT_NAME[k]}</b></td>
-      ${c.per.map((v) => `<td class="num">${fmt(v)}</td>`).join('')}
-      <td class="num cell-hi">${fmt(c.avg)}</td>
-      <td class="num">${c.range === 0 ? '0' : fmt(c.range)}</td>
-      <td><span class="tag ${c.range === 0 ? 'easy' : c.range <= 3 ? 'mid' : 'hard'}">${c.range === 0 ? '不变' : c.range <= 3 ? '稳定' : '波动'}</span></td>
-    </tr>`;
-  }).join('');
-
-  // 难度趋势
-  const diffTrend = DIFF_ORDER.map((k) => {
-    const d = DIFF_SCORE[k];
-    return `<tr>
-      <td><b>${DIFF_NAME[k]}</b></td>
-      ${d.per.map((v) => `<td class="num">${fmt(v)}</td>`).join('')}
-      <td class="num cell-hi">${fmt(d.avg)}</td>
-      <td class="num">${fmt(d.range)}</td>
-    </tr>`;
-  }).join('');
-
-  // 考点族完整表
-  const famRows = FAM_RANKED.map((f) => {
-    const isWrite = f.qs.length > 0 && f.qs.every((q) => q.mode === 'write');
-    return `<tr>
-      <td><b>${esc(f.name)}</b></td>
-      <td style="color:var(--text-3);font-size:12.5px">${f.seg.map((s) => SEG_NAME[s]).join('、')}</td>
-      <td class="num cell-hi">${fmt(f.avgPerYear)}</td>
-      ${f.per.map((v) => `<td class="num" style="color:${v > 0 ? 'var(--text)' : 'var(--text-3)'}">${v > 0 ? fmt(v) : '—'}</td>`).join('')}
-      <td><span class="yr ${f.hit === N_PAPERS ? 'hit' : ''}">${f.hit}/${N_PAPERS}</span></td>
-      <td><span class="tag ${isWrite ? 'write' : 'select'}">${isWrite ? '输出' : '选择'}</span></td>
-      <td class="wrap-cell" style="color:var(--text-3);font-size:12.4px">${esc(f.note)}</td>
-    </tr>`;
-  }).join('');
-
   // 选做
   const body = `
 <section class="hero" style="padding-bottom:10px">
   <div class="hero-stack">
     <div>
       <div class="hero-badge"><span class="dot-live"></span>跨年对比 · ${N_PAPERS} 套样本</div>
-      <h1 style="font-size:clamp(26px,3.2vw,36px)">整体趋势</h1>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">整体考情</h1>
       <p class="lede">
-        <b>四年合起来看趋势</b>：结构稳不稳、选择型与输出型各占多少、能力与难度怎么分布。
-        只看某一套卷的具体考法见 <a href="papers.html" style="color:var(--accent);font-weight:600">逐年考情</a>。
+        <b>四年合起来看</b>：结构稳不稳、选择型与输出型各占多少、能力与难度怎么分布、哪些考点族值钱。
+        单看某一套卷见 <a href="papers.html" style="color:var(--accent);font-weight:600">逐年考情</a>。
       </p>
     </div>
     <aside class="cockpit">
@@ -1147,14 +1021,11 @@ ${section('② 作答方式', '选择型与输出型', `同一份卷子，${SELE
   每一项都有「会但写错」的空间：拼写、时态、人称、标点。<b>提分动作因此不是多刷题，是定向默写与句型改写。</b>
   <a href="special.html" style="color:var(--rose);font-weight:650">看专项怎么练 →</a>
 </div>
-<div class="note" style="margin-top:10px">
-  能力、难度、考点族三个维度的<b>逐年明细</b>已合并到
-  <a href="papers.html" style="color:var(--accent);font-weight:650">逐年考情</a>——
-  同一份数据不在两页重复画。本页只保留「${SPAN_CN}年变了什么」。
-</div>
 `, 'mode')}
 
-${section('③ 能力', '各能力分值', '四层能力，对应四种不同的补救动作', `
+${section('③ 板块', '各板块分值', `${SPAN_CN}年并列；${SEG_FIXED.length} 个板块的逐年分值完全一致`, segTable)}
+
+${section('④ 能力', '各能力分值', '四层能力，对应四种不同的补救动作', `
 <div class="grid g2">
   <div class="card">${catBars}</div>
   <div class="card">
@@ -1166,7 +1037,7 @@ ${section('③ 能力', '各能力分值', '四层能力，对应四种不同的
 </div>
 `, 'ability')}
 
-${section('④ 难度', '难度三级分布', `按分值与题量两种口径统计`, `
+${section('⑤ 难度', '难度三级分布', `按分值与题量两种口径统计`, `
 <div class="grid g2">
   <div class="card">
     <h3 style="margin-bottom:10px">按分值（年均）</h3>
@@ -1182,9 +1053,51 @@ ${section('④ 难度', '难度三级分布', `按分值与题量两种口径统
   </div>
 </div>
 `, 'diff')}
+
+${section('⑥ 考点', '考点族与权重', `行 = 考点族，列 = 学年，格子深浅 = 该年分值；最右 = 年均分`, `
+${famHeat}
+<div class="note" style="margin-top:16px">
+  按<b>板块</b>分组，组内按${SPAN_CN}年合计分值降序。共 ${FAM_RANKED.length} 个必做考点族${FAM_MAP.some((f) => f.onlyBonus) ? `，另有 ${FAM_MAP.filter((f) => f.onlyBonus).length} 个只在选做出现` : ''}。
+  <b>整行满格</b> = 年年考且分值稳；<b>断续的格子</b> = 轮换项，认识即可。
+</div>
+`, 'fam-heat')}
+
+${section('⑦ 阅读A篇', `A 篇${SPAN_CN}年换了不同考法`, '载体在变，考法也在变', `
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>年份</th><th>题型</th><th>载体（取自答案位置）</th><th class="num">题量</th></tr></thead>
+<tbody>${aRows}</tbody>
+</table>
+</div>
+<div class="note warn" style="margin-top:14px">
+  <b>A 篇的考法前两年和后两年不一样。</b>前两套（${PAPER_STATS.filter((p) => {
+    const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
+    return aq.length && aq.every((q) => q.fam === 'f-read-detail');
+  }).map((p) => p.label).join('、')}）是「读表格找事实」——归到细节定位；
+  后两套才是「按需求匹配」——归到信息匹配。
+  <br><br>
+  所以「阅读·信息匹配」只有 <b>${FAM_RANKED.find((f) => f.id === 'f-read-match')?.hit || 2}/${N_PAPERS}</b> 年出现。
+  <b>如果按题位归族（A 篇 = 匹配题），它就是 ${N_PAPERS}/${N_PAPERS}</b>——
+  两种口径都说得通，这里按「做题动作」分（找事实 vs 做匹配）。
+</div>
+`, 'readA')}
+
+${section('⑧ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 分，但题型与小题数在变', `
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>年份</th><th class="num">小题数</th><th class="num">分值</th><th>构成</th></tr></thead>
+<tbody>${bonusRows}</tbody>
+</table>
+</div>
+<div class="note" style="margin-top:14px">
+  <b>选做不是「附加题」，是必须做的 10 分阅读。</b>它计入总分（卷面封顶 ${MAIN_TOTAL}），
+  且 ${N_PAPERS} 套卷里 100% 是阅读题。<b>前三套的选做甚至比必做简答分值高</b>——
+  每题 5 分 vs 每题 2 分。把它当可跳过的部分，等于白丢 10 分。
+</div>
+`, 'bonus')}
 `;
 
-  return page('trend.html', `整体趋势 · ${SITE.short}`, `${N_PAPERS} 套卷四年聚合：结构稳定性、选择型与输出型、能力与难度分布。`, body);
+  return page('trend.html', `整体考情 · ${SITE.short}`, `${N_PAPERS} 套卷四年聚合：结构稳定性、选择型与输出型、板块分值、能力与难度、考点族权重、A 篇与选做。`, body);
 }
 
 
@@ -1334,99 +1247,6 @@ ${specialHead(
 
 /* 页内自测：16 个音标词，给音标 + 中文提示，学生填英文，即时判分。
    这是把「考情分析」变成「能练」的最小一步——不需要后端，纯前端。 */
-function spellQuiz() {
-  const items = SPELL_ITEMS.map((it, i) => {
-    // 语境提示：截取空格附近的片段，够判断词义即可，不直接给答案
-    let hint = it.sent || '';
-    const m = hint.match(/^(.{0,28})_+(.{0,28})$/);
-    if (m) hint = (m[1].trim() + ' ___ ' + m[2].trim()).replace(/\s+/g, ' ');
-    return `<div class="quiz-item" data-ans="${esc(it.word.toLowerCase())}" data-idx="${i}">
-    <span class="qi-ipa">${esc(it.ipa)}</span>
-    <input type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="${it.len} 字母" aria-label="${esc(it.ipa)} 对应的单词">
-    <span class="qi-hint" title="${esc(it.sent)}">${esc(hint)}</span>
-    <span class="qi-ans">${esc(it.word)}</span>
-  </div>`;
-  }).join('');
-
-  return `
-<section class="section" id="quiz">
-  <div class="section-head"><div class="section-head-left">
-    <span class="kicker">自测</span>
-    <h2>现在就把这 ${SPELL_STATS.total} 个词写一遍</h2>
-    <span class="sub">看音标 + 句子语境 → 填英文单词 → 点「对答案」。这是「听写」，不是「认读」</span>
-  </div></div>
-  <div class="quiz">
-    <div class="quiz-head">
-      <h3>音标填词 · ${SPELL_STATS.total} 题</h3>
-      <span class="quiz-score">得分 <b id="q-score">0</b> / ${SPELL_STATS.total}</span>
-    </div>
-    <div class="quiz-grid">${items}</div>
-    <div class="quiz-actions">
-      <button class="quiz-btn primary" id="q-check">对答案</button>
-      <button class="quiz-btn" id="q-reveal">只看答案</button>
-      <button class="quiz-btn ghost" id="q-reset">重做</button>
-      <span class="quiz-tip" id="q-tip">大小写不敏感；拼错一个字母也算错——这正是音标题的判分方式</span>
-    </div>
-  </div>
-</section>
-<script>
-(function(){
-  var box = document.getElementById('quiz');
-  if (!box) return;
-  var items = [].slice.call(box.querySelectorAll('.quiz-item'));
-  var scoreEl = document.getElementById('q-score');
-  var tip = document.getElementById('q-tip');
-
-  function norm(s){ return (s || '').trim().toLowerCase().replace(/[^a-z]/g, ''); }
-
-  function check(){
-    var ok = 0;
-    items.forEach(function(el){
-      var ans = el.getAttribute('data-ans');
-      var val = el.querySelector('input').value;
-      el.classList.remove('ok', 'bad');
-      if (!val.trim()) return;
-      if (norm(val) === ans) { el.classList.add('ok'); ok++; }
-      else { el.classList.add('bad'); }
-    });
-    scoreEl.textContent = ok;
-    var total = items.length;
-    if (ok === total) tip.textContent = '全对。但别急着算掌握——隔一天再抽一遍还能全对才算。';
-    else if (ok >= total * 0.75) tip.textContent = '错的那几个，回去看它们的拼写特征（辅音丛 / 双写 / 元音组合），不要整词重背。';
-    else tip.textContent = '错得较多。先按上面「拼写特征」分类练，别一次背全部 ' + total + ' 个。';
-  }
-
-  function reveal(){
-    items.forEach(function(el){
-      el.classList.remove('ok', 'bad');
-      el.querySelector('input').value = el.getAttribute('data-ans');
-      el.classList.add('bad');
-    });
-    scoreEl.textContent = 0;
-    tip.textContent = '已显示全部答案。点「重做」清空后再自己写一遍。';
-  }
-
-  function reset(){
-    items.forEach(function(el){
-      el.classList.remove('ok', 'bad');
-      el.querySelector('input').value = '';
-    });
-    scoreEl.textContent = 0;
-    tip.textContent = '大小写不敏感；拼错一个字母也算错——这正是音标题的判分方式';
-  }
-
-  document.getElementById('q-check').addEventListener('click', check);
-  document.getElementById('q-reveal').addEventListener('click', reveal);
-  document.getElementById('q-reset').addEventListener('click', reset);
-  // 回车即判分
-  items.forEach(function(el){
-    el.querySelector('input').addEventListener('keydown', function(e){
-      if (e.key === 'Enter') { e.preventDefault(); check(); }
-    });
-  });
-})();
-</script>`;
-}
 
 /* ---------- ① 单词 ---------- */
 function buildSpecialWord() {
@@ -1509,10 +1329,9 @@ ${SPELL_FEATURES.slice(0, 6).map((f) => `<div class="card" style="padding:15px 1
 </div>`).join('')}
 </div>
 `)}
-${spellQuiz()}
 `;
   return page('special.html', `单词专项 · ${SITE.short}`,
-    `音标填词 ${SPELL_STATS.total} 词、听填 ${fmt(SEG_SCORE['听填'].avg)} 分：解题四步、备考三步与自测。`, body);
+    `音标填词 ${SPELL_STATS.total} 词、听填 ${fmt(SEG_SCORE['听填'].avg)} 分：解题四步与备考三步。`, body);
 }
 
 /* ---------- ② 语法总览 ---------- */
