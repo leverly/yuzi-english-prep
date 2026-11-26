@@ -9,6 +9,7 @@ import {
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   WRITE_ITEMS, WRITE_STATS, WRITE_Q_COUNTS, WRITE_Q_RANGE, READ_STATS, READ_ANS_TYPES, READ_ITEMS, READ_BY_PASSAGE,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_GROUPS, GRAMMAR_DOUBLE,
+  DIM_DEFS, DIM_STATS, SPEAK_PROXY, dimById,
 } from './work/papers/stats.mjs';
 import { LEDGER, SEG_ORDER, CAT_ORDER, DIFF_ORDER } from './work/papers/ledger.mjs';
 
@@ -322,24 +323,29 @@ for (const f of ALL_HTML) {
   ok(!idx.includes('这一版明确做不到'), '首页不含已删除的「样本边界」节');
 }
 
-/* ---------- 10g-2. 备考计划：必须是「按分值排的练法」，不得回到「冲刺计划」 ---------- */
+/* ---------- 10g-2. 备考建议：四维主体 + 排序表，不得回到「冲刺计划」 ---------- */
 // 历史：旧的「冲刺计划」页被用户判定无价值（阶段/达标线是建站流程与假设值，不是学生能用的）。
-// 2026-11-26 按数学站框架重建 plan.html，定位改为「先练什么、后练什么」。
+// 2026-11-26 重建为「先练什么」；同日再按用户要求改为「听说读写四维 × 每个题型一条动作」。
 // 守卫：这一页必须在，但不得退回旧形态（自述阶段、假设达标线）。
 {
   const html = readFileSync('plan.html', 'utf8');
   ok(html.length > 5000, `plan.html 有实际内容（${Math.round(html.length / 1024)} KB）`);
   ok(html.includes('备考建议'), 'plan.html 标题为「备考建议」');
-  // 五条建议 + 三反直觉 + 自检清单，缺一件就是半成品
-  ok((html.match(/class="pri-rank"/g) || []).length === 5, `五条建议都在（${(html.match(/class="pri-rank"/g) || []).length} 条）`);
+
+  // 排序表必须还在（5 行），但不再是五张大卡片
+  const prio = (html.match(/<table id="prio">[\s\S]*?<\/table>/) || [''])[0];
+  ok(prio.length > 0, 'plan.html 含排序表（id="prio"）');
+  const prioRows = (prio.match(/<td class="num cell-hi">/g) || []).length;
+  ok(prioRows === 5, `排序表 5 行（${prioRows} 行）`);
+
   for (const seg of ['音标填词', '听力填词', '单项填空', '阅读选择', '阅读简答', '汉译英', '文段表达']) {
     ok(html.includes(seg), `自检清单含「${seg}」`);
   }
-  ok(html.includes('别背整本词表') && html.includes('别在 A 篇上读全文'), '含反直觉建议');
+  ok(html.includes('别背整本词表') && html.includes('别在 A 篇上读全文'), '含两条反直觉动作');
   // 排序理由必须明写「不按分值」
   ok(html.includes('不是按分值'), '页面说明排序不按分值');
 
-  // 五条的分值必须能追溯到板块：音标 4 / 固定搭配 5 / 时态+汉译英 16 / 细节 11.5 / 概括开放 5.8
+  // 排序表里的分值必须能追溯到板块：音标 4 / 时态+汉译英 16 / 细节 11.5
   const scoreOf = (title) => {
     const seg = html.split(title)[1] || '';
     const m = seg.match(/<td class="num">([\d.]+)<\/td>/);
@@ -350,12 +356,53 @@ for (const f of ALL_HTML) {
     `时态与主谓一致分值 = 单选 ${SEG_SCORE['单选'].avg} + 汉译英 ${SEG_SCORE['汉译英'].avg}`);
   ok(scoreOf('阅读细节题') === +(FAM_MAP.find((f) => f.id === 'f-read-detail')?.avgPerYear || 0).toFixed(1),
     `阅读细节题分值 = ${FAM_MAP.find((f) => f.id === 'f-read-detail')?.avgPerYear}`);
+
   ok(!html.includes('冲刺计划'), 'plan.html 不叫「冲刺计划」（旧形态）');
   for (const f of ALL_HTML) {
     ok(!readFileSync(f, 'utf8').includes('冲刺计划'), `${f} 无「冲刺计划」字样`);
   }
   const navN = (readFileSync('index.html', 'utf8').match(/class="hdr-nav"/) ? 1 : 0);
   ok(navN === 1, '首页导航容器仍在');
+}
+
+/* ---------- 10g-3. 备考建议：听说读写四维，数字必须由 DIM_STATS 派生 ---------- */
+// 口径（2026-11-26 用户要求）：
+//   ① 四维合计必须等于全卷 100 分，「说」必须是 0 分——四套卷确实没有口语题，
+//      这一栏若被填上一个非零分值，说明有人在编造卷面。
+//   ② 但「说」不能只写 0 就走：音形对应在听填 + 音标里计分，页面必须同时给出 SPEAK_PROXY。
+//   ③ 单选 10 分归入「读」，页面必须显式说明它不等于「阅读理解 40 分」，否则两个口径打架。
+{
+  const html = readFileSync('plan.html', 'utf8');
+  const txt = html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+
+  // 四维派生层自身自洽（stats.mjs 里已有断言，这里再守一道，防止页面与数据脱节）
+  const ALL_TOTAL = PAPER_STATS[0].allTotal;
+  ok(DIM_STATS.length === 4, `四维定义 ${DIM_STATS.length} 个`);
+  const dimSum = +DIM_STATS.reduce((a, d) => a + d.avg, 0).toFixed(1);
+  ok(dimSum === ALL_TOTAL, `四维年均合计 ${dimSum} = 全卷 ${ALL_TOTAL}`);
+  ok(dimById('speak').avg === 0, '「说」为 0 分（四套卷无口语题）');
+  ok(SPEAK_PROXY === +(SEG_SCORE['听填'].avg + SEG_SCORE['音标填词'].avg).toFixed(1),
+    `读音隐性口径 ${SPEAK_PROXY} = 听填 + 音标`);
+
+  // 四维小节都要在，且顺序是 听 → 说 → 读 → 写
+  const order = ['① 听', '② 说', '③ 读', '④ 写'].map((k) => txt.indexOf(k));
+  ok(order.every((i) => i >= 0), '四维小节都在（①②③④）');
+  ok(order.every((v, i) => i === 0 || v > order[i - 1]), '四维小节顺序为 听 → 说 → 读 → 写');
+
+  // 「说」必须同时写 0 分与隐性 12 分，且明说本卷不考口语
+  ok(txt.includes('本卷不考口语'), '「说」栏写明本卷不考口语');
+  ok(txt.includes(`音形对应在听填 ${fmt(SEG_SCORE['听填'].avg)} + 音标 ${fmt(SEG_SCORE['音标填词'].avg)} 里计分`),
+    `「说」栏给出音形对应的计分口径 ${fmt(SPEAK_PROXY)} 分（听填 + 音标）`);
+
+  // 单选归入读，且必须解释「读 60」≠「阅读理解 40」
+  ok(txt.includes(`单选 ${fmt(SEG_SCORE['单选'].avg)} 分归入「读」`), '页面说明单选归入「读」');
+  ok(txt.includes(`不等于「阅读理解 ${fmt(READ_STATS.totalScore)} 分」`),
+    `页面说明读 ${fmt(dimById('read').avg)} 分不等于阅读理解 ${fmt(READ_STATS.totalScore)} 分`);
+
+  // 四维分值必须与派生值一致（页面显示的就是算出来的）
+  for (const d of DIM_STATS) {
+    ok(txt.includes(`${d.name} ${fmt(d.avg)}`), `四维表含「${d.name} ${fmt(d.avg)}」`);
+  }
 }
 
 /* ---------- 10h. 已按用户要求移除的模块不得复活 ---------- */

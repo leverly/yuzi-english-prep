@@ -195,6 +195,83 @@ for (const k of ['select', 'write']) {
 export const WRITE_SEGS = SEG_ORDER.filter((s) =>
   LEDGER.filter((q) => q.seg === s && !q.bonus).every((q) => q.mode === 'write'));
 
+/* ============================ 听说读写四维 ============================ */
+// 口径（2026-11-26）：备考建议按四维组织，这里只做「板块 → 维度」的归并，不改任何台账数据。
+//
+// ⚠ 「说」是 0 分，这不是漏填：四套卷全文检索「口语 / 朗读 / 人机 / 口头」= 0 命中，
+//   西城这份卷是纯笔试。但读音能力并非不计分——它落在「听填 8 + 音标 4」这 12 分里，
+//   考的是「听到音 → 写出形」这条链。所以「说」这一维给 SPEAK_PROXY 作为隐性口径，
+//   页面必须同时显示「0 分」与「隐性 12 分」，不许只写一个让人误读。
+//
+// ⚠ 单选 10 分归入「读」：它是「读句子选词」，不是篇章阅读。页面要标明这一点，
+//   否则会和「阅读 40 分」这个已有口径打架（40 是阅读理解大题，读 60 含单选与完形）。
+export const DIM_DEFS = [
+  { id: 'listen', name: '听', segs: ['听选', '听填'], note: '两遍音频，一遍听内容，一遍查形式' },
+  { id: 'speak', name: '说', segs: [], note: '本卷不考口语；读音能力在音标与听填里隐性计分' },
+  { id: 'read', name: '读', segs: ['单选', '完形选词', '完形选择', '阅读选择', '阅读简答'], note: '含单选与完形：都是读句子/读短文后作答' },
+  { id: 'write', name: '写', segs: ['音标填词', '汉译英', '文段表达'], note: '要动笔写出文字的三块' },
+];
+
+// 「说」的隐性口径：读音真正计分的地方
+export const SPEAK_PROXY = +(SEG_SCORE['听填'].avg + SEG_SCORE['音标填词'].avg).toFixed(1);
+
+export const DIM_STATS = DIM_DEFS.map((d) => {
+  const qs = LEDGER.filter((q) => d.segs.includes(q.seg));
+  const per = PAPER_STATS.map((s) => d.segs.reduce((a, k) => a + (s.allSeg[k] || 0), 0));
+  const total = sum(per);
+  // 难度分布：先按分值累加原始分，最后一次性除以年数——逐题除会累积浮点误差（4.0 变 4.2）
+  const yearlyDiff = (list) => {
+    const raw = {};
+    for (const q of list) raw[q.diff] = (raw[q.diff] || 0) + q.score;
+    return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, +(v / N_PAPERS).toFixed(1)]));
+  };
+  // 各板块在该维里的年均分与难度分布（页面用来说明「这一维里哪块最重、难在哪」）
+  const segBreakdown = d.segs.map((k) => {
+    const sq = qs.filter((q) => q.seg === k);
+    return {
+      seg: k, name: SEG_NAME[k],
+      avg: SEG_SCORE[k].avg,
+      perYearN: +(sq.length / N_PAPERS).toFixed(1),
+      diff: yearlyDiff(sq),
+      fixed: SEG_SCORE[k].fixed,
+    };
+  });
+  return {
+    ...d,
+    qPerYear: +(qs.length / N_PAPERS).toFixed(1),
+    per, total,
+    avg: +(total / N_PAPERS).toFixed(1),
+    segBreakdown, diff: yearlyDiff(qs),
+    fixed: range(per) === 0,
+  };
+});
+
+export const dimById = (id) => DIM_STATS.find((d) => d.id === id);
+
+{
+  // 1) 四维必须恰好覆盖全部板块，不漏不重
+  const covered = DIM_DEFS.flatMap((d) => d.segs);
+  const dup = covered.filter((s, i) => covered.indexOf(s) !== i);
+  if (dup.length) throw new Error(`四维板块重复归类：${[...new Set(dup)].join(', ')}`);
+  const missing = SEG_ORDER.filter((s) => !covered.includes(s));
+  if (missing.length) throw new Error(`四维漏掉板块：${missing.join(', ')}`);
+  const extra = covered.filter((s) => !SEG_ORDER.includes(s));
+  if (extra.length) throw new Error(`四维引用了不存在的板块：${extra.join(', ')}`);
+
+  // 2) 四维合计必须是 100（说为 0），且每年都是 100 —— 某年失衡说明归并或选做口径错了
+  const grand = sum(DIM_STATS.map((d) => d.avg));
+  if (Math.abs(grand - 100) > 1e-9) throw new Error(`四维年均合计 ${grand} 分，应为 100`);
+  if (dimById('speak').avg !== 0) throw new Error(`「说」应为 0 分（本卷无口语题），实为 ${dimById('speak').avg}`);
+  PAPER_STATS.forEach((s, i) => {
+    const y = sum(DIM_STATS.map((d) => d.per[i]));
+    if (Math.abs(y - 100) > 1e-9) throw new Error(`${s.label} 四维合计 ${y} 分，应为 100`);
+  });
+
+  // 3) 「说」的隐性口径必须真的来自听填与音标，不能是凭空写的一个数
+  const proxy = SEG_SCORE['听填'].avg + SEG_SCORE['音标填词'].avg;
+  if (Math.abs(proxy - SPEAK_PROXY) > 1e-9) throw new Error('SPEAK_PROXY 与听填 + 音标分值对不上');
+}
+
 /* ============================ 考点族：跨年汇总 ============================ */
 // 口径修正：含选做。此前用 !q.bonus 过滤，导致「词形填空」（只出现在选做）
 // 整族消失、qs 为空、avgPerYear 为 0——那是分析漏洞不是事实。

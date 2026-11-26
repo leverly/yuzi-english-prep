@@ -18,6 +18,7 @@ import {
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_ACTIONS, SENT_GROUPS, GRAMMAR_DOUBLE,
   WRITE_ITEMS, WRITE_STATS, WRITE_Q_RANGE, READ_ITEMS, READ_STATS, READ_ANS_TYPES, READ_BY_PASSAGE,
+  DIM_DEFS, DIM_STATS, SPEAK_PROXY, dimById,
 } from './work/papers/stats.mjs';
 import { LEDGER, CAT_NOTE, FAM_DEFS } from './work/papers/ledger.mjs';
 
@@ -1897,7 +1898,57 @@ function placeholderPage(active, h1, lede, todo) {
 }
 
 function buildPlan() {
-  // 优先级不是按分值排，是按「形式错的空间」排——这是英语和数学最大的不同。
+  // 页面结构（2026-11-26 用户要求）：按听说读写四维组织，落到每个题型一条动作。
+  // 四维的数字全部来自 stats.mjs 的 DIM_STATS，页面不写常量。
+  //
+  // 两个口径必须在页面上说明，否则读者会误读：
+  //   ① 「说」是 0 分——四套卷无口语题（检索「口语/朗读/人机/口头」0 命中）。
+  //      但音形对应能力在听填 8 + 音标 4 里计分，所以这一维给的是「音 ↔ 形」映射的练法。
+  //   ② 单选 10 分归入「读」——它是「读句子选词」，不是篇章阅读；
+  //      「阅读 40 分」指的仍是阅读理解大题，与「读 60」不冲突。
+  const F = (id) => FAM_MAP.find((f) => f.id === id) || { avgPerYear: 0, hit: 0, name: '' };
+  const D = (id) => dimById(id);
+
+  // 维度构成表：每行一个板块，写清年均分、题数、难度、四套是否固定
+  const dimTable = (dim) => `
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>题型</th><th class="num">年均分</th><th class="num">题/年</th><th>难度分布（分/年）</th><th>四套</th></tr></thead>
+<tbody>
+${dim.segBreakdown.map((s) => `<tr>
+  <td><b>${esc(s.name)}</b></td>
+  <td class="num cell-hi">${fmt(s.avg)}</td>
+  <td class="num">${fmt(s.perYearN)}</td>
+  <td class="wrap-cell" style="color:var(--text-2);font-size:12.6px">${DIFF_ORDER.filter((k) => s.diff[k]).map((k) => `${DIFF_NAME[k]} ${fmt(s.diff[k])}`).join(' · ') || '—'}</td>
+  <td>${s.fixed ? '<span class="tag easy">固定</span>' : '<span class="tag often">有浮动</span>'}</td>
+</tr>`).join('')}
+<tr style="background:var(--bg-3)">
+  <td><b>合计</b></td>
+  <td class="num"><b>${fmt(dim.avg)}</b></td>
+  <td class="num"><b>${fmt(dim.qPerYear)}</b></td>
+  <td class="wrap-cell" style="color:var(--text-3);font-size:12.4px">${DIFF_ORDER.filter((k) => dim.diff[k]).map((k) => `${DIFF_NAME[k]} ${fmt(dim.diff[k])}`).join(' · ')}</td>
+  <td>${dim.fixed ? '<span class="tag easy">固定</span>' : '<span class="tag often">有浮动</span>'}</td>
+</tr>
+</tbody>
+</table>
+</div>`;
+
+  // 题型动作卡：依据 / 怎么做 / 别这么做
+  const actCard = (title, meta, basis, todo, dont) => `
+<div class="card">
+  <h3 style="margin-bottom:7px">${esc(title)}</h3>
+  <div class="meta" style="font-size:12.3px;color:var(--text-3);font-variant-numeric:tabular-nums;padding-bottom:9px;border-bottom:1px solid var(--border);margin-bottom:10px">${esc(meta)}</div>
+  <p style="margin-bottom:8px;font-size:13.3px;color:var(--text-2);line-height:1.72"><b style="color:var(--text-3);font-size:12px">依据</b><br>${basis}</p>
+  <p style="margin-bottom:8px;font-size:13.3px;color:var(--text-2);line-height:1.72"><b style="color:var(--ok);font-size:12px">怎么做</b><br>${todo}</p>
+  <p style="font-size:13.3px;color:var(--text-2);line-height:1.72"><b style="color:var(--rose);font-size:12px">别这么做</b><br>${dont}</p>
+</div>`;
+
+  const listen = D('listen');
+  const speak = D('speak');
+  const read = D('read');
+  const write = D('write');
+
+  // 排序不是按分值排，是按「形式错的空间」排——这是英语和数学最大的不同。
   // 数学靠「算得对不对」，英语靠「写得规不规范」；后者能在短期靠定向操练补上。
   const PRIO = [
     {
@@ -1922,14 +1973,14 @@ function buildPlan() {
       basis: '单选 10 分 + 汉译英 6 分，两处共 16 分，是「双重考核」里分值最高的一对。',
     },
     {
-      rank: '第四优先', title: '阅读细节题', score: +(FAM_RANKED.find((f) => f.id === 'f-read-detail')?.avgPerYear || 11.5).toFixed(1),
+      rank: '第四优先', title: '阅读细节题', score: +F('f-read-detail').avgPerYear.toFixed(1),
       why: `细节定位占阅读选择的 ${READ_STATS.selFams[0].pct}%，是最大的一块，且一半是中档。`,
       do: '每道细节题在原文划出对应句，划不出来就标「靠猜」。',
       dont: '不要先练技巧。细节题不需要技巧，需要「回原文找」这个动作。',
       basis: '这类题的失分几乎全是「凭印象选」，不是「读不懂」。',
     },
     {
-      rank: '第五优先', title: 'C 篇与末题', score: +(READ_ANS_TYPES.openScore || 5.8).toFixed(1),
+      rank: '第五优先', title: 'C 篇与末题', score: +F('f-read-open').avgPerYear.toFixed(1),
       why: `C 篇全部是中档（${READ_BY_PASSAGE[2].midPct}%），简答末题年均 ${READ_ANS_TYPES.openPerPaper} 题。`,
       do: 'C 篇先通读抓结构再做题；末题用两句话模板（概括型 / 开放型）。',
       dont: '不要用做 A 篇的办法做 C 篇。三篇读法不同，顺序搞反等于白花时间。',
@@ -1937,39 +1988,57 @@ function buildPlan() {
     },
   ];
 
-  const adviceRows = PRIO.map((p) => `
-<div class="pri ${p.rank === '第一优先' ? '' : p.rank === '第二优先' ? 'p2' : p.rank === '第三优先' ? 'p3' : p.rank === '第四优先' ? 'p4' : 'p5'}">
-  <span class="pri-rank">${esc(p.rank)}</span>
-  <h3>${esc(p.title)}</h3>
-  <div class="meta">${esc(p.basis)}</div>
-  <p style="margin-bottom:8px"><b style="color:var(--text-3);font-size:12px">依据</b><br>${p.why}</p>
-  <p style="margin-bottom:8px"><b style="color:var(--ok);font-size:12px">怎么做</b><br>${p.do}</p>
-  <p><b style="color:var(--rose);font-size:12px">别这么做</b><br>${p.dont}</p>
-</div>`).join('');
-
   const body = `
 <section class="hero" style="padding-bottom:10px">
   <div class="hero-stack">
     <div>
-      <div class="hero-badge"><span class="dot-live"></span>五条建议 · 每条都有真题依据</div>
+      <div class="hero-badge"><span class="dot-live"></span>听说读写四维 · 每个题型一条动作</div>
       <h1 style="font-size:clamp(26px,3.2vw,36px)">备考建议</h1>
       <p class="lede">
-        英语的复习顺序<b>不按分值排，按「形式错的空间」排</b>。
-        数学丢分是「算错」，英语丢分是「写错」——后者能在短期靠定向操练补上，所以先练它。
+        按<b>听、说、读、写</b>四维拆到每个题型。英语丢分不是「算错」，是「写错」——
+        所以每条建议都落到一个能重复练的动作上，不是「多读多听」。
       </p>
     </div>
   </div>
 </section>
 
-${section('排序', '为什么这样排', '不是按分值高低，是按「能不能靠操练补上」', `
+${section('四维分值', `全卷 ${ALL_TOTAL} 分怎么分`, '四套卷的板块构成完全一致，所以四维分值也固定', `
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>维度</th><th class="num">年均分</th><th>由哪些题型组成</th></tr></thead>
+<tbody>
+${DIM_STATS.map((d) => `<tr>
+  <td><b style="font-size:15px">${esc(d.name)}</b></td>
+  <td class="num cell-hi" style="font-size:15px">${fmt(d.avg)}</td>
+  <td class="wrap-cell" style="color:var(--text-2);font-size:12.8px">${
+    d.id === 'speak'
+      ? `<b style="color:var(--gold)">本卷不考口语</b>（四套卷检索 0 命中）；音形对应在听填 ${fmt(SEG_SCORE['听填'].avg)} + 音标 ${fmt(SEG_SCORE['音标填词'].avg)} 里计分`
+      : d.segBreakdown.map((s) => `${esc(s.name)} ${fmt(s.avg)}`).join(' + ')
+  }</td>
+</tr>`).join('')}
+<tr style="background:var(--bg-3)">
+  <td><b>合计</b></td><td class="num"><b>${fmt(DIM_STATS.reduce((a, d) => a + d.avg, 0))}</b></td>
+  <td class="wrap-cell" style="color:var(--text-3);font-size:12.4px">四维合计恒等于全卷分；四套卷板块构成一致，所以四维分值也固定</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="note info" style="margin-top:14px">
+  <b>两个口径先说清，不然会误读：</b>
+  ① <b>「说」是 0 分</b>，这不是漏统计，是这份卷确实没有口语题；但音形对应不是白练，它算在听填与音标那 ${fmt(SPEAK_PROXY)} 分里。
+  ② <b>单选 ${fmt(SEG_SCORE['单选'].avg)} 分归入「读」</b>，因为它是「读句子选词」。这里说的「读 ${fmt(read.avg)} 分」不等于「阅读理解 ${fmt(READ_STATS.totalScore)} 分」——后者只是读里的一个大题。
+</div>
+`)}
+
+${section('先练什么', '顺序不按分值排', '按「能不能靠操练补上」排，不按分多少排', `
 <div class="note info">
   <b>全卷 ${ALL_TOTAL} 分，输出型占 ${fmt(WRITE_AVG)} 分。</b>
   这 ${fmt(WRITE_AVG)} 分丢的不是「不会」，是三单忘加 s、过去时写原形、简答照抄原句、音标认识但拼错。
   <b>这类错有一个共同点：知道规则也不保证写对，必须靠定向操练固化。</b>
-  所以建议的顺序是「先练能练稳的」，不是「先练分多的」。
+  所以顺序是「先练能练稳的」，不是「先练分多的」——这就是为什么第一优先只有 ${fmt(SEG_SCORE['音标填词'].avg)} 分。
 </div>
 <div class="tbl-wrap" style="margin-top:16px">
-<table>
+<table id="prio">
 <thead><tr><th>顺序</th><th>练什么</th><th class="num">守住分值</th><th>为什么排这个位置（不是按分值排）</th></tr></thead>
 <tbody>
 ${PRIO.map((p, i) => `<tr>
@@ -1983,49 +2052,111 @@ ${PRIO.map((p, i) => `<tr>
 </div>
 `)}
 
-${section('五条建议', '一条一条看', '每条都写了「依据 / 怎么做 / 别这么做」', `
-<div class="grid g2" style="gap:14px">${adviceRows}</div>
-`)}
-
-${section('三条反直觉的', '这几条最容易做反', '每条都能追到真题事实', `
-<div class="grid g3" style="gap:14px">
-  <div class="card">
-    <h3 style="margin-bottom:10px">别背整本词表</h3>
-    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
-      音标 ${SPELL_STATS.total} 个词平均 ${SPELL_STATS.avgLen} 字母，最短 ${SPELL_STATS.minLen} 个（cut / map / big）。
-      背难词对这道题<b>零收益</b>。要练的是「听到读音能拼对」，不是「认识更多词」。
-    </p>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">别在 A 篇上读全文</h3>
-    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
-      A 篇中档及以上只有 <b>${READ_BY_PASSAGE[0].midPct}%</b>，几乎全是基础题。
-      通读它在浪费时间；<b>带着题干回原文定位</b>就够。
-      把省下的时间给 C 篇（中档 ${READ_BY_PASSAGE[2].midPct}%）。
-    </p>
-  </div>
-  <div class="card">
-    <h3 style="margin-bottom:10px">别用「背了多少词」衡量进度</h3>
-    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
-      输出端练的是「写得对」不是「认得」。衡量指标应该是
-      <b>「同一个短语第二次能不能直接写出来」</b>，不是词表过了几遍。
-    </p>
-  </div>
+${section('① 听', `${fmt(listen.avg)} 分 · 两遍音频两种任务`, '第一遍听内容，第二遍查形式——两遍做的事不一样', `
+${dimTable(listen)}
+<div class="grid g2" style="gap:14px;margin-top:16px">
+${actCard('听力·选择（' + fmt(SEG_SCORE['听选'].avg) + ' 分 / ' + fmt(SEG_SCORE['听选'].perN[0]) + ' 题）',
+    `细节 ${fmt(F('f-listen-detail').avgPerYear)} · 数字时间 ${fmt(F('f-listen-num').avgPerYear)} · 主旨意图 ${fmt(F('f-listen-main').avgPerYear)}`,
+    `事实细节 ${F('f-listen-detail').hit}/${N_PAPERS} 年考、年均 ${fmt(F('f-listen-detail').avgPerYear)} 分，是这一块的主体；基础题占 ${fmt(listen.segBreakdown[0].diff.easy || 0)} 分。`,
+    '播放前把题干的疑问词圈出来（Who / When / How much / Why），带着问题听；数字题先把三个选项的差异写在旁边（是 10 还是 13、是 2 days 还是 2 weeks），听到数字只做「对上哪一个」。',
+    '不要试图听懂每个词。这一块 ' + fmt(listen.segBreakdown[0].diff.easy || 0) + ' 分是基础题，答案在原文里直接给，听不懂的句子跳过不影响作答。')}
+${actCard('听力·填词（' + fmt(SEG_SCORE['听填'].avg) + ' 分 / ' + fmt(SEG_SCORE['听填'].perN[0]) + ' 题）',
+    `四套固定 ${fmt(SEG_SCORE['听填'].avg)} 分，难度全部是中档`,
+    `这一块四套卷一分不差都是 ${fmt(SEG_SCORE['听填'].avg)} 分，且 ${fmt(listen.segBreakdown[1].diff.mid || 0)} 分全在中档——不是听不懂，是「听懂了写不对」。`,
+    '拿到题先读表格骨架，预判每个空要填什么词性（名词/动词/形容词/数词）；第一遍只写首字母，第二遍专门听形式：单复数、时态、首字母大写。',
+    '不要在第二遍还去找新空。第二遍的任务是「把已经听到的词写规范」，追新内容会连原来的空都丢。')}
 </div>
 `)}
 
-${section('自检', '考前按板块过一遍', '按板块检查，不按题号', `
+${section('② 说', `${fmt(speak.avg)} 分 · 但音形对应算 ${fmt(SPEAK_PROXY)} 分`, '这份卷不考口语；读音相关的能力，在听填和音标里结算', `
+<div class="note warn">
+  <b>先说清楚：本卷不考口语。</b>四套真题检索「口语 / 朗读 / 人机对话 / 口头表达」全部 0 命中，卷面是纯笔试。
+  所以这一维<b>没有独立分值</b>，不要按「练口语」去准备。
+</div>
+<div class="grid g2" style="gap:14px;margin-top:16px">
+${actCard('读音的真实结算点',
+    `听填 ${fmt(SEG_SCORE['听填'].avg)} + 音标 ${fmt(SEG_SCORE['音标填词'].avg)} = ${fmt(SPEAK_PROXY)} 分`,
+    `这 ${fmt(SPEAK_PROXY)} 分考的是同一个映射：<b>音 ↔ 形</b>。但两个入口不一样——音标题从<b>音标符号</b>进（看到 /kʌt/ 写 cut），听填从<b>声音</b>进（听到 /kʌt/ 写 cut）。入口不同，落点是同一个：把音拆成字母。`,
+    '练的是这条映射，不是发音。做法：拿课本词表，遮住单词只看音标拼出来，再翻回去对；反过来遮住音标，看单词自己写音标。两个方向都练，才叫掌握了音形对应。',
+    '不要把「说」当独立科目去报班或刷口语题。这份卷不考发音是否标准，考的是「给音能不能写出形」。')}
+${actCard('三个能落地的动作',
+    `覆盖音标 ${fmt(SEG_SCORE['音标填词'].avg)} 分 + 听填 ${fmt(SEG_SCORE['听填'].avg)} 分`,
+    `音标 ${SPELL_STATS.total} 个词平均 ${SPELL_STATS.avgLen} 字母、最短 ${SPELL_STATS.minLen} 个，全是基础词——说明考的是音形规则，不是词汇量。`,
+    '<b>音标拼词</b>：只看音标写出单词（对应音标题）；<b>听写</b>：听音频写词（对应听填）；<b>反写音标</b>：看单词写音标。三个动作分别练「符号→形」「声音→形」「形→符号」，把映射补完整。',
+    '不要只做跟读。跟读练的是发音流畅度，这份卷不给这个打分；要练的是「听到/看到音，能落到字母上」。')}
+</div>
+`)}
+
+${section('③ 读', `${fmt(read.avg)} 分 · 全卷最大的一块`, '含单选与完形：都是「读一段文字后作答」，只是文字长短不同', `
+${dimTable(read)}
+<div class="note info" style="margin-top:14px">
+  <b>这一维里 ${fmt(read.avg)} 分，有 ${fmt(SEG_SCORE['单选'].avg + SEG_SCORE['完形选词'].avg + SEG_SCORE['完形选择'].avg)} 分是「短文字」，${fmt(READ_STATS.totalScore)} 分是「篇章阅读」。</b>
+  两者练法不同：短文字考「一句话里形式对不对」，篇章考「信息找不找得到」。
+</div>
+<div class="grid g2" style="gap:14px;margin-top:16px">
+${actCard('单项填空（' + fmt(SEG_SCORE['单选'].avg) + ' 分 / ' + fmt(SEG_SCORE['单选'].perN[0]) + ' 题）',
+    `时态 ${fmt(F('f-tense').avgPerYear)} · 主谓一致 ${fmt(F('f-agree').avgPerYear)} · 代词 ${fmt(F('f-pron').avgPerYear)} · 疑问句 ${fmt(F('f-whq').avgPerYear)} · 介词 ${fmt(F('f-prep').avgPerYear)} · there be ${fmt(F('f-therebe').avgPerYear)}`,
+    `时态与主谓一致是这一块最重的两族（合计 ${fmt(F('f-tense').avgPerYear + F('f-agree').avgPerYear)} 分），且 ${N_PAPERS}/${N_PAPERS} 年都考。它们不止在单选考：汉译英里这两族又各出现 ${SENT_GROUPS.find((g) => g.id === 'tense').count} 句，所以「先练什么」把它们排到了第三优先。`,
+    '两步定答案：<b>先看主语</b>（单数还是复数、第几人称）定谓语形式，<b>再看时间状语</b>（now / every day / next week）定时态。两步都定了再去看选项。',
+    '不要靠「读起来顺」选。这一块 ' + fmt(read.segBreakdown[0].diff.easy || 0) + ' 分是基础题，全是规则题，语感在这没用。')}
+${actCard('完形（' + fmt(SEG_SCORE['完形选词'].avg + SEG_SCORE['完形选择'].avg) + ' 分 / ' + fmt(SEG_SCORE['完形选词'].perN[0] + SEG_SCORE['完形选择'].perN[0]) + ' 题）',
+    `选词 ${fmt(SEG_SCORE['完形选词'].avg)}（全中档）+ 选择 ${fmt(SEG_SCORE['完形选择'].avg)}（${fmt((read.segBreakdown[2].diff.mid || 0))} 分中档）`,
+    `选词填空 ${fmt(read.segBreakdown[1].diff.mid || 0)} 分全部是中档——它考的不是词义，是「这个位置该放什么词性」。`,
+    '选词：先把方框里的词按词性分类（名/动/形/副），再看每个空的前后词定词性，最后才挑词义。选择：先通读一遍抓大意，再逐空回看前后两句。',
+    '不要先看选项再读文章。选项会带偏判断；先读完整段知道在讲什么，很多空自然就定了。')}
+${actCard('阅读·选择（' + fmt(SEG_SCORE['阅读选择'].avg) + ' 分 / ' + fmt(read.segBreakdown[3].perYearN) + ' 题）',
+    `细节 ${READ_STATS.selFams[0].pct}% · 主旨 ${READ_STATS.selFams[1].pct}% · 推断 ${READ_STATS.selFams[2].pct}% · 匹配 ${READ_STATS.selFams[3].pct}%`,
+    `细节定位占 ${READ_STATS.selFams[0].pct}%、年均 ${fmt(F('f-read-detail').avgPerYear)} 分，是最大的一块；A 篇中档及以上只有 ${READ_BY_PASSAGE[0].midPct}%，C 篇 ${READ_BY_PASSAGE[2].midPct}%。`,
+    '每道细节题回原文划出对应句，划不出来就在题号旁标「猜」。主旨题看首末段和每段第一句；推断题要「原文没直说但能合起来推」，不能凭常识。',
+    '别在 A 篇上读全文。A 篇中档只有 ' + READ_BY_PASSAGE[0].midPct + '%，通读是浪费时间——带着题干回原文定位就够，把省下的时间给 C 篇。')}
+${actCard('阅读·简答（' + fmt(SEG_SCORE['阅读简答'].avg) + ' 分 / ' + fmt(read.segBreakdown[4].perYearN) + ' 题）',
+    `检索 ${fmt(F('f-read-answer').avgPerYear)} 分 · 概括开放 ${fmt(F('f-read-open').avgPerYear)} 分；必做 ${fmt(PAPER_STATS[0].seg['阅读简答'])} 分，选做另计`,
+    `检索题年均 ${fmt(F('f-read-answer').avgPerYear)} 分、${READ_ANS_TYPES.retrievePerPaper} 题，是主体；概括开放题 ${READ_ANS_TYPES.openPerPaper} 题/年，全是较难。`,
+    '检索题：问什么答什么，<b>用完整句</b>回答，注意把原文的人称换过来（问 the writer 就答 I/he）。概括题用两句模板：第一句说「讲了什么」，第二句说「所以/说明什么」。开放题必须先表态再给理由。',
+    '不要照抄整句原文当答案。抄原句通常人称和时态都对不上，阅卷会按「未作答」处理。')}
+</div>
+`)}
+
+${section('④ 写', `${fmt(write.avg)} 分 · 全要动笔`, '这一维的失分几乎全是形式错：拼写、时态、单复数', `
+${dimTable(write)}
+<div class="grid g2" style="gap:14px;margin-top:16px">
+${actCard('音标填词（' + fmt(SEG_SCORE['音标填词'].avg) + ' 分 / ' + fmt(SEG_SCORE['音标填词'].perN[0]) + ' 题）',
+    `${SPELL_STATS.total} 词 · 平均 ${SPELL_STATS.avgLen} 字母 · 最短 ${SPELL_STATS.minLen} · 最长 ${SPELL_STATS.maxLen} · ${SPELL_STATS.featureCount} 类拼写特征`,
+    `四套 ${SPELL_STATS.total} 个词全是课本基础词，平均 ${SPELL_STATS.avgLen} 个字母——失分不是「不认识」，是「拼不对」。`,
+    '按拼写特征分批听写：先练词数最多的三类（' + SPELL_FEATURES.slice(0, 3).map((f) => f.name).join(' / ') + '）。写完必查两件事：空前是 a / an 还是复数、有没有双写字母。',
+    '别背整本词表。音标题不考难词，背难词对这道题零收益；要练的是「听到读音能拼对」。')}
+${actCard('汉译英（' + fmt(SEG_SCORE['汉译英'].avg) + ' 分 / ' + fmt(SEG_SCORE['汉译英'].perN[0]) + ' 题）',
+    `${SENT_ITEMS.length} 句里：固定搭配 ${SENT_GROUPS.find((g) => g.id === 'colloc').count} · 现在进行 ${SENT_GROUPS.find((g) => g.id === 'tense').count} · 主谓一致 ${SENT_GROUPS.find((g) => g.id === 'agree').count} · 固定句式 ${SENT_GROUPS.find((g) => g.id === 'pattern').count} · there be ${SENT_GROUPS.find((g) => g.id === 'therebe').count}`,
+    `固定搭配出现 ${SENT_GROUPS.find((g) => g.id === 'colloc').count} 句，比任何单一语法规则都多——提示词已经给了短语，要练的是「把短语放进句子里还对」。`,
+    '三查：提示词短语用对了吗、主谓一致查了吗、句末句号写了吗。练法用「一句多改」：把同一句改成三单 / 过去 / 否定 / 疑问四种形式各写一遍。',
+    '不要只做单选题。单选考「认」，汉译英考「写」，会选不等于会写——这是「双重考核」族最容易漏掉的一半。')}
+${actCard('文段表达（' + fmt(WRITE_STATS.score) + ' 分 / 1 题）',
+    `${WRITE_STATS.total} 套全是「提示问题」型 · 不少于 ${WRITE_STATS.wordMin} 词 · 提示问题 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max} 个`,
+    `四套的题目话题每年换（${WRITE_STATS.scenes.slice(0, 2).join('、')}…），但结构完全一样：给 ${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max} 个提示问题，逐条回答凑成 ${WRITE_STATS.wordMin} 词。`,
+    '按提示问题编号分段：一个问题一段，每段先直接回答再补一句原因或细节。写完按顺序自查动词形式、名词单复数、字数够不够 ' + WRITE_STATS.wordMin + '。',
+    '不要背范文套话题。话题每年换，能套的只有结构；背整篇遇到新话题会用不上，还会挤掉自己组织语言的时间。')}
+</div>
+`)}
+${(() => {
+    // 自检清单：分值全部派生，不写死
+    const CHK = [
+      ['音标填词', SEG_SCORE['音标填词'].avg, '空前有 a / an 还是复数？拼写里的双写字母查了吗？'],
+      ['听力填词', SEG_SCORE['听填'].avg, '听到的词写下来后，单复数、时态、首字母大写都检查了？'],
+      ['单项填空', SEG_SCORE['单选'].avg, '主语是单数还是复数？时间状语对应哪个时态？'],
+      ['阅读选择', SEG_SCORE['阅读选择'].avg, '每道细节题在原文划出证据句了吗？划不出的是不是靠猜？'],
+      ['阅读简答', SEG_SCORE['阅读简答'].avg, '问什么答什么？人称换过来了？有没有照抄整句？'],
+      ['汉译英', SEG_SCORE['汉译英'].avg, '提示词句型用对了吗？主谓一致查了吗？句末有句号吗？'],
+      ['文段表达', SEG_SCORE['文段表达'].avg, `提示问题逐条回应了吗？动词形式、名词单复数、字数够 ${WRITE_STATS.wordMin} 吗？`],
+    ];
+    const chkSum = +CHK.reduce((a, r) => a + r[1], 0).toFixed(1);
+    const restSum = +(ALL_TOTAL - chkSum).toFixed(1);
+    const restSegs = ['听选', '完形选词', '完形选择'].map((k) => `${SEG_NAME[k]} ${fmt(SEG_SCORE[k].avg)}`).join(' + ');
+    return section('自检', '考前按板块过一遍', '按板块检查，不按题号', `
 <div class="tbl-wrap">
 <table>
 <thead><tr><th>板块</th><th class="num">分值</th><th>交卷前检查什么</th></tr></thead>
 <tbody>
-<tr><td><b>音标填词</b></td><td class="num">4</td><td class="wrap-cell">空前有 a / an 还是复数？拼写里的双写字母查了吗？</td></tr>
-<tr><td><b>听力填词</b></td><td class="num">8</td><td class="wrap-cell">听到的词写下来后，单复数、时态、首字母大写都检查了？</td></tr>
-<tr><td><b>单项填空</b></td><td class="num">10</td><td class="wrap-cell">主语是单数还是复数？时间状语对应哪个时态？</td></tr>
-<tr><td><b>阅读选择</b></td><td class="num">24.5</td><td class="wrap-cell">每道细节题在原文划出证据句了吗？划不出的是不是靠猜？</td></tr>
-<tr><td><b>阅读简答</b></td><td class="num">15.5</td><td class="wrap-cell">问什么答什么？人称换过来了？有没有照抄整句？</td></tr>
-<tr><td><b>汉译英</b></td><td class="num">6</td><td class="wrap-cell">提示词句型用对了吗？主谓一致查了吗？句末有句号吗？</td></tr>
-<tr><td><b>文段表达</b></td><td class="num">10</td><td class="wrap-cell">提示问题逐条回应了吗？动词形式、名词单复数、字数够 40 吗？</td></tr>
+${CHK.map(([n, v, tip]) => `<tr><td><b>${esc(n)}</b></td><td class="num">${fmt(v)}</td><td class="wrap-cell">${esc(tip)}</td></tr>`).join('')}
 </tbody>
 </table>
 </div>
@@ -2034,13 +2165,14 @@ ${section('自检', '考前按板块过一遍', '按板块检查，不按题号'
   背「第 13 题考代词」会在换卷时失手。
 </div>
 <div class="note" style="margin-top:10px">
-  清单里的板块合计 <b>78 分</b>；其余 22 分是听力·选择（12）与完形（10）——
-  这两块全是选择题，<b>没有「交卷前检查」的动作</b>，只能靠做题时一次选对。
+  清单里的板块合计 <b>${fmt(chkSum)} 分</b>；其余 ${fmt(restSum)} 分是${restSegs}——
+  这几块全是选择题，<b>没有「交卷前检查」的动作</b>，只能靠做题时一次选对。
 </div>
-`)}
+`);
+  })()}
 `;
   return page('plan.html', `备考建议 · ${SITE.short}`,
-    `五条备考建议：按「形式错的空间」排序，每条都有四套真题的依据。`, body);
+    `按听说读写四维拆到每个题型：听 ${fmt(dimById('listen').avg)} / 说 ${fmt(dimById('speak').avg)} / 读 ${fmt(dimById('read').avg)} / 写 ${fmt(dimById('write').avg)} 分，每个题型一条可重复的动作。`, body);
 }
 
 function buildPractice() {
