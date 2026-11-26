@@ -473,11 +473,13 @@ for (const f of ALL_HTML) {
   // 例子：写作 4 题场景都要上写作页
   const wr = read('special-write.html');
   ok(WRITE_ITEMS.every((w) => wr.includes(w.scene)), '写作 4 题场景全部上写作页');
-  // 有范文的必须展示，没范文的必须标「原卷未给」
-  const withEssay = WRITE_ITEMS.filter((w) => w.essay);
-  ok(withEssay.length === WRITE_STATS.withEssay, `有范文 ${withEssay.length} 套与派生一致`);
-  for (const w of withEssay) ok(wr.includes(w.essay.slice(0, 40)), `范文「${w.scene}」已展示`);
-  ok(wr.includes('原卷未给'), '无范文的卷子标注「原卷未给」');
+  // 2026-11-26 用户要求：范文拆解整节删除，页面不展示范文原文
+  ok(!wr.includes('范文'), '写作页不含范文（已删整节）');
+  // 但提纲与提示词必须齐全——那才是学生要用的
+  for (const w of WRITE_ITEMS) {
+    ok(wr.includes(w.questions.split(' / ')[0]), `写作提纲「${w.scene}」已上页`);
+    ok(wr.includes(w.promptWords.split(',')[0].trim()), `提示词「${w.scene}」已上页`);
+  }
 
   // 不做练习题：任何专项页都不得出现题干式「练习」「做题」入口
   for (const f of SPECIAL_PAGES) {
@@ -722,6 +724,23 @@ for (const f of ALL_HTML) {
     const h1 = (h.match(/<h1[^>]*>(.*?)<\/h1>/) || [])[1] || '';
     const h1t = h1.replace(/<[^>]+>/g, '').trim();
     ok(h1t === label || h1t.includes(label), `${f} 的 <h1> 与导航一致（h1=「${h1t}」，导航=「${label}」）`);
+  }
+}
+
+/* ---------- 10q. 写作页：提纲齐全，范文不得出现 ---------- */
+{
+  const wr = readFileSync('special-write.html', 'utf8');
+  ok(!wr.includes('范文'), '写作页不含范文（整节已删）');
+  ok(wr.includes('题目怎么读') && wr.includes('四步写完'), '写作页保留「题目怎么读」与「四步写法」');
+
+  // 提示问题数必须按「?」计（按「/」计会被 he/she 这类斜杠干扰，曾算成 6 个）
+  for (const w of WRITE_ITEMS) {
+    const n = (w.questions || '').split('?').length - 1;
+    ok(n >= 1 && n <= 4, `「${w.scene}」提示问题数 ${n} 合理（1–4）`);
+    // 表格里该行显示的数字必须等于这个 n
+    const row = wr.split(w.scene)[1] || '';
+    const shown = (row.match(/<td class="num">(\d+)<\/td>/) || [])[1];
+    ok(shown && +shown === n, `「${w.scene}」页面显示 ${shown} 个问题（应为 ${n}）`);
   }
 }
 

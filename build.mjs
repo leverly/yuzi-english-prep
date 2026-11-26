@@ -1228,7 +1228,7 @@ ${specialHead(
         照着题目结构写，${WRITE_STATS.wordMin} 词轻松够——不需要另想结构。</p>
       <div class="part-links">
         <a class="part-link" href="special-write.html">
-          <span>${WRITE_STATS.total} 套真题 · ${WRITE_STATS.withEssay} 套有范文</span>
+          <span>${WRITE_STATS.total} 套真题 · 提示问题即提纲</span>
           <small>≥${WRITE_STATS.wordMin} 词</small>
           <span class="pl-go">进入 →</span>
         </a>
@@ -1783,7 +1783,6 @@ ${READ_STATS.selFams.map((f) => {
 /* ---------- ④ 写作 ---------- */
 function buildSpecialWrite() {
   const part = SPECIAL_PARTS[3];
-  const withEssay = WRITE_ITEMS.filter((w) => w.essay);
   const body = `
 ${SPECIAL_CRUMB(part)}
 ${specialTabs('write')}
@@ -1799,7 +1798,7 @@ ${specialHead(
       '分<br>必做最后一题',
       [
         [WRITE_STATS.wordMin, '词数下限', '四套一致'],
-        [`${WRITE_STATS.withEssay}/${WRITE_STATS.total}`, '有范文', '其余原卷未给'],
+        [`${WRITE_Q_RANGE.min}–${WRITE_Q_RANGE.max}`, '提示问题', '每题一个问题即一段'],
       ],
       '提示问题就是提纲，不需要另想结构'
     )
@@ -1808,14 +1807,14 @@ ${specialHead(
 ${section('题目怎么读', `${WRITE_STATS.total} 套：话题与提纲`, '提示问题 = 现成提纲', `
 <div class="tbl-wrap">
 <table>
-<thead><tr><th>年份</th><th>话题</th><th>提示问题（= 提纲）</th><th>提示词</th><th>范文</th></tr></thead>
+<thead><tr><th>年份</th><th>话题</th><th>提示问题（= 提纲）</th><th>提示词</th><th class="num">提示问题数</th></tr></thead>
 <tbody>
 ${WRITE_ITEMS.map((w) => `<tr>
   <td style="color:var(--text-3);font-size:12.4px">${esc(PAPER_STATS.find((p) => p.id === w.p).label)}</td>
   <td class="wrap-cell"><b>${esc(w.scene)}</b></td>
   <td class="wrap-cell" style="font-size:12.6px;color:var(--text-2)">${esc(w.questions)}</td>
   <td class="wrap-cell" style="font-family:var(--mono);font-size:12.2px;color:var(--text-3)">${esc(w.promptWords)}</td>
-  <td>${w.essay ? '<span class="tag easy">有</span>' : '<span class="tag rare">原卷未给</span>'}</td>
+  <td class="num">${(w.questions || '').split('?').length - 1}</td>
 </tr>`).join('')}
 </tbody>
 </table>
@@ -1825,27 +1824,6 @@ ${WRITE_ITEMS.map((w) => `<tr>
   每个问题写 1–2 句，${WRITE_STATS.wordMin} 词轻松够——不需要另想结构。
 </div>
 `, 'w-prompt')}
-
-${section('范文拆解', '范文不长，但每句都在回应题目', `${withEssay.length} 套卷给了范文，逐句看它怎么答`, `
-${withEssay.map((w) => `
-<div class="card" style="margin-bottom:14px">
-  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-    <h3 style="margin:0">${esc(w.scene)}</h3>
-    <span class="tag ch">${esc(PAPER_STATS.find((p) => p.id === w.p).label)}</span>
-    <span style="font-size:12.3px;color:var(--text-3)">${w.essay.split(/\s+/).length} 词</span>
-  </div>
-  <p style="font-size:13.4px;color:var(--text-2);line-height:1.85;background:var(--surface-2);padding:14px 16px;border-radius:10px;border-left:3px solid var(--ok)">
-    ${esc(w.essay)}
-  </p>
-  <div style="margin-top:10px;font-size:12.6px;color:var(--text-3);line-height:1.7">
-    <b>结构拆解：</b>${esc(w.questions)}
-  </div>
-</div>`).join('')}
-<div class="note" style="margin-top:6px">
-  <b>另外两套（${WRITE_ITEMS.filter((w) => !w.essay).map((w) => esc(PAPER_STATS.find((p) => p.id === w.p).label)).join('、')}）只给了题目</b>，
-  可以拿它们的提示问题当提纲，自己写一遍再对照上面两篇的结构。
-</div>
-`, 'w-essay')}
 
 ${section('解题与备考', '四步写完，最后一步决定分数', '内容分靠提纲，语言分靠检查', `
 <div class="grid g2">
@@ -1861,7 +1839,7 @@ ${section('解题与备考', '四步写完，最后一步决定分数', '内容�
   <div class="card">
     <h3 style="margin-bottom:10px">备考三步</h3>
     <ul class="clean">
-      <li><b>不背范文，背「结构」。</b>范文的话题每年换，但「问题→回答」的结构不变。</li>
+      <li><b>背「结构」不背句子。</b>话题每年换，但「提示问题 → 逐条回答」的结构不变。</li>
       <li><b>限时 10 分钟写 ${WRITE_STATS.wordMin} 词。</b>写作在卷面最后，时间通常被前面挤掉——必须练到 10 分钟内完成。</li>
       <li><b>写完必自查。</b>按上面「检查三件事」逐条过，养成习惯后每次能捡回 1–2 分。</li>
     </ul>
@@ -1874,7 +1852,7 @@ ${section('解题与备考', '四步写完，最后一步决定分数', '内容�
 `)}
 `;
   return page('special.html', `写作专项 · ${SITE.short}`,
-    `文段表达 ${fmt(WRITE_STATS.score)} 分：${WRITE_STATS.total} 套真题的提纲与范文拆解，以及四步写法与自查清单。`, body);
+    `文段表达 ${fmt(WRITE_STATS.score)} 分：${WRITE_STATS.total} 套真题的提纲怎么读，以及四步写法与自查清单。`, body);
 }
 
 const pages = {
