@@ -338,9 +338,11 @@ for (const f of ALL_HTML) {
   const prioRows = (prio.match(/<td class="num cell-hi">/g) || []).length;
   ok(prioRows === 5, `排序表 5 行（${prioRows} 行）`);
 
-  for (const seg of ['音标填词', '听力填词', '单项填空', '阅读选择', '阅读简答', '汉译英', '文段表达']) {
+  for (const seg of ['音标填词', '单项填空', '阅读选择', '阅读简答', '汉译英', '文段表达']) {
     ok(html.includes(seg), `自检清单含「${seg}」`);
   }
+  // 听力不在建议范围（无音频），自检表里不得出现
+  ok(!html.includes('听力填词'), '自检清单不含「听力填词」（不在建议范围）');
   ok(html.includes('别背整本词表') && html.includes('别在 A 篇上读全文'), '含两条反直觉动作');
   // 排序理由必须明写「不按分值」
   ok(html.includes('不是按分值'), '页面说明排序不按分值');
@@ -365,12 +367,14 @@ for (const f of ALL_HTML) {
   ok(navN === 1, '首页导航容器仍在');
 }
 
-/* ---------- 10g-3. 备考建议：听说读写四维，数字必须由 DIM_STATS 派生 ---------- */
-// 口径（2026-11-26 用户要求）：
-//   ① 四维合计必须等于全卷 100 分，「说」必须是 0 分——四套卷确实没有口语题，
-//      这一栏若被填上一个非零分值，说明有人在编造卷面。
-//   ② 但「说」不能只写 0 就走：音形对应在听填 + 音标里计分，页面必须同时给出 SPEAK_PROXY。
+/* ---------- 10g-3. 备考建议：四维分值 + 只对读写给建议 ---------- */
+// 口径（2026-11-26 用户要求两轮收窄后的最终形态）：
+//   ① 四维合计必须等于全卷 100 分。**听力 20 分必须留在维度表里**——卷面真实存在，
+//      删掉它合计就变 80，与「全卷 100 分」直接矛盾。「说」必须是 0 分（卷面无口语题）。
+//   ② 但听与说都**不给练法**：四套卷没有配套音频（站内 0 个音频资源），
+//      写给学生的「怎么练听力」只能是空话。页面只交代分值去向。
 //   ③ 单选 10 分归入「读」，页面必须显式说明它不等于「阅读理解 40 分」，否则两个口径打架。
+//   ④ 建议小节只有「读」「写」两个（①②），不得复活听力/口语的练法小节。
 {
   const html = readFileSync('plan.html', 'utf8');
   const txt = html.replace(/<style[\s\S]*?<\/style>/g, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
@@ -381,18 +385,24 @@ for (const f of ALL_HTML) {
   const dimSum = +DIM_STATS.reduce((a, d) => a + d.avg, 0).toFixed(1);
   ok(dimSum === ALL_TOTAL, `四维年均合计 ${dimSum} = 全卷 ${ALL_TOTAL}`);
   ok(dimById('speak').avg === 0, '「说」为 0 分（四套卷无口语题）');
-  ok(SPEAK_PROXY === +(SEG_SCORE['听填'].avg + SEG_SCORE['音标填词'].avg).toFixed(1),
-    `读音隐性口径 ${SPEAK_PROXY} = 听填 + 音标`);
+  // 听力 20 分不能因「不给建议」而从分值口径消失
+  ok(dimById('listen').avg === SEG_SCORE['听选'].avg + SEG_SCORE['听填'].avg,
+    `「听」${dimById('listen').avg} 分 = 听选 + 听填（分值必须在表里）`);
 
-  // 四维小节都要在，且顺序是 听 → 说 → 读 → 写
-  const order = ['① 听', '② 说', '③ 读', '④ 写'].map((k) => txt.indexOf(k));
-  ok(order.every((i) => i >= 0), '四维小节都在（①②③④）');
-  ok(order.every((v, i) => i === 0 || v > order[i - 1]), '四维小节顺序为 听 → 说 → 读 → 写');
+  // 建议小节只有读、写两节，且顺序为 ① → ②
+  const order = ['① 读', '② 写'].map((k) => txt.indexOf(k));
+  ok(order.every((i) => i >= 0), '读、写两节建议都在（①②）');
+  ok(order[1] > order[0], '建议小节顺序为 ① 读 → ② 写');
 
-  // 「说」必须同时写 0 分与隐性 12 分，且明说本卷不考口语
-  ok(txt.includes('本卷不考口语'), '「说」栏写明本卷不考口语');
-  ok(txt.includes(`音形对应在听填 ${fmt(SEG_SCORE['听填'].avg)} + 音标 ${fmt(SEG_SCORE['音标填词'].avg)} 里计分`),
-    `「说」栏给出音形对应的计分口径 ${fmt(SPEAK_PROXY)} 分（听填 + 音标）`);
+  // 听力与口语的练法不得复活（无音频 / 不考，写了就是空话）
+  for (const kw of ['听力·选择（', '听力·填词（', '读音的真实结算点', '三个能落地的动作']) {
+    ok(!html.includes(kw), `不出现已移除的听力/口语练法「${kw}」`);
+  }
+
+  // 但必须交代这两块的分值去向，不能静默消失
+  ok(txt.includes(`「听」${fmt(dimById('listen').avg)} 分`), `页面交代「听」${fmt(dimById('listen').avg)} 分的去向`);
+  ok(txt.includes('「说」0 分'), '页面交代「说」0 分');
+  ok(txt.includes('没有配套音频'), '页面说明听力为何不给练法（无音频）');
 
   // 单选归入读，且必须解释「读 60」≠「阅读理解 40」
   ok(txt.includes(`单选 ${fmt(SEG_SCORE['单选'].avg)} 分归入「读」`), '页面说明单选归入「读」');

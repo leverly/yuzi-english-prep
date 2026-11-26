@@ -1901,11 +1901,16 @@ function buildPlan() {
   // 页面结构（2026-11-26 用户要求）：按听说读写四维组织，落到每个题型一条动作。
   // 四维的数字全部来自 stats.mjs 的 DIM_STATS，页面不写常量。
   //
+  // 覆盖范围（2026-11-26 用户要求「不需要听力」后再收窄）：
+  //   「听」20 分与「说」0 分只交代分值去向，不给练法——
+  //   听力没有配套音频（站内 0 个音频资源），写给学生的「怎么练听力」只能是空话；
+  //   口语根本没考。本页只对「读」「写」两维给动作。
+  //
   // 两个口径必须在页面上说明，否则读者会误读：
-  //   ① 「说」是 0 分——四套卷无口语题（检索「口语/朗读/人机/口头」0 命中）。
-  //      但音形对应能力在听填 8 + 音标 4 里计分，所以这一维给的是「音 ↔ 形」映射的练法。
+  //   ① 听力 20 分是真的、口语 0 分是真的，两者都不在本页建议范围内。
   //   ② 单选 10 分归入「读」——它是「读句子选词」，不是篇章阅读；
   //      「阅读 40 分」指的仍是阅读理解大题，与「读 60」不冲突。
+  const PAGE_SKIP = { listen: '不在本页', speak: '不考' };
   const F = (id) => FAM_MAP.find((f) => f.id === id) || { avgPerYear: 0, hit: 0, name: '' };
   const D = (id) => dimById(id);
 
@@ -1992,11 +1997,11 @@ ${dim.segBreakdown.map((s) => `<tr>
 <section class="hero" style="padding-bottom:10px">
   <div class="hero-stack">
     <div>
-      <div class="hero-badge"><span class="dot-live"></span>听说读写四维 · 每个题型一条动作</div>
+      <div class="hero-badge"><span class="dot-live"></span>读 ${fmt(read.avg)} 分 + 写 ${fmt(write.avg)} 分 · 每个题型一条动作</div>
       <h1 style="font-size:clamp(26px,3.2vw,36px)">备考建议</h1>
       <p class="lede">
-        按<b>听、说、读、写</b>四维拆到每个题型。英语丢分不是「算错」，是「写错」——
-        所以每条建议都落到一个能重复练的动作上，不是「多读多听」。
+        按题型给动作，每条都落到一个能重复练的操作上，不是「多读多写」。
+        英语丢分不是「算错」，是「写错」——这也是为什么 ${fmt(write.avg)} 分的「写」单独一维。
       </p>
     </div>
   </div>
@@ -2005,27 +2010,34 @@ ${dim.segBreakdown.map((s) => `<tr>
 ${section('四维分值', `全卷 ${ALL_TOTAL} 分怎么分`, '四套卷的板块构成完全一致，所以四维分值也固定', `
 <div class="tbl-wrap">
 <table>
-<thead><tr><th>维度</th><th class="num">年均分</th><th>由哪些题型组成</th></tr></thead>
+<thead><tr><th>维度</th><th class="num">年均分</th><th>由哪些题型组成</th><th>本页</th></tr></thead>
 <tbody>
 ${DIM_STATS.map((d) => `<tr>
   <td><b style="font-size:15px">${esc(d.name)}</b></td>
   <td class="num cell-hi" style="font-size:15px">${fmt(d.avg)}</td>
   <td class="wrap-cell" style="color:var(--text-2);font-size:12.8px">${
-    d.id === 'speak'
-      ? `<b style="color:var(--gold)">本卷不考口语</b>（四套卷检索 0 命中）；音形对应在听填 ${fmt(SEG_SCORE['听填'].avg)} + 音标 ${fmt(SEG_SCORE['音标填词'].avg)} 里计分`
+    d.segBreakdown.length === 0
+      ? `<b>卷面没有口语题</b>——四套卷检索「口语 / 朗读 / 人机 / 口头」全部 0 命中，是纯笔试`
       : d.segBreakdown.map((s) => `${esc(s.name)} ${fmt(s.avg)}`).join(' + ')
+  }</td>
+  <td style="white-space:nowrap">${
+    PAGE_SKIP[d.id]
+      ? `<span class="tag rare">${esc(PAGE_SKIP[d.id])}</span>`
+      : d.id === 'speak' ? '<span class="tag rare">不考</span>' : '<span class="tag easy">有建议</span>'
   }</td>
 </tr>`).join('')}
 <tr style="background:var(--bg-3)">
   <td><b>合计</b></td><td class="num"><b>${fmt(DIM_STATS.reduce((a, d) => a + d.avg, 0))}</b></td>
   <td class="wrap-cell" style="color:var(--text-3);font-size:12.4px">四维合计恒等于全卷分；四套卷板块构成一致，所以四维分值也固定</td>
+  <td></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="note info" style="margin-top:14px">
   <b>两个口径先说清，不然会误读：</b>
-  ① <b>「说」是 0 分</b>，这不是漏统计，是这份卷确实没有口语题；但音形对应不是白练，它算在听填与音标那 ${fmt(SPEAK_PROXY)} 分里。
+  ① <b>「听」${fmt(listen.avg)} 分</b> 和 <b>「说」0 分</b> 都不给建议。听力的分数是真的，但四套卷没有配套音频，
+  没法自己练；口语根本没考。这两块只交代分值去向，<b>不写练法</b>。
   ② <b>单选 ${fmt(SEG_SCORE['单选'].avg)} 分归入「读」</b>，因为它是「读句子选词」。这里说的「读 ${fmt(read.avg)} 分」不等于「阅读理解 ${fmt(READ_STATS.totalScore)} 分」——后者只是读里的一个大题。
 </div>
 `)}
@@ -2052,42 +2064,7 @@ ${PRIO.map((p, i) => `<tr>
 </div>
 `)}
 
-${section('① 听', `${fmt(listen.avg)} 分 · 两遍音频两种任务`, '第一遍听内容，第二遍查形式——两遍做的事不一样', `
-${dimTable(listen)}
-<div class="grid g2" style="gap:14px;margin-top:16px">
-${actCard('听力·选择（' + fmt(SEG_SCORE['听选'].avg) + ' 分 / ' + fmt(SEG_SCORE['听选'].perN[0]) + ' 题）',
-    `细节 ${fmt(F('f-listen-detail').avgPerYear)} · 数字时间 ${fmt(F('f-listen-num').avgPerYear)} · 主旨意图 ${fmt(F('f-listen-main').avgPerYear)}`,
-    `事实细节 ${F('f-listen-detail').hit}/${N_PAPERS} 年考、年均 ${fmt(F('f-listen-detail').avgPerYear)} 分，是这一块的主体；基础题占 ${fmt(listen.segBreakdown[0].diff.easy || 0)} 分。`,
-    '播放前把题干的疑问词圈出来（Who / When / How much / Why），带着问题听；数字题先把三个选项的差异写在旁边（是 10 还是 13、是 2 days 还是 2 weeks），听到数字只做「对上哪一个」。',
-    '不要试图听懂每个词。这一块 ' + fmt(listen.segBreakdown[0].diff.easy || 0) + ' 分是基础题，答案在原文里直接给，听不懂的句子跳过不影响作答。')}
-${actCard('听力·填词（' + fmt(SEG_SCORE['听填'].avg) + ' 分 / ' + fmt(SEG_SCORE['听填'].perN[0]) + ' 题）',
-    `四套固定 ${fmt(SEG_SCORE['听填'].avg)} 分，难度全部是中档`,
-    `这一块四套卷一分不差都是 ${fmt(SEG_SCORE['听填'].avg)} 分，且 ${fmt(listen.segBreakdown[1].diff.mid || 0)} 分全在中档——不是听不懂，是「听懂了写不对」。`,
-    '拿到题先读表格骨架，预判每个空要填什么词性（名词/动词/形容词/数词）；第一遍只写首字母，第二遍专门听形式：单复数、时态、首字母大写。',
-    '不要在第二遍还去找新空。第二遍的任务是「把已经听到的词写规范」，追新内容会连原来的空都丢。')}
-</div>
-`)}
-
-${section('② 说', `${fmt(speak.avg)} 分 · 但音形对应算 ${fmt(SPEAK_PROXY)} 分`, '这份卷不考口语；读音相关的能力，在听填和音标里结算', `
-<div class="note warn">
-  <b>先说清楚：本卷不考口语。</b>四套真题检索「口语 / 朗读 / 人机对话 / 口头表达」全部 0 命中，卷面是纯笔试。
-  所以这一维<b>没有独立分值</b>，不要按「练口语」去准备。
-</div>
-<div class="grid g2" style="gap:14px;margin-top:16px">
-${actCard('读音的真实结算点',
-    `听填 ${fmt(SEG_SCORE['听填'].avg)} + 音标 ${fmt(SEG_SCORE['音标填词'].avg)} = ${fmt(SPEAK_PROXY)} 分`,
-    `这 ${fmt(SPEAK_PROXY)} 分考的是同一个映射：<b>音 ↔ 形</b>。但两个入口不一样——音标题从<b>音标符号</b>进（看到 /kʌt/ 写 cut），听填从<b>声音</b>进（听到 /kʌt/ 写 cut）。入口不同，落点是同一个：把音拆成字母。`,
-    '练的是这条映射，不是发音。做法：拿课本词表，遮住单词只看音标拼出来，再翻回去对；反过来遮住音标，看单词自己写音标。两个方向都练，才叫掌握了音形对应。',
-    '不要把「说」当独立科目去报班或刷口语题。这份卷不考发音是否标准，考的是「给音能不能写出形」。')}
-${actCard('三个能落地的动作',
-    `覆盖音标 ${fmt(SEG_SCORE['音标填词'].avg)} 分 + 听填 ${fmt(SEG_SCORE['听填'].avg)} 分`,
-    `音标 ${SPELL_STATS.total} 个词平均 ${SPELL_STATS.avgLen} 字母、最短 ${SPELL_STATS.minLen} 个，全是基础词——说明考的是音形规则，不是词汇量。`,
-    '<b>音标拼词</b>：只看音标写出单词（对应音标题）；<b>听写</b>：听音频写词（对应听填）；<b>反写音标</b>：看单词写音标。三个动作分别练「符号→形」「声音→形」「形→符号」，把映射补完整。',
-    '不要只做跟读。跟读练的是发音流畅度，这份卷不给这个打分；要练的是「听到/看到音，能落到字母上」。')}
-</div>
-`)}
-
-${section('③ 读', `${fmt(read.avg)} 分 · 全卷最大的一块`, '含单选与完形：都是「读一段文字后作答」，只是文字长短不同', `
+${section('① 读', `${fmt(read.avg)} 分 · 全卷最大的一块`, '含单选与完形：都是「读一段文字后作答」，只是文字长短不同', `
 ${dimTable(read)}
 <div class="note info" style="margin-top:14px">
   <b>这一维里 ${fmt(read.avg)} 分，有 ${fmt(SEG_SCORE['单选'].avg + SEG_SCORE['完形选词'].avg + SEG_SCORE['完形选择'].avg)} 分是「短文字」，${fmt(READ_STATS.totalScore)} 分是「篇章阅读」。</b>
@@ -2117,7 +2094,7 @@ ${actCard('阅读·简答（' + fmt(SEG_SCORE['阅读简答'].avg) + ' 分 / ' +
 </div>
 `)}
 
-${section('④ 写', `${fmt(write.avg)} 分 · 全要动笔`, '这一维的失分几乎全是形式错：拼写、时态、单复数', `
+${section('② 写', `${fmt(write.avg)} 分 · 全要动笔`, '这一维的失分几乎全是形式错：拼写、时态、单复数', `
 ${dimTable(write)}
 <div class="grid g2" style="gap:14px;margin-top:16px">
 ${actCard('音标填词（' + fmt(SEG_SCORE['音标填词'].avg) + ' 分 / ' + fmt(SEG_SCORE['音标填词'].perN[0]) + ' 题）',
@@ -2138,10 +2115,10 @@ ${actCard('文段表达（' + fmt(WRITE_STATS.score) + ' 分 / 1 题）',
 </div>
 `)}
 ${(() => {
-    // 自检清单：分值全部派生，不写死
+    // 自检清单：分值全部派生，不写死。
+    // 只列「本页给了建议」的板块——听力不在建议范围（无音频），不进来。
     const CHK = [
       ['音标填词', SEG_SCORE['音标填词'].avg, '空前有 a / an 还是复数？拼写里的双写字母查了吗？'],
-      ['听力填词', SEG_SCORE['听填'].avg, '听到的词写下来后，单复数、时态、首字母大写都检查了？'],
       ['单项填空', SEG_SCORE['单选'].avg, '主语是单数还是复数？时间状语对应哪个时态？'],
       ['阅读选择', SEG_SCORE['阅读选择'].avg, '每道细节题在原文划出证据句了吗？划不出的是不是靠猜？'],
       ['阅读简答', SEG_SCORE['阅读简答'].avg, '问什么答什么？人称换过来了？有没有照抄整句？'],
@@ -2149,8 +2126,10 @@ ${(() => {
       ['文段表达', SEG_SCORE['文段表达'].avg, `提示问题逐条回应了吗？动词形式、名词单复数、字数够 ${WRITE_STATS.wordMin} 吗？`],
     ];
     const chkSum = +CHK.reduce((a, r) => a + r[1], 0).toFixed(1);
-    const restSum = +(ALL_TOTAL - chkSum).toFixed(1);
-    const restSegs = ['听选', '完形选词', '完形选择'].map((k) => `${SEG_NAME[k]} ${fmt(SEG_SCORE[k].avg)}`).join(' + ');
+    // 清单外的分：听力 20（无音频，本页不给练法）+ 完形 10（纯选择题，无「交卷前检查」动作）
+    const outSegs = ['听选', '听填', '完形选词', '完形选择'];
+    const outSum = +outSegs.reduce((a, k) => a + SEG_SCORE[k].avg, 0).toFixed(1);
+    const outText = outSegs.map((k) => `${SEG_NAME[k]} ${fmt(SEG_SCORE[k].avg)}`).join(' + ');
     return section('自检', '考前按板块过一遍', '按板块检查，不按题号', `
 <div class="tbl-wrap">
 <table>
@@ -2165,14 +2144,15 @@ ${CHK.map(([n, v, tip]) => `<tr><td><b>${esc(n)}</b></td><td class="num">${fmt(v
   背「第 13 题考代词」会在换卷时失手。
 </div>
 <div class="note" style="margin-top:10px">
-  清单里的板块合计 <b>${fmt(chkSum)} 分</b>；其余 ${fmt(restSum)} 分是${restSegs}——
-  这几块全是选择题，<b>没有「交卷前检查」的动作</b>，只能靠做题时一次选对。
+  清单里的板块合计 <b>${fmt(chkSum)} 分</b>；其余 ${fmt(outSum)} 分是${outText}。
+  听力那 ${fmt(SEG_SCORE['听选'].avg + SEG_SCORE['听填'].avg)} 分没有配套音频，本站不给练法；
+  完形 ${fmt(SEG_SCORE['完形选词'].avg + SEG_SCORE['完形选择'].avg)} 分是纯选择题，没有「交卷前检查」这个动作，只能靠做题时一次选对。
 </div>
 `);
   })()}
 `;
   return page('plan.html', `备考建议 · ${SITE.short}`,
-    `按听说读写四维拆到每个题型：听 ${fmt(dimById('listen').avg)} / 说 ${fmt(dimById('speak').avg)} / 读 ${fmt(dimById('read').avg)} / 写 ${fmt(dimById('write').avg)} 分，每个题型一条可重复的动作。`, body);
+    `按题型给动作：读 ${fmt(dimById('read').avg)} 分 + 写 ${fmt(dimById('write').avg)} 分，每个题型一条可重复的操作。听力与口语只交代分值去向。`, body);
 }
 
 function buildPractice() {
