@@ -484,6 +484,7 @@ ul.clean li b{color:var(--text);font-weight:650}
 .heat-scroll-hint b{color:var(--accent);font-weight:650}
 @media(max-width:820px){.heat-scroll-hint{display:flex}}
 
+
 .hero-metric{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
 .hero-metric .hm-n{font-size:34px;font-weight:780;letter-spacing:-.035em;line-height:1.1;font-variant-numeric:tabular-nums}
 .hero-metric .hm-l{font-size:12.6px;color:var(--text-3);line-height:1.4}
