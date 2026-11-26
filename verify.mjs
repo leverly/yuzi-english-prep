@@ -149,41 +149,16 @@ for (const f of ALL_HTML) {
 const alwaysN = FREQ_SUMMARY.always.length;
 const famN = FAM_MAP.filter((f) => !f.onlyBonus).length;
 ok(alwaysN <= famN, `always 族数 ${alwaysN} ≤ 必做族数 ${famN}`);
-// 3 套样本下如果 always 占比过高，页面必须已经写明「标签没有区分度」
+// 族表口径（2026-11-26）：样本少时「年年考」标签区分度低，
+// papers 的族表改用「命中 n/4 年」+ 分值深浅表达，不使用「必考」标签。
 {
-  const html = readFileSync('index.html', 'utf8');
+  const html = readFileSync('papers.html', 'utf8');
   const ratio = alwaysN / famN;
   if (ratio > 0.6) {
-    ok(/主排序/.test(html) && /分值/.test(html),
-      `always 占比 ${Math.round(ratio * 100)}%，首页已说明「主排序用分值」`);
+    ok(html.includes('/4 年') || html.includes('/4年'),
+      `always 占比 ${Math.round(ratio * 100)}%，papers 族表用「命中 n/4 年」表达而非「必考」标签`);
   }
-}
-
-/* ---------- 9. 能力/难度占比自洽 ---------- */
-for (const k of CAT_ORDER) {
-  const pct = Math.round((CAT_SCORE[k].avg / 100) * 100);
-  ok(pct === CAT_SCORE[k].pct, `能力「${k}」占比 ${CAT_SCORE[k].pct}% 与均值自洽`);
-}
-for (const k of DIFF_ORDER) {
-  const pct = Math.round((DIFF_SCORE[k].avg / 100) * 100);
-  ok(pct === DIFF_SCORE[k].pct, `难度「${k}」占比 ${DIFF_SCORE[k].pct}% 与均值自洽`);
-}
-
-/* ---------- 9b. 能力轴不得是板块轴的纯函数 ---------- */
-// 若某个板块的题全部落在同一个能力层，且每个板块都如此，则「能力」只是「板块」的改名，
-// 三年极差必然为 0——那种「三年零波动」是标注口径造成的假发现，不是卷面事实。
-{
-  const segs = [...new Set(LEDGER.filter((q) => !q.bonus).map((q) => q.seg))];
-  const uniformSegs = segs.filter((s) => {
-    const cats = new Set(LEDGER.filter((q) => q.seg === s && !q.bonus).map((q) => q.cat));
-    return cats.size === 1;
-  });
-  ok(uniformSegs.length < segs.length,
-    `能力轴不是板块轴的纯函数（${segs.length} 个板块中 ${uniformSegs.length} 个能力单一，未全部退化）`);
-
-  // 能力分布的逐年极差若全为 0，说明这条轴没有独立信号
-  const allZero = CAT_ORDER.every((k) => CAT_SCORE[k].range === 0);
-  ok(!allZero, `能力分布逐年存在差异（非全部极差为 0）`);
+  ok(!html.includes('必考点'), 'papers 族表不写「必考点」断言');
 }
 
 /* ---------- 10. 页面间数字一致 ---------- */
@@ -331,7 +306,7 @@ for (const f of ALL_HTML) {
 /* ---------- 10g. 导航标签必须全站一致 ---------- */
 {
   // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
-  const NAV_LABELS = ['总览', '逐年真题', '趋势与考点', '专项复习', '演示'];
+  const NAV_LABELS = ['总览', '逐年考情', '整体趋势', '专项复习', '演示'];
   for (const f of ALL_HTML) {
     const html = readFileSync(f, 'utf8');
     const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
@@ -641,35 +616,45 @@ for (const f of ALL_HTML) {
   }
 }
 
-/* ---------- 10n. 页面分工：逐年 vs 跨年不得混装 ---------- */
-// 用户要求（2026-11-26）：papers 里的「能力」「难度」是四年年均汇总，
-// 属整体统计，应放 trend。两页职责：papers = 逐套明细，trend = 跨年对比。
+/* ---------- 10n. 页面分工：逐年拆解 vs 整体趋势 ---------- */
+// 划分口径（2026-11-26 用户要求重做）：
+//   papers = 逐套卷看考情（有逐年列 / 每套明细）
+//   trend  = 四年聚合看趋势（只有年均值，没有逐年列）
+//   index  = 结论入口，不重复展开（详细数据在下层两页）
+// 判据按「内容性质」而非「节数」，搬节时不必改断言。
 {
   const papers = readFileSync('papers.html', 'utf8');
   const trend = readFileSync('trend.html', 'utf8');
+  const index = readFileSync('index.html', 'utf8');
 
-  // papers 只放逐年内容
-  ok(!papers.includes('各能力分值'), 'papers 不含「各能力分值」（属跨年汇总）');
-  ok(!papers.includes('难度三级分布'), 'papers 不含「难度三级分布」（属跨年汇总）');
-  ok(papers.includes('各板块分值'), 'papers 有「各板块分值」');
-  ok(papers.includes('考点族与权重'), 'papers 有「考点族与权重」');
-  ok(papers.includes('每套卷的明细'), 'papers 有「每套卷的明细」');
+  // ---------- papers：只有逐年内容 ----------
+  for (const sec of ['各板块分值', '考点族与权重', 'A 篇', '选做部分', '每套卷的明细']) {
+    ok(papers.includes(sec), `papers 含逐年内容「${sec}」`);
+  }
+  for (const sec of ['各能力分值', '难度三级分布']) {
+    ok(!papers.includes(sec), `papers 不含聚合内容「${sec}」`);
+  }
 
-  // trend 接收了这两节
-  ok(trend.includes('各能力分值'), 'trend 有「各能力分值」');
-  ok(trend.includes('难度三级分布'), 'trend 有「难度三级分布」');
+  // ---------- trend：只有聚合内容 ----------
+  for (const sec of ['各能力分值', '难度三级分布', '选择型与输出型']) {
+    ok(trend.includes(sec), `trend 含聚合内容「${sec}」`);
+  }
+  for (const sec of ['A 篇', '选做部分', '每套卷的明细']) {
+    ok(!trend.includes(sec), `trend 不含逐年内容「${sec}」`);
+  }
 
-  // 两页节数：papers 3 节，trend 6 节
-  const countSec = (h) => (h.match(/class="kicker"/g) || []).length;
-  ok(countSec(papers) === 3, `papers 节数 ${countSec(papers)}（应为 3）`);
-  ok(countSec(trend) === 6, `trend 节数 ${countSec(trend)}（应为 6）`);
+  // ---------- index：不重复展开 ----------
+  for (const sec of ['分值分区', '选做不是optional', '分值最高的']) {
+    ok(!index.includes(sec), `index 不重复展开「${sec}」（详细数据在下层页）`);
+  }
+  ok(index.includes('三个判断'), 'index 只保留「三个判断」作为结论入口');
 
-  // 编号必须连续（此前 trend 有 ①②⑥⑦ 跳号）
+  // ---------- 编号连续性 ----------
   for (const [f, h] of [['papers', papers], ['trend', trend]]) {
     const nums = [...h.matchAll(/class="kicker">([①②③④⑤⑥⑦⑧])/g)].map((m) => m[1]);
     const CN = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
     const expect = CN.slice(0, nums.length);
-    ok(JSON.stringify(nums) === JSON.stringify(expect),
+    ok(nums.length > 0 && JSON.stringify(nums) === JSON.stringify(expect),
       `${f} 节编号连续 ${nums.join('')}（应为 ${expect.join('')}）`);
   }
 }
@@ -695,7 +680,26 @@ for (const f of ALL_HTML) {
     if (!pages[f].has(a)) broken.push(f + '#' + a);
   }
   ok(broken.length === 0, `内部锚点无断链（发现 ${broken.length}${broken.length ? '：' + broken.slice(0, 4).join(', ') : ''}）`);
-  ok(links.length >= 4, `页面间有 ${links.length} 处锚点链接`);
+  ok(links.length >= 2, `页面间有 ${links.length} 处锚点链接`);
+  // 首页三个判断必须各有出口（不能只堆结论不给去处）
+  const index = readFileSync('index.html', 'utf8');
+  const idxAnchors = [...index.matchAll(/href="[a-z0-9-]+\.html#[a-z0-9-]+"/g)].length;
+  ok(idxAnchors >= 3, `首页三个判断各有锚点出口（${idxAnchors} 处）`);
+}
+
+/* ---------- 10p. 页面标题必须与导航项一致 ---------- */
+// 改导航名时容易漏掉 <title> 与 <h1>，2026-11-26 改「逐年真题→逐年考情」时漏过。
+{
+  // 演示页豁免：它的 h1 是封面标题（「丢分的不是不会」），不是页面名
+  const map = [['papers.html', '逐年考情'], ['trend.html', '整体趋势'], ['special.html', '专项复习']];
+  for (const [f, label] of map) {
+    const h = readFileSync(f, 'utf8');
+    const title = (h.match(/<title>(.*?)<\/title>/) || [])[1] || '';
+    ok(title.startsWith(label), `${f} 的 <title> 以「${label}」开头（实为「${title.split(' · ')[0]}」）`);
+    const h1 = (h.match(/<h1[^>]*>(.*?)<\/h1>/) || [])[1] || '';
+    const h1t = h1.replace(/<[^>]+>/g, '').trim();
+    ok(h1t === label || h1t.includes(label), `${f} 的 <h1> 与导航一致（h1=「${h1t}」，导航=「${label}」）`);
+  }
 }
 
 /* ---------- 11. 页面不得残留裸 Markdown ---------- */

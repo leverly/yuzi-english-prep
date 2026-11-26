@@ -567,8 +567,8 @@ footer b{color:var(--text-2)}
 /* ============================ 公共片段 ============================ */
 const NAV = [
   ['index.html', '总览'],
-  ['papers.html', '逐年真题'],
-  ['trend.html', '趋势与考点'],
+  ['papers.html', '逐年考情'],
+  ['trend.html', '整体趋势'],
   ['special.html', '专项复习'],
   ['slides.html', '演示', 'nav-slides'],
 ];
@@ -709,12 +709,12 @@ function buildHome() {
       <div class="mission-list">
         <a class="mission-item" href="papers.html">
           <span class="mi-ico blue">📄</span>
-          <span class="mi-main"><b>逐年真题</b><small>${N_PAPERS} 套卷逐题台账</small></span>
+          <span class="mi-main"><b>逐年考情</b><small>${N_PAPERS} 套卷逐题台账</small></span>
           <span class="mi-go">查看 →</span>
         </a>
         <a class="mission-item" href="trend.html">
           <span class="mi-ico purple">📈</span>
-          <span class="mi-main"><b>趋势与考点</b><small>${FAM_RANKED.length} 个考点族权重</small></span>
+          <span class="mi-main"><b>整体趋势</b><small>结构 / 作答方式 / 能力 / 难度</small></span>
           <span class="mi-go">查看 →</span>
         </a>
         <a class="mission-item" href="special.html">
@@ -727,7 +727,7 @@ function buildHome() {
   </div>
 </section>
 
-${section('核心判断', '三个判断，决定复习顺序', '每条都能追到下面这张分值表', `
+${section('核心判断', '三个判断，决定复习顺序', '每条都是四年聚合结论，细节在下面两页', `
 <div class="sell-rows">
   <div class="sell-row">
     <div class="sell-pain">
@@ -752,7 +752,7 @@ ${section('核心判断', '三个判断，决定复习顺序', '每条都能追�
       <span class="sell-tag">证据</span>
       <p>${WRITE_SEG_LIST.map((s) => `${s.name} ${fmt(s.score)}`).join(' + ')} = <b>${fmt(WRITE_AVG)} 分</b>。</p>
       <p>这 ${fmt(WRITE_AVG)} 分丢的不是「不会」，是<b>三单忘加 s、过去时写原形、简答照抄原句人称没换、音标认识但拼错</b>。补救动作与多刷题无关。</p>
-      <a class="sell-link" href="special.html">看输出端怎么练 →</a>
+      <a class="sell-link" href="trend.html#mode">看输出型怎么切 →</a>
     </div>
   </div>
   <div class="sell-row">
@@ -768,112 +768,6 @@ ${section('核心判断', '三个判断，决定复习顺序', '每条都能追�
       <a class="sell-link" href="trend.html#diff">看难度分布 →</a>
     </div>
   </div>
-</div>
-`)}
-
-${section('分值分区', `${MAIN_TOTAL} 分不是均匀分布的`, `按「要不要写出文字」切开，这是全站最重要的一刀`, `
-<div class="tier-grid">
-  <a class="tier-card t-blue" href="trend.html#mode">
-    <div class="tier-n">${fmt(SELECT_AVG)}<small>分</small></div>
-    <div class="tier-l">选择型 · ${SELECT_PCT}%</div>
-    <div class="tier-d">${SELECT_SEG_LIST.map((s) => s.name).join('、')}</div>
-    <div class="tier-goal">只涂卡，认得出就得分</div>
-  </a>
-  <a class="tier-card t-rose" href="trend.html#mode">
-    <div class="tier-n">${fmt(WRITE_AVG)}<small>分</small></div>
-    <div class="tier-l">输出型 · ${WRITE_PCT}%</div>
-    <div class="tier-d">${WRITE_SEG_LIST.map((s) => s.name).join('、')}</div>
-    <div class="tier-goal">要写对形式，这里才是提分空间</div>
-  </a>
-  <a class="tier-card t-gold" href="trend.html#bonus">
-    <div class="tier-n">${BONUS_TOTAL}<small>分</small></div>
-    <div class="tier-l">选做 · 阅读题</div>
-    <div class="tier-d">全四套都是阅读简答 / 阅读选择</div>
-    <div class="tier-goal">且分值比必做简答高一倍多</div>
-  </a>
-</div>
-
-<div class="note info" style="margin-top:16px">
-  <b>为什么这条比「哪些知识点常考」更重要：</b>${SPAN_CN}个学年里，${FAM_N} 个考点族有 <b>${ALWAYS_N} 个 ${N_PAPERS}/${N_PAPERS} 年都考</b>，
-  另有 ${OFTEN_N} 个 ${FREQ_RULE.often}/${N_PAPERS} 年、${RARE_N} 个更少。但「都考」不等于「都值钱」——
-  ${ALWAYS_N} 个族的年均分从 ${fmt(FAM_RANKED[0].avgPerYear)} 分到 ${fmt(FAM_RANKED[ALWAYS_N-1]?.avgPerYear ?? FAM_RANKED[FAM_RANKED.length-1].avgPerYear)} 分不等。
-  <b>所以主排序用分值权重，命中次数只作事实列。</b>
-</div>
-`)}
-
-${section('选做', '选做不是optional，是必做', `四套卷的「选做 ${BONUS_TOTAL} 分」全部计入总分——且 100% 是阅读题`, `
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>年份</th><th>选做构成</th><th class="num">分值</th><th>可以放弃吗</th></tr></thead>
-<tbody>
-${PAPER_STATS.map((p) => {
-  const qs = LEDGER.filter((q) => q.p === p.id && q.bonus);
-  const comp = [...new Set(qs.map((q) => FAM_NAME[q.fam]))].join(' + ');
-  return `<tr>
-    <td><b>${esc(p.label)}</b></td>
-    <td class="wrap-cell">${esc(comp)}</td>
-    <td class="num cell-hi">${p.bonusTotal}</td>
-    <td style="color:var(--rose);font-weight:650">不能</td>
-  </tr>`;
-}).join('')}
-</tbody>
-</table>
-</div>
-
-<div class="note risk" style="margin-top:16px">
-  <b>为什么「选做」必须当必做练：</b><br>
-  ① <b>计入总分</b>——卷面封顶 ${MAIN_TOTAL} 分，但选做能补必做失分。必做丢 5 分、选做全对，仍能回到 ${MAIN_TOTAL}。<br>
-  ② <b>100% 是阅读题</b>——${N_PAPERS} 套卷的选做全部是阅读简答或阅读选择，没有例外。<br>
-  ③ <b>分值比必做简答还高</b>——前三套的选做是 2 题 10 分（每题 5 分），而必做简答是 4 题 8 分（每题 2 分）。
-  <b>同样一道简答题，选做给的分是必做的 2.5 倍。</b>
-</div>
-
-<div class="grid g3" style="margin-top:16px">
-  <div class="card">
-    <div style="font-size:26px;font-weight:800;color:var(--rose);font-variant-numeric:tabular-nums">${fmt(READ_STATS.totalScore)}<small style="font-size:13px;font-weight:600;color:var(--text-3)"> 分/年</small></div>
-    <div style="font-size:13px;font-weight:650;margin-top:4px">阅读真实总分</div>
-    <div style="font-size:12.4px;color:var(--text-3);margin-top:3px">必做 + 选做，占全卷 ${Math.round(READ_STATS.totalScore)}%</div>
-  </div>
-  <div class="card">
-    <div style="font-size:26px;font-weight:800;color:var(--purple);font-variant-numeric:tabular-nums">${fmt(READ_STATS.bonusScore)}<small style="font-size:13px;font-weight:600;color:var(--text-3)"> 分/年</small></div>
-    <div style="font-size:13px;font-weight:650;margin-top:4px">其中选做</div>
-    <div style="font-size:12.4px;color:var(--text-3);margin-top:3px">等于必做简答 8 分的 ${(READ_STATS.bonusScore / 8).toFixed(1)} 倍</div>
-  </div>
-  <div class="card">
-    <div style="font-size:26px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums">${FAM_RANKED.filter((f) => f.seg.includes('阅读简答')).length}<small style="font-size:13px;font-weight:600;color:var(--text-3)"> 族</small></div>
-    <div style="font-size:13px;font-weight:650;margin-top:4px">简答题型</div>
-    <div style="font-size:12.4px;color:var(--text-3);margin-top:3px">检索 1 族 + 概括开放 1 族</div>
-  </div>
-</div>
-
-<div class="note" style="margin-top:14px">
-  <b>口径说明：</b>本页所有「占卷面 X%」按<b>全卷 ${ALL_TOTAL} 分</b>计算（必做 ${MAIN_TOTAL} + 选做 ${BONUS_TOTAL}），
-  不再只算必做——那样会把阅读简答算成 8 分（实际 ${fmt(READ_STATS.ansScore)} 分）。
-</div>
-`, 'bonus')}
-
-${section('分值权重', `分值最高的 ${TOP_FAM_COUNT} 个考点族`, '按年均分值降序；完整逐族明细见趋势页', `
-<div class="grid g3">
-  ${topFams.slice(0, 3).map((f, i) => {
-    const isWrite = f.qs.length > 0 && f.qs.every((q) => q.mode === 'write');
-    return `<div class="card" style="padding:16px 18px">
-    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
-      <span style="font-family:var(--mono);font-size:11px;color:var(--text-3)">0${i + 1}</span>
-      <b style="font-size:14.5px">${esc(f.name)}</b>
-    </div>
-    <div style="display:flex;align-items:baseline;gap:8px">
-      <span style="font-size:24px;font-weight:780;color:var(--accent);font-variant-numeric:tabular-nums">${fmt(f.avgPerYear)}</span>
-      <span style="font-size:12px;color:var(--text-3)">分 / 年 · 占卷面 ${Math.round((f.avgPerYear / ALL_TOTAL) * 100)}%</span>
-    </div>
-    <div style="margin-top:7px"><span class="tag ${isWrite ? 'write' : 'select'}">${isWrite ? '输出' : '选择'}</span></div>
-  </div>`;
-  }).join('')}
-</div>
-<div class="note" style="margin-top:16px">
-  前 ${TOP_FAM_COUNT} 族合计年均 <b>${fmt(sum(topFams.map((f) => f.avgPerYear)))} 分</b>，
-  占全卷 ${ALL_TOTAL} 分的 <b>${Math.round((sum(topFams.map((f) => f.avgPerYear)) / ALL_TOTAL) * 100)}%</b>。
-  ${FAM_RANKED.length} 族的完整逐年明细与热力图都在
-  <a href="papers.html#fam-heat" style="color:var(--accent);font-weight:650">逐年真题 · 考点族与权重</a>。
 </div>
 `)}
 `;
@@ -985,6 +879,16 @@ ${g.fams.map((f) => `<tr>
 </div>`;
 
   // ⑤ 逐卷明细卡
+  const bonusRows = PAPER_STATS.map((p) => {
+    const bonus = LEDGER.filter((q) => q.p === p.id && q.bonus);
+    return `<tr>
+      <td><b>${p.label}</b></td>
+      <td class="num">${bonus.length}</td>
+      <td class="num">${p.bonusTotal}</td>
+      <td class="wrap-cell" style="font-size:12.6px;color:var(--text-3)">${esc(p.bonusLayout)}</td>
+    </tr>`;
+  }).join('');
+
   const paperCards = PAPER_STATS.map((p) => {
     const qs = LEDGER.filter((q) => q.p === p.id);
     const main = qs.filter((q) => !q.bonus);
@@ -1035,10 +939,11 @@ ${g.fams.map((f) => `<tr>
   <div class="hero-stack">
     <div>
       <div class="hero-badge"><span class="dot-live"></span>${N_PAPERS} 套卷 · ${LEDGER.length} 题逐题台账</div>
-      <h1 style="font-size:clamp(26px,3.2vw,36px)">逐年真题</h1>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">逐年考情</h1>
       <p class="lede">
-        ${N_PAPERS} 套西城期末卷逐题拆解 <b>${LEDGER.length} 道</b>，按 <b>板块 → 考点 → 逐年</b> 三层展开。
-        跨年的能力与难度分布见 <a href="trend.html" style="color:var(--accent);font-weight:600">趋势与考点</a>。
+        <b>逐套卷看考情</b>：每套卷考了什么、各板块多少分、A 篇怎么考、选做是什么形态。
+        ${N_PAPERS} 套卷逐题拆解 <b>${LEDGER.length} 道</b>。
+        四年聚合后的整体趋势见 <a href="trend.html" style="color:var(--accent);font-weight:600">整体考情趋势</a>。
       </p>
     </div>
     <aside class="cockpit">
@@ -1067,10 +972,57 @@ ${famHeat}
 </div>
 `, 'fam-heat')}
 
-${section('③ 逐年', '每套卷的明细', '同一批数据的逐年视图', paperCards)}
+${section('③ 阅读A篇', `A 篇${SPAN_CN}年换了不同考法`, '载体在变，考法也在变', `
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>年份</th><th>题型</th><th>载体（取自答案位置）</th><th class="num">题量</th></tr></thead>
+<tbody>
+${PAPER_STATS.map((p) => {
+  // A 篇 = 该卷阅读选择的前 3 题；题型与载体都从台账派生，不写死
+  const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
+  const fams = [...new Set(aq.map((q) => FAM_NAME[q.fam]))];
+  const carrier = [...new Set(aq.map((q) => (q.evLoc || '').replace(/^A 篇\s*/, '')))].filter(Boolean).join(' / ');
+  return `<tr>
+    <td><b>${esc(p.label)}</b></td>
+    <td class="wrap-cell">${fams.map((f) => esc(f.replace('阅读·', ''))).join('、')}</td>
+    <td class="wrap-cell" style="color:var(--text-2)">${esc(carrier)}</td>
+    <td class="num">${aq.length}</td>
+  </tr>`;
+}).join('')}
+</tbody>
+</table>
+</div>
+<div class="note warn" style="margin-top:14px">
+  <b>A 篇的考法前两年和后两年不一样。</b>前两套（${PAPER_STATS.filter((p) => {
+    const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
+    return aq.length && aq.every((q) => q.fam === 'f-read-detail');
+  }).map((p) => p.label).join('、')}）是「读表格找事实」——归到细节定位；
+  后两套才是「按需求匹配」——归到信息匹配。
+  <br><br>
+  所以「阅读·信息匹配」只有 <b>${FAM_RANKED.find((f) => f.id === 'f-read-match')?.hit || 2}/${N_PAPERS}</b> 年出现。
+  <b>如果按题位归族（A 篇 = 匹配题），它就是 ${N_PAPERS}/${N_PAPERS}</b>——
+  两种口径都说得通，这里按「做题动作」分（找事实 vs 做匹配）。
+</div>
+`, 'readA')}
+
+${section('④ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 分，但题型与小题数在变', `
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>年份</th><th class="num">小题数</th><th class="num">分值</th><th>构成</th></tr></thead>
+<tbody>${bonusRows}</tbody>
+</table>
+</div>
+<div class="note" style="margin-top:14px">
+  <b>选做不是「附加题」，是必须做的 10 分阅读。</b>它计入总分（卷面封顶 ${MAIN_TOTAL}），
+  且 ${N_PAPERS} 套卷里 100% 是阅读题。<b>前三套的选做甚至比必做简答分值高</b>——
+  每题 5 分 vs 每题 2 分。把它当可跳过的部分，等于白丢 10 分。
+</div>
+`, 'bonus')}
+
+${section('⑤ 逐年', '每套卷的明细', '同一批数据的逐年视图', paperCards)}
 `;
 
-  return page('papers.html', `逐年真题 · ${SITE.short}`, `${N_PAPERS} 套西城期末英语卷逐题拆解。`, body);
+  return page('papers.html', `逐年考情 · ${SITE.short}`, `${N_PAPERS} 套西城期末英语卷逐套拆解：板块分值、考点族、A 篇、选做、每套明细。`, body);
 }
 
 /* ============================ 趋势与考点 ============================ */
@@ -1143,25 +1095,15 @@ function buildTrend() {
   }).join('');
 
   // 选做
-  const bonusRows = PAPER_STATS.map((p) => {
-    const bonus = LEDGER.filter((q) => q.p === p.id && q.bonus);
-    return `<tr>
-      <td><b>${p.label}</b></td>
-      <td class="num">${bonus.length}</td>
-      <td class="num">${p.bonusTotal}</td>
-      <td class="wrap-cell" style="font-size:12.6px;color:var(--text-3)">${esc(p.bonusLayout)}</td>
-    </tr>`;
-  }).join('');
-
   const body = `
 <section class="hero" style="padding-bottom:10px">
   <div class="hero-stack">
     <div>
       <div class="hero-badge"><span class="dot-live"></span>跨年对比 · ${N_PAPERS} 套样本</div>
-      <h1 style="font-size:clamp(26px,3.2vw,36px)">趋势与考点</h1>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">整体趋势</h1>
       <p class="lede">
-        ${N_PAPERS} 套卷跨年对比：<b>什么没变</b>（结构、作答方式）、<b>什么在变</b>（能力、难度、A 篇考法、选做构成）。
-        考点族的逐年分值见 <a href="papers.html" style="color:var(--accent);font-weight:600">逐年真题</a>。
+        <b>四年合起来看趋势</b>：结构稳不稳、选择型与输出型各占多少、能力与难度怎么分布。
+        只看某一套卷的具体考法见 <a href="papers.html" style="color:var(--accent);font-weight:600">逐年考情</a>。
       </p>
     </div>
     <aside class="cockpit">
@@ -1207,7 +1149,7 @@ ${section('② 作答方式', '选择型与输出型', `同一份卷子，${SELE
 </div>
 <div class="note" style="margin-top:10px">
   能力、难度、考点族三个维度的<b>逐年明细</b>已合并到
-  <a href="papers.html" style="color:var(--accent);font-weight:650">逐年真题</a>——
+  <a href="papers.html" style="color:var(--accent);font-weight:650">逐年考情</a>——
   同一份数据不在两页重复画。本页只保留「${SPAN_CN}年变了什么」。
 </div>
 `, 'mode')}
@@ -1240,56 +1182,9 @@ ${section('④ 难度', '难度三级分布', `按分值与题量两种口径统
   </div>
 </div>
 `, 'diff')}
-
-${section('⑤ 阅读A篇', `A 篇${SPAN_CN}年换了不同考法`, '载体在变，考法也在变', `
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>年份</th><th>题型</th><th>载体（取自答案位置）</th><th class="num">题量</th></tr></thead>
-<tbody>
-${PAPER_STATS.map((p) => {
-  // A 篇 = 该卷阅读选择的前 3 题；题型与载体都从台账派生，不写死
-  const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
-  const fams = [...new Set(aq.map((q) => FAM_NAME[q.fam]))];
-  const carrier = [...new Set(aq.map((q) => (q.evLoc || '').replace(/^A 篇\s*/, '')))].filter(Boolean).join(' / ');
-  return `<tr>
-    <td><b>${esc(p.label)}</b></td>
-    <td class="wrap-cell">${fams.map((f) => esc(f.replace('阅读·', ''))).join('、')}</td>
-    <td class="wrap-cell" style="color:var(--text-2)">${esc(carrier)}</td>
-    <td class="num">${aq.length}</td>
-  </tr>`;
-}).join('')}
-</tbody>
-</table>
-</div>
-<div class="note warn" style="margin-top:14px">
-  <b>A 篇的考法前两年和后两年不一样。</b>前两套（${PAPER_STATS.filter((p) => {
-    const aq = LEDGER.filter((q) => q.p === p.id && q.seg === '阅读选择' && !q.bonus).slice(0, 3);
-    return aq.length && aq.every((q) => q.fam === 'f-read-detail');
-  }).map((p) => p.label).join('、')}）是「读表格找事实」——归到细节定位；
-  后两套才是「按需求匹配」——归到信息匹配。
-  <br><br>
-  所以「阅读·信息匹配」只有 <b>${FAM_RANKED.find((f) => f.id === 'f-read-match')?.hit || 2}/${N_PAPERS}</b> 年出现。
-  <b>如果按题位归族（A 篇 = 匹配题），它就是 ${N_PAPERS}/${N_PAPERS}</b>——
-  两种口径都说得通，这里按「做题动作」分（找事实 vs 做匹配）。
-</div>
-`, 'readA')}
-
-${section('⑥ 选做', `选做部分${SPAN_CN}年不一致`, '分值恒为 10 分，但题型与小题数在变', `
-<div class="tbl-wrap">
-<table>
-<thead><tr><th>年份</th><th class="num">小题数</th><th class="num">分值</th><th>构成</th></tr></thead>
-<tbody>${bonusRows}</tbody>
-</table>
-</div>
-<div class="note" style="margin-top:14px">
-  <b>选做不是「附加题」，是必须做的 10 分阅读。</b>它计入总分（卷面封顶 ${MAIN_TOTAL}），
-  且 ${N_PAPERS} 套卷里 100% 是阅读题。<b>前三套的选做甚至比必做简答分值高</b>——
-  每题 5 分 vs 每题 2 分。把它当可跳过的部分，等于白丢 10 分。
-</div>
-`, 'bonus')}
 `;
 
-  return page('trend.html', `趋势与考点 · ${SITE.short}`, `${N_PAPERS} 套卷跨年对比：结构、作答方式、能力、难度、A 篇考法、选做构成。`, body);
+  return page('trend.html', `整体趋势 · ${SITE.short}`, `${N_PAPERS} 套卷四年聚合：结构稳定性、选择型与输出型、能力与难度分布。`, body);
 }
 
 
