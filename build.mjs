@@ -543,7 +543,7 @@ const NAV = [
   ['index.html', '考情总览'],
   ['papers.html', '逐年拆解'],
   ['trend.html', '整体解读'],
-  ['plan.html', '备考计划'],
+  ['plan.html', '备考建议'],
   ['practice.html', '备考诊断'],
   ['history.html', '学情数据'],
   ['slides.html', '考情精简版', 'nav-slides'],
@@ -1897,14 +1897,150 @@ function placeholderPage(active, h1, lede, todo) {
 }
 
 function buildPlan() {
-  return placeholderPage('plan.html', '备考计划',
-    '按「先练什么、后练什么」排出顺序。顺序由四套真题的分值分布决定，不凭感觉。',
-    [
-      '<b>三类分法</b>：选择型 55.5 分 / 输出型 44.5 分，两类的练法不同',
-      '<b>优先级排序</b>：按「分值 × 提分确定性」排，不是按难度排',
-      '<b>阶段与停止条件</b>：每阶段带 Go / No-Go，不达标不加内容',
-      '<b>可打印自检清单</b>：按板块检查，不按题号',
-    ]);
+  // 优先级不是按分值排，是按「形式错的空间」排——这是英语和数学最大的不同。
+  // 数学靠「算得对不对」，英语靠「写得规不规范」；后者能在短期靠定向操练补上。
+  const PRIO = [
+    {
+      rank: '第一优先', title: '音标拼写', score: SEG_SCORE['音标填词'].avg,
+      why: `${SPELL_STATS.total} 个词、平均 ${SPELL_STATS.avgLen} 字母、最短 ${SPELL_STATS.minLen} 个——全是课本最基础的词。`,
+      do: '按 16 类拼写特征分批听写，先练词数最多的三类。',
+      dont: '不要背整本词表。音标题不考难词，背难词对这道题零收益。',
+      basis: '题型固定、范围明确（课本词表）、不依赖理解能力——4 分里最容易拿满的一项。',
+    },
+    {
+      rank: '第二优先', title: '固定搭配', score: 5,
+      why: `${SENT_ITEMS.length} 句汉译英里，固定搭配出现 ${SENT_GROUPS.find((g) => g.id === 'colloc')?.count || 5} 句，比任何单一语法规则都多。`,
+      do: '把 be good at / be good for / get ready for / wait for / have a break 五个短语练到能直接写出来。',
+      dont: '不要先啃语法体系。汉译英丢分多是「短语写不出来」，不是「规则不知道」。',
+      basis: '背了就能用，不需要推理——全卷性价比最高的投入。',
+    },
+    {
+      rank: '第三优先', title: '时态与主谓一致', score: +(SEG_SCORE['单选'].avg + SEG_SCORE['汉译英'].avg).toFixed(1),
+      why: `两个族都是单选 ${N_PAPERS}/${N_PAPERS} 年考、汉译英里各出现 3 句，是仅有的「双重考核」族。`,
+      do: '一句多改：把 She is waiting for the bus. 改成三单 / 过去 / 否定 / 疑问四种。',
+      dont: '不要只做单选题。单选考「认」，汉译英考「写」，会选不等于会写。',
+      basis: '单选 10 分 + 汉译英 6 分，两处共 16 分，是「双重考核」里分值最高的一对。',
+    },
+    {
+      rank: '第四优先', title: '阅读细节题', score: +(FAM_RANKED.find((f) => f.id === 'f-read-detail')?.avgPerYear || 11.5).toFixed(1),
+      why: `细节定位占阅读选择的 ${READ_STATS.selFams[0].pct}%，是最大的一块，且一半是中档。`,
+      do: '每道细节题在原文划出对应句，划不出来就标「靠猜」。',
+      dont: '不要先练技巧。细节题不需要技巧，需要「回原文找」这个动作。',
+      basis: '这类题的失分几乎全是「凭印象选」，不是「读不懂」。',
+    },
+    {
+      rank: '第五优先', title: 'C 篇与末题', score: +(READ_ANS_TYPES.openScore || 5.8).toFixed(1),
+      why: `C 篇全部是中档（${READ_BY_PASSAGE[2].midPct}%），简答末题年均 ${READ_ANS_TYPES.openPerPaper} 题。`,
+      do: 'C 篇先通读抓结构再做题；末题用两句话模板（概括型 / 开放型）。',
+      dont: '不要用做 A 篇的办法做 C 篇。三篇读法不同，顺序搞反等于白花时间。',
+      basis: '这是全卷最难的部分，目标不是全对，是「不漏大类」。',
+    },
+  ];
+
+  const adviceRows = PRIO.map((p) => `
+<div class="pri ${p.rank === '第一优先' ? '' : p.rank === '第二优先' ? 'p2' : p.rank === '第三优先' ? 'p3' : p.rank === '第四优先' ? 'p4' : 'p5'}">
+  <span class="pri-rank">${esc(p.rank)}</span>
+  <h3>${esc(p.title)}</h3>
+  <div class="meta">${esc(p.basis)}</div>
+  <p style="margin-bottom:8px"><b style="color:var(--text-3);font-size:12px">依据</b><br>${p.why}</p>
+  <p style="margin-bottom:8px"><b style="color:var(--ok);font-size:12px">怎么做</b><br>${p.do}</p>
+  <p><b style="color:var(--rose);font-size:12px">别这么做</b><br>${p.dont}</p>
+</div>`).join('');
+
+  const body = `
+<section class="hero" style="padding-bottom:10px">
+  <div class="hero-stack">
+    <div>
+      <div class="hero-badge"><span class="dot-live"></span>五条建议 · 每条都有真题依据</div>
+      <h1 style="font-size:clamp(26px,3.2vw,36px)">备考建议</h1>
+      <p class="lede">
+        英语的复习顺序<b>不按分值排，按「形式错的空间」排</b>。
+        数学丢分是「算错」，英语丢分是「写错」——后者能在短期靠定向操练补上，所以先练它。
+      </p>
+    </div>
+  </div>
+</section>
+
+${section('排序', '为什么这样排', '不是按分值高低，是按「能不能靠操练补上」', `
+<div class="note info">
+  <b>全卷 ${ALL_TOTAL} 分，输出型占 ${fmt(WRITE_AVG)} 分。</b>
+  这 ${fmt(WRITE_AVG)} 分丢的不是「不会」，是三单忘加 s、过去时写原形、简答照抄原句、音标认识但拼错。
+  <b>这类错有一个共同点：知道规则也不保证写对，必须靠定向操练固化。</b>
+  所以建议的顺序是「先练能练稳的」，不是「先练分多的」。
+</div>
+<div class="tbl-wrap" style="margin-top:16px">
+<table>
+<thead><tr><th>顺序</th><th>练什么</th><th class="num">守住分值</th><th>为什么排这个位置（不是按分值排）</th></tr></thead>
+<tbody>
+${PRIO.map((p, i) => `<tr>
+  <td class="num cell-hi">${i + 1}</td>
+  <td><b>${esc(p.title)}</b></td>
+  <td class="num">${fmt(p.score)}</td>
+  <td class="wrap-cell" style="color:var(--text-2);font-size:12.6px">${esc(p.basis)}</td>
+</tr>`).join('')}
+</tbody>
+</table>
+</div>
+`)}
+
+${section('五条建议', '一条一条看', '每条都写了「依据 / 怎么做 / 别这么做」', `
+<div class="grid g2" style="gap:14px">${adviceRows}</div>
+`)}
+
+${section('三条反直觉的', '这几条最容易做反', '每条都能追到真题事实', `
+<div class="grid g3" style="gap:14px">
+  <div class="card">
+    <h3 style="margin-bottom:10px">别背整本词表</h3>
+    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
+      音标 ${SPELL_STATS.total} 个词平均 ${SPELL_STATS.avgLen} 字母，最短 ${SPELL_STATS.minLen} 个（cut / map / big）。
+      背难词对这道题<b>零收益</b>。要练的是「听到读音能拼对」，不是「认识更多词」。
+    </p>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">别在 A 篇上读全文</h3>
+    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
+      A 篇中档及以上只有 <b>${READ_BY_PASSAGE[0].midPct}%</b>，几乎全是基础题。
+      通读它在浪费时间；<b>带着题干回原文定位</b>就够。
+      把省下的时间给 C 篇（中档 ${READ_BY_PASSAGE[2].midPct}%）。
+    </p>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">别用「背了多少词」衡量进度</h3>
+    <p style="font-size:13.2px;color:var(--text-2);line-height:1.75">
+      输出端练的是「写得对」不是「认得」。衡量指标应该是
+      <b>「同一个短语第二次能不能直接写出来」</b>，不是词表过了几遍。
+    </p>
+  </div>
+</div>
+`)}
+
+${section('自检', '考前按板块过一遍', '按板块检查，不按题号', `
+<div class="tbl-wrap">
+<table>
+<thead><tr><th>板块</th><th class="num">分值</th><th>交卷前检查什么</th></tr></thead>
+<tbody>
+<tr><td><b>音标填词</b></td><td class="num">4</td><td class="wrap-cell">空前有 a / an 还是复数？拼写里的双写字母查了吗？</td></tr>
+<tr><td><b>听力填词</b></td><td class="num">8</td><td class="wrap-cell">听到的词写下来后，单复数、时态、首字母大写都检查了？</td></tr>
+<tr><td><b>单项填空</b></td><td class="num">10</td><td class="wrap-cell">主语是单数还是复数？时间状语对应哪个时态？</td></tr>
+<tr><td><b>阅读选择</b></td><td class="num">24.5</td><td class="wrap-cell">每道细节题在原文划出证据句了吗？划不出的是不是靠猜？</td></tr>
+<tr><td><b>阅读简答</b></td><td class="num">15.5</td><td class="wrap-cell">问什么答什么？人称换过来了？有没有照抄整句？</td></tr>
+<tr><td><b>汉译英</b></td><td class="num">6</td><td class="wrap-cell">提示词句型用对了吗？主谓一致查了吗？句末有句号吗？</td></tr>
+<tr><td><b>文段表达</b></td><td class="num">10</td><td class="wrap-cell">提示问题逐条回应了吗？动词形式、名词单复数、字数够 40 吗？</td></tr>
+</tbody>
+</table>
+</div>
+<div class="note warn" style="margin-top:14px">
+  <b>按板块检查，不按题号。</b>2024-25 的单选从第 1 题重新编号，
+  背「第 13 题考代词」会在换卷时失手。
+</div>
+<div class="note" style="margin-top:10px">
+  清单里的板块合计 <b>78 分</b>；其余 22 分是听力·选择（12）与完形（10）——
+  这两块全是选择题，<b>没有「交卷前检查」的动作</b>，只能靠做题时一次选对。
+</div>
+`)}
+`;
+  return page('plan.html', `备考建议 · ${SITE.short}`,
+    `五条备考建议：按「形式错的空间」排序，每条都有四套真题的依据。`, body);
 }
 
 function buildPractice() {

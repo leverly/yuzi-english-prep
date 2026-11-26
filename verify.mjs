@@ -306,7 +306,7 @@ for (const f of ALL_HTML) {
 /* ---------- 10g. 导航标签必须全站一致 ---------- */
 {
   // 标签只在一处定义（NAV），六页都应由它生成。改名时若漏改任何一处，这里会拦下。
-  const NAV_LABELS = ['考情总览', '逐年拆解', '整体解读', '备考计划', '备考诊断', '学情数据', '考情精简版'];
+  const NAV_LABELS = ['考情总览', '逐年拆解', '整体解读', '备考建议', '备考诊断', '学情数据', '考情精简版'];
   for (const f of ALL_HTML) {
     const html = readFileSync(f, 'utf8');
     const missing = NAV_LABELS.filter((l) => !html.includes(`>${l}</a>`));
@@ -329,7 +329,27 @@ for (const f of ALL_HTML) {
 {
   const html = readFileSync('plan.html', 'utf8');
   ok(html.length > 5000, `plan.html 有实际内容（${Math.round(html.length / 1024)} KB）`);
-  ok(html.includes('备考计划'), 'plan.html 标题为「备考计划」');
+  ok(html.includes('备考建议'), 'plan.html 标题为「备考建议」');
+  // 五条建议 + 三反直觉 + 自检清单，缺一件就是半成品
+  ok((html.match(/class="pri-rank"/g) || []).length === 5, `五条建议都在（${(html.match(/class="pri-rank"/g) || []).length} 条）`);
+  for (const seg of ['音标填词', '听力填词', '单项填空', '阅读选择', '阅读简答', '汉译英', '文段表达']) {
+    ok(html.includes(seg), `自检清单含「${seg}」`);
+  }
+  ok(html.includes('别背整本词表') && html.includes('别在 A 篇上读全文'), '含反直觉建议');
+  // 排序理由必须明写「不按分值」
+  ok(html.includes('不是按分值'), '页面说明排序不按分值');
+
+  // 五条的分值必须能追溯到板块：音标 4 / 固定搭配 5 / 时态+汉译英 16 / 细节 11.5 / 概括开放 5.8
+  const scoreOf = (title) => {
+    const seg = html.split(title)[1] || '';
+    const m = seg.match(/<td class="num">([\d.]+)<\/td>/);
+    return m ? +m[1] : null;
+  };
+  ok(scoreOf('音标拼写') === SEG_SCORE['音标填词'].avg, `音标拼写分值 = ${SEG_SCORE['音标填词'].avg}`);
+  ok(scoreOf('时态与主谓一致') === +(SEG_SCORE['单选'].avg + SEG_SCORE['汉译英'].avg).toFixed(1),
+    `时态与主谓一致分值 = 单选 ${SEG_SCORE['单选'].avg} + 汉译英 ${SEG_SCORE['汉译英'].avg}`);
+  ok(scoreOf('阅读细节题') === +(FAM_MAP.find((f) => f.id === 'f-read-detail')?.avgPerYear || 0).toFixed(1),
+    `阅读细节题分值 = ${FAM_MAP.find((f) => f.id === 'f-read-detail')?.avgPerYear}`);
   ok(!html.includes('冲刺计划'), 'plan.html 不叫「冲刺计划」（旧形态）');
   for (const f of ALL_HTML) {
     ok(!readFileSync(f, 'utf8').includes('冲刺计划'), `${f} 无「冲刺计划」字样`);
@@ -749,7 +769,7 @@ for (const f of ALL_HTML) {
   const idx = readFileSync('index.html', 'utf8');
 
   // 七项导航必须齐全且顺序正确
-  const NAV_ORDER = ['考情总览', '逐年拆解', '整体解读', '备考计划', '备考诊断', '学情数据', '考情精简版'];
+  const NAV_ORDER = ['考情总览', '逐年拆解', '整体解读', '备考建议', '备考诊断', '学情数据', '考情精简版'];
   const navBlock = (idx.match(/<nav class="hdr-nav">([\s\S]*?)<\/nav>/) || [])[1] || '';
   const labels = [...navBlock.matchAll(/>([^<>]{2,8})<\/a>/g)].map((m) => m[1]);
   ok(JSON.stringify(labels) === JSON.stringify(NAV_ORDER), `导航 7 项且顺序正确：${labels.join(' / ')}`);
