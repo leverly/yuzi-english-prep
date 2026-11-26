@@ -17,7 +17,7 @@ import {
   PROP_STABILITY, PROP_LEVEL_NAME, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_ACTIONS, SENT_GROUPS, GRAMMAR_DOUBLE,
-  WRITE_ITEMS, WRITE_STATS, WRITE_Q_RANGE, READ_ITEMS, READ_STATS, READ_ANS_TYPES,
+  WRITE_ITEMS, WRITE_STATS, WRITE_Q_RANGE, READ_ITEMS, READ_STATS, READ_ANS_TYPES, READ_BY_PASSAGE,
 } from './work/papers/stats.mjs';
 import { LEDGER, CAT_NOTE, FAM_DEFS } from './work/papers/ledger.mjs';
 
@@ -1637,6 +1637,31 @@ ${section('解题与备考', '解题动作：先定句型，再套词，最后�
 
 /* ---------- ③ 阅读 ---------- */
 function buildSpecialRead() {
+  // 三篇的备考卡：颜色与结论都由 READ_BY_PASSAGE 派生
+  const PASSAGE_META = {
+    A: { color: 'ok', line: 'var(--ok)', goal: '必须全对', how: '扫读定位——带着题干回原文找', read: 'A 篇几乎全是基础题，不需要通读。逐个题干定位即可。' },
+    B: { color: 'mid', line: 'var(--accent)', goal: '错 1 题以内', how: '顺序读——记叙文靠情节推进', read: 'B 篇一半以上是中档，先理清人物与事件顺序，再做题。' },
+    C: { color: 'hard', line: 'var(--rose)', goal: '允许错 1 题', how: '先通读再做题——说明文不给结构就做不了题', read: 'C 篇全部中档，必须通读抓结构；跳读会全线失分。' },
+  };
+  const passageCards = READ_BY_PASSAGE.map((g) => {
+    const m = PASSAGE_META[g.key];
+    const tags = g.famList.map((f) => `<span class="tag cat" style="margin-right:4px">${esc(f.name)} ${f.pct}%</span>`).join('');
+    return `<div class="card" style="border-left:3px solid ${m.line}">
+    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+      <h3 style="margin:0;font-size:17px">${esc(g.title)}</h3>
+      <span style="font-size:12px;color:var(--text-3);margin-left:auto">每年 ${g.perPaper} 题</span>
+    </div>
+    <div style="font-size:12.6px;color:var(--text-2);line-height:1.8;margin-bottom:9px">${tags}</div>
+    <div style="font-size:12.8px;color:var(--text-2);line-height:1.75;padding:9px 11px;background:var(--surface-2);border-radius:8px">
+      <b style="color:var(--text)">中档及以上 ${g.midPct}%</b><br>${m.read}
+    </div>
+    <div style="margin-top:9px;font-size:12.7px;color:var(--text-2);line-height:1.65">
+      <b style="color:${m.line}">${esc(m.goal)}</b> · ${esc(m.how)}
+    </div>
+  </div>`;
+  }).join('');
+
+
   const part = SPECIAL_PARTS[2];
   const selTotal = READ_STATS.selFams.reduce((a, f) => a + f.count, 0);
   const body = `
@@ -1691,47 +1716,17 @@ ${section('题型分布', `阅读选择 ${selTotal} 题怎么分`, '四年合计
 
 
 
-${section('拿真题练手', `${N_PAPERS} 套卷的阅读题，按题型分组`, '每道题只给题干，答案回原文找——找不到就是没读懂', `
-<div class="grid g2">
-${READ_STATS.selFams.map((f) => {
-  const items = READ_ITEMS.filter((q) => q.fam === f.id && q.stemText).slice(0, 4);
-  return `<div class="card">
-    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">
-      <h3 style="margin:0;font-size:14.5px">${esc(f.name.replace('阅读·', ''))}</h3>
-      <span style="font-size:12px;color:var(--text-3);margin-left:auto">${f.pct}% · 每年 ${f.perPaper} 题</span>
-    </div>
-    <ol style="margin:0;padding-left:18px;font-size:12.8px;color:var(--text-2);line-height:1.85">
-      ${items.map((q) => `<li>${esc(q.stemText)}<span style="color:var(--text-3);font-size:11.5px">（${esc(q.evLoc || '')}）</span></li>`).join('')}
-    </ol>
-  </div>`;
-}).join('')}
+${section('按篇章备考', `A / B / C 三篇难度递增`, '每篇考什么、怎么读，都由四套卷的实际分布决定', `
+<div class="grid g3" style="gap:14px">
+${passageCards}
 </div>
-<div class="note" style="margin-top:14px">
-  <b>怎么用：</b>每题括号里标了答案在原文哪个位置，<b>不许先看</b>。自己回原文找一句能推出答案的话，
-  写下来，再对照参考答案。<b>写不出来，就是这题靠猜。</b>
+<div class="note info" style="margin-top:16px">
+  <b>三篇的读法完全不同，不能用同一套流程：</b>
+  A 篇<b>扫读定位</b>（带着题干回原文找），B 篇<b>顺序读</b>（记叙文靠情节推进），
+  C 篇<b>先通读再做题</b>（说明文不给结构就做不了题）。
+  <b>把顺序搞反，等于在 C 篇上浪费了 A 篇的时间。</b>
 </div>
-`, 'r-drill')}
-
-${section('简答练手', `${READ_ITEMS.filter((q) => q.seg === '阅读简答' && q.stemText).length} 道简答：写出你的答案再看参考`, '简答题没有选项，只能自己写——这里给题干 + 参考答案', `
-<div class="note warn">
-  <b>先自己写，再展开对答案。</b>简答的失分几乎全在形式：<b>问什么答什么、人称换过来、别照抄整句</b>。
-  下面每题都给了参考答案，注意看它的「长度」——很多题两三个词就够。
-</div>
-<div class="grid g2" style="margin-top:12px;gap:12px">
-${READ_ITEMS.filter((q) => q.seg === '阅读简答' && q.stemText).map((q) => `<div class="card" style="padding:14px 16px">
-  <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:7px">
-    <span class="tag write" style="font-size:11px">${esc(FAM_NAME[q.fam].replace('阅读·简答', '简答'))}</span>
-    <span style="font-size:11.8px;color:var(--text-3)">${esc(PAPER_STATS.find((x) => x.id === q.p).label)} · 第 ${q.no} 题</span>
-    <span style="margin-left:auto;font-size:11.8px;color:var(--text-3)">${esc(q.evLoc || '')}</span>
-  </div>
-  <div style="font-size:12.9px;color:var(--text);line-height:1.6">${esc(q.stemText)}</div>
-  <details style="margin-top:7px">
-    <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600">看参考答案</summary>
-    <div style="font-size:12.6px;color:var(--ok);margin-top:5px;padding:7px 10px;background:var(--ok-soft);border-radius:6px;line-height:1.6">${esc(q.refAns || '（原卷未给）')}</div>
-  </details>
-</div>`).join('')}
-</div>
-`, 'r-answer')}
+`, 'r-passage')}
 
 ${section('解题与备考', '按题型给动作，不背「阅读技巧」', '五种题型，五种动作', `
 <div class="tbl-wrap">

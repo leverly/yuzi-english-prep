@@ -7,7 +7,7 @@ import {
   FAM_MAP, FREQ_SUMMARY,
   PROP_STABILITY, PROP_SUMMARY, GRAMMAR_YEARLY,
   SPELL_ITEMS, SPELL_FEATURES, SPELL_STATS, SPELL_SEGMENTS, SPELL_TOTAL,
-  WRITE_ITEMS, WRITE_STATS, WRITE_Q_COUNTS, WRITE_Q_RANGE, READ_STATS, READ_ANS_TYPES, READ_ITEMS,
+  WRITE_ITEMS, WRITE_STATS, WRITE_Q_COUNTS, WRITE_Q_RANGE, READ_STATS, READ_ANS_TYPES, READ_ITEMS, READ_BY_PASSAGE,
   GRAMMAR_FAMS, SENT_ITEMS, SENT_GROUPS, GRAMMAR_DOUBLE,
 } from './work/papers/stats.mjs';
 import { LEDGER, SEG_ORDER, CAT_ORDER, DIFF_ORDER } from './work/papers/ledger.mjs';
@@ -551,8 +551,9 @@ for (const f of ALL_HTML) {
   const read = readFileSync('special-read.html', 'utf8');
   // 不得出现「证据」类元叙述
   ok(!read.includes('真题证据句') && !read.includes('全部证据句'), '阅读页不含「证据句」类过程产物');
-  // 练手节必须用真实题干
-  ok(read.includes('拿真题练手'), '阅读页有「拿真题练手」节');
+  // 2026-11-26 用户要求：阅读页不要练手，只留题型与篇章建议
+  ok(!read.includes('拿真题练手'), '阅读页不含「拿真题练手」');
+  ok(!read.includes('简答练手'), '阅读页不含「简答练手」');
   const withStem = READ_ITEMS.filter((q) => q.stemText);
   ok(withStem.length === READ_ITEMS.length,
     `全部 ${READ_ITEMS.length} 道阅读题都有真实题干（${withStem.length}）`);
@@ -589,17 +590,32 @@ for (const f of ALL_HTML) {
   ok(LEDGER.filter((q) => q.refAns).length > 0, `refAns 仍在用`);
 }
 
-/* ---------- 10m. 简答练手：题干 + 参考答案必须成对 ---------- */
+/* ---------- 10m. 阅读页：按篇章给建议，不做练习 ---------- */
+// 2026-11-26 用户要求：去掉两个练手节，保留「不同题型」与「不同 ABCD 篇章」的备考建议。
+// 篇章建议必须由 REAT_BY_PASSAGE 派生（每篇的题型占比与难度来自四套卷实际分布）。
 {
   const html = readFileSync('special-read.html', 'utf8');
-  const ansItems = LEDGER.filter((q) => q.seg === '阅读简答' && q.refAns);
-  ok(ansItems.length >= 20, `简答题有参考答案 ${ansItems.length} 道（≥20）`);
-  ok(html.includes('简答练手'), '阅读页有「简答练手」节');
-  ok((html.match(/看参考答案/g) || []).length === ansItems.length,
-    `「看参考答案」折叠项数 = 简答有答案数（${ansItems.length}）`);
-  // 每道简答的题干与答案都要在页面上（抽查前 8 条）
-  for (const q of ansItems.filter((x) => x.stemText).slice(0, 8)) {
-    ok(html.includes(q.stemText.slice(0, 25)), `简答题干「${q.stemText.slice(0, 20)}…」上页`);
+
+  ok(html.includes('按篇章备考'), '阅读页有「按篇章备考」节');
+  ok(html.includes('按题型给动作'), '阅读页保留「按题型给动作」节');
+
+  // 三篇都要展示，且各自的题型占比与中档比例要与派生值一致
+  for (const g of READ_BY_PASSAGE) {
+    ok(html.includes(g.title), `阅读页含「${g.title}」`);
+    ok(html.includes(`中档及以上 ${g.midPct}%`), `${g.title} 的中档比例 ${g.midPct}% 已上页`);
+    for (const f of g.famList) {
+      ok(html.includes(`${f.name} ${f.pct}%`), `${g.title} 的「${f.name} ${f.pct}%」已上页`);
+    }
+  }
+
+  // 篇章特征自洽：A 篇最易、C 篇最难（中档比例递增）
+  const [A, B, C] = READ_BY_PASSAGE;
+  ok(A.midPct <= B.midPct && B.midPct <= C.midPct,
+    `三篇中档比例递增 A ${A.midPct}% ≤ B ${B.midPct}% ≤ C ${C.midPct}%`);
+
+  // 不得残留练习/作答交互
+  for (const kw of ['看参考答案', 'quiz', '<details']) {
+    ok(!html.includes(kw), `阅读页不含练习交互「${kw}」`);
   }
 }
 

@@ -602,3 +602,38 @@ export const READ_ANS_TYPES = (() => {
   };
 })();
 
+
+/* ============================ 阅读按篇章 ============================ */
+// 每卷 11 道阅读选择：前 3 = A 篇，中 4 = B 篇，后 4 = C 篇（四套卷题号不同但结构一致）
+export const READ_BY_PASSAGE = (() => {
+  const sel = LEDGER.filter((q) => q.seg === '阅读选择' && !q.bonus);
+  const G = { A: [], B: [], C: [] };
+  for (const p of PAPER_STATS) {
+    const qs = sel.filter((q) => q.p === p.id);
+    qs.slice(0, 3).forEach((q) => G.A.push(q));
+    qs.slice(3, 7).forEach((q) => G.B.push(q));
+    qs.slice(7).forEach((q) => G.C.push(q));
+  }
+  return Object.entries(G).map(([k, qs]) => {
+    const fam = {}, diff = { easy: 0, mid: 0, hard: 0 };
+    for (const q of qs) {
+      const name = FAM_NAME[q.fam].replace('阅读·', '');
+      fam[name] = (fam[name] || 0) + 1;
+      diff[q.diff] += 1;
+    }
+    const famList = Object.entries(fam)
+      .map(([name, n]) => ({ name, n, pct: Math.round((n / qs.length) * 100) }))
+      .sort((a, b) => b.n - a.n);
+    return {
+      key: k,
+      title: `${k} 篇`,
+      count: qs.length,
+      perPaper: +(qs.length / N_PAPERS).toFixed(1),
+      famList,
+      diff,
+      midPct: Math.round((diff.mid / qs.length) * 100),
+      // 主题型 = 占比最高的那类
+      mainFam: famList[0]?.name || '',
+    };
+  });
+})();
